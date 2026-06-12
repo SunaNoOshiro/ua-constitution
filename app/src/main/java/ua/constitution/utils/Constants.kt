@@ -1,4 +1,4 @@
-package com.example.utils
+package ua.constitution.utils
 
 object Constants {
     // Database configuration

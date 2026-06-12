@@ -1,8 +1,8 @@
-package com.example
+package ua.constitution
 
 import android.content.Intent
-import com.example.utils.Constants
-import com.example.utils.LogMessages
+import ua.constitution.utils.Constants
+import ua.constitution.utils.LogMessages
 import android.net.Uri
 import android.os.Bundle
 import android.content.Context
@@ -90,18 +90,18 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.data.model.Paragraph
-import com.example.data.model.Note
-import com.example.data.model.Link
+import ua.constitution.data.model.Paragraph
+import ua.constitution.data.model.Note
+import ua.constitution.data.model.Link
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.data.database.ConstitutionDatabase
-import com.example.data.model.Article
-import com.example.data.model.Chapter
-import com.example.data.model.ConstitutionData
-import com.example.data.repository.ConstitutionRepository
-import com.example.ui.theme.MyApplicationTheme
-import com.example.ui.viewmodel.ConstitutionViewModel
+import ua.constitution.data.database.ConstitutionDatabase
+import ua.constitution.data.model.Article
+import ua.constitution.data.model.Chapter
+import ua.constitution.data.model.ConstitutionData
+import ua.constitution.data.repository.ConstitutionRepository
+import ua.constitution.ui.theme.MyApplicationTheme
+import ua.constitution.ui.viewmodel.ConstitutionViewModel
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.graphics.graphicsLayer
@@ -1737,11 +1737,11 @@ fun ArticleCard(
             }
 
             val combinedSegments = remember(article.paragraphs) {
-                val result = mutableListOf<com.example.data.model.ContentSegment>()
+                val result = mutableListOf<ua.constitution.data.model.ContentSegment>()
                 article.paragraphs.forEachIndexed { index, paragraph ->
                     result.addAll(paragraph.content)
                     if (index < article.paragraphs.lastIndex) {
-                        result.add(com.example.data.model.ContentSegment(type = "text", value = "\n\n"))
+                        result.add(ua.constitution.data.model.ContentSegment(type = "text", value = "\n\n"))
                     }
                 }
                 result
@@ -2346,7 +2346,7 @@ fun AutoScaleText(
 @Composable
 fun HomeTabContent(
     viewModel: ConstitutionViewModel,
-    bookmarksList: List<com.example.data.database.BookmarkEntity>,
+    bookmarksList: List<ua.constitution.data.database.BookmarkEntity>,
     onNavigateToArticle: (Article, Article?) -> Unit,
     onOpenFullscreenSymbol: (FullscreenSymbol) -> Unit
 ) {
@@ -2359,7 +2359,7 @@ fun HomeTabContent(
         if (ConstitutionData.articles.isNotEmpty()) {
             ConstitutionData.articles[dayOfYear % ConstitutionData.articles.size]
         } else {
-            Article(1, 1, "${context.getString(R.string.article_label)} 1", listOf(Paragraph(listOf(com.example.data.model.ContentSegment("text", value = context.getString(R.string.article_1_fallback_content))), emptyList())))
+            Article(1, 1, "${context.getString(R.string.article_label)} 1", listOf(Paragraph(listOf(ua.constitution.data.model.ContentSegment("text", value = context.getString(R.string.article_1_fallback_content))), emptyList())))
         }
     }
     val isTodayBookmarked = bookmarksList.any { it.articleId == todayArticle.bookmarkId }
@@ -2946,7 +2946,7 @@ fun mergeAdjacentStyledRanges(text: String, ranges: List<StyledRange>): List<Sty
 
 @Composable
 fun SegmentedTextWithEdits(
-    segments: List<com.example.data.model.ContentSegment>,
+    segments: List<ua.constitution.data.model.ContentSegment>,
     ranges: List<StyledRange>,
     modifier: Modifier = Modifier,
     style: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyMedium,
@@ -2968,8 +2968,8 @@ fun SegmentedTextWithEdits(
     var textLayoutResult by remember { mutableStateOf<androidx.compose.ui.text.TextLayoutResult?>(null) }
     
     val mergedSegments = remember(segments) {
-        val result = mutableListOf<com.example.data.model.ContentSegment>()
-        var currentLink: com.example.data.model.ContentSegment? = null
+        val result = mutableListOf<ua.constitution.data.model.ContentSegment>()
+        var currentLink: ua.constitution.data.model.ContentSegment? = null
         for (segment in segments) {
             if (segment.type == "link") {
                 if (currentLink != null && currentLink.url == segment.url) {
@@ -5366,7 +5366,7 @@ fun findArticleByLink(text: String): Article? {
 
 @Composable
 fun SegmentedText(
-    segments: List<com.example.data.model.ContentSegment>,
+    segments: List<ua.constitution.data.model.ContentSegment>,
     modifier: Modifier = Modifier,
     style: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyMedium,
     color: Color = Color(0xFF0F172A),
@@ -5379,8 +5379,8 @@ fun SegmentedText(
     
     // Merge adjacent link segments that share the same URL to prevent split link issues (e.g., 149-1)
     val mergedSegments = remember(segments) {
-        val result = mutableListOf<com.example.data.model.ContentSegment>()
-        var currentLink: com.example.data.model.ContentSegment? = null
+        val result = mutableListOf<ua.constitution.data.model.ContentSegment>()
+        var currentLink: ua.constitution.data.model.ContentSegment? = null
         for (segment in segments) {
             if (segment.type == "link") {
                 if (currentLink != null && currentLink.url == segment.url) {

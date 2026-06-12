@@ -1,4 +1,4 @@
-package com.example
+package ua.constitution
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
@@ -157,17 +157,17 @@ class ExampleUnitTest {
   @Test
   fun testConstitutionInitialization() {
     val context = ApplicationProvider.getApplicationContext<Context>()
-    com.example.data.model.ConstitutionData.initialize(context)
-    println("INITIALIZED ARTICLES COUNT: ${com.example.data.model.ConstitutionData.articles.size}")
-    println("INITIALIZED CHAPTERS COUNT: ${com.example.data.model.ConstitutionData.chapters.size}")
-    com.example.data.model.ConstitutionData.chapters.forEach { chapter ->
-      val belongingArticles = com.example.data.model.ConstitutionData.articles.filter { it.chapterId == chapter.id }
+    ua.constitution.data.model.ConstitutionData.initialize(context)
+    println("INITIALIZED ARTICLES COUNT: ${ua.constitution.data.model.ConstitutionData.articles.size}")
+    println("INITIALIZED CHAPTERS COUNT: ${ua.constitution.data.model.ConstitutionData.chapters.size}")
+    ua.constitution.data.model.ConstitutionData.chapters.forEach { chapter ->
+      val belongingArticles = ua.constitution.data.model.ConstitutionData.articles.filter { it.chapterId == chapter.id }
       println("Chapter ${chapter.id} ('${chapter.titleUa}'): articles count: ${belongingArticles.size}")
     }
-    if (com.example.data.model.ConstitutionData.articles.isEmpty()) {
+    if (ua.constitution.data.model.ConstitutionData.articles.isEmpty()) {
        println("No articles parsed!")
     } else {
-       val firstArticle = com.example.data.model.ConstitutionData.articles.first()
+       val firstArticle = ua.constitution.data.model.ConstitutionData.articles.first()
        println("Parsed first article: ${firstArticle.titleUa}")
        println("Paragraphs count: ${firstArticle.paragraphs.size}")
        firstArticle.paragraphs.forEachIndexed { idx, p ->

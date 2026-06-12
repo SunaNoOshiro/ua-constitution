@@ -1,9 +1,9 @@
-package com.example
+package ua.constitution
 
 import androidx.compose.material3.Text
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
-import com.example.ui.theme.MyApplicationTheme
+import ua.constitution.ui.theme.MyApplicationTheme
 import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
 import com.github.takahirom.roborazzi.captureRoboImage
 import org.junit.Rule
@@ -26,8 +26,8 @@ class GreetingScreenshotTest {
       MyApplicationTheme {
         SegmentedText(
           segments = listOf(
-            com.example.data.model.ContentSegment("text", value = "This is a test text."),
-            com.example.data.model.ContentSegment("link", text = "Google", url = "https://google.com")
+            ua.constitution.data.model.ContentSegment("text", value = "This is a test text."),
+            ua.constitution.data.model.ContentSegment("link", text = "Google", url = "https://google.com")
           )
         )
       }

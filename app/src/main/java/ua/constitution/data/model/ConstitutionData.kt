@@ -1,10 +1,10 @@
-package com.example.data.model
+package ua.constitution.data.model
 
 import android.content.Context
 import org.json.JSONArray
 import android.util.Log
-import com.example.utils.Constants
-import com.example.utils.LogMessages
+import ua.constitution.utils.Constants
+import ua.constitution.utils.LogMessages
 
 data class ContentSegment(
     val type: String,
@@ -72,21 +72,21 @@ object ConstitutionData {
             val ctx = appContext
             return if (ctx != null) {
                 listOf(
-                    Chapter(0, ctx.getString(com.example.R.string.preamble), ctx.getString(com.example.R.string.preamble_info)),
-                    Chapter(1, ctx.getString(com.example.R.string.chapter_1_title)),
-                    Chapter(2, ctx.getString(com.example.R.string.chapter_2_title)),
-                    Chapter(3, ctx.getString(com.example.R.string.chapter_3_title)),
-                    Chapter(4, ctx.getString(com.example.R.string.chapter_4_title)),
-                    Chapter(5, ctx.getString(com.example.R.string.chapter_5_title)),
-                    Chapter(6, ctx.getString(com.example.R.string.chapter_6_title)),
-                    Chapter(8, ctx.getString(com.example.R.string.chapter_8_title)),
-                    Chapter(9, ctx.getString(com.example.R.string.chapter_9_title)),
-                    Chapter(10, ctx.getString(com.example.R.string.chapter_10_title)),
-                    Chapter(11, ctx.getString(com.example.R.string.chapter_11_title)),
-                    Chapter(12, ctx.getString(com.example.R.string.chapter_12_title)),
-                    Chapter(13, ctx.getString(com.example.R.string.chapter_13_title)),
-                    Chapter(14, ctx.getString(com.example.R.string.chapter_14_title)),
-                    Chapter(15, ctx.getString(com.example.R.string.chapter_15_title))
+                    Chapter(0, ctx.getString(ua.constitution.R.string.preamble), ctx.getString(ua.constitution.R.string.preamble_info)),
+                    Chapter(1, ctx.getString(ua.constitution.R.string.chapter_1_title)),
+                    Chapter(2, ctx.getString(ua.constitution.R.string.chapter_2_title)),
+                    Chapter(3, ctx.getString(ua.constitution.R.string.chapter_3_title)),
+                    Chapter(4, ctx.getString(ua.constitution.R.string.chapter_4_title)),
+                    Chapter(5, ctx.getString(ua.constitution.R.string.chapter_5_title)),
+                    Chapter(6, ctx.getString(ua.constitution.R.string.chapter_6_title)),
+                    Chapter(8, ctx.getString(ua.constitution.R.string.chapter_8_title)),
+                    Chapter(9, ctx.getString(ua.constitution.R.string.chapter_9_title)),
+                    Chapter(10, ctx.getString(ua.constitution.R.string.chapter_10_title)),
+                    Chapter(11, ctx.getString(ua.constitution.R.string.chapter_11_title)),
+                    Chapter(12, ctx.getString(ua.constitution.R.string.chapter_12_title)),
+                    Chapter(13, ctx.getString(ua.constitution.R.string.chapter_13_title)),
+                    Chapter(14, ctx.getString(ua.constitution.R.string.chapter_14_title)),
+                    Chapter(15, ctx.getString(ua.constitution.R.string.chapter_15_title))
                 )
             } else {
                 listOf(
@@ -227,7 +227,7 @@ object ConstitutionData {
             // Dynamic Preamble parsing
             if (rootObj.has(Constants.KEY_PREAMBLE)) {
                 val preObj = rootObj.getJSONObject(Constants.KEY_PREAMBLE)
-                val titleUa = preObj.optString(Constants.KEY_TITLE_UA, context.getString(com.example.R.string.preamble))
+                val titleUa = preObj.optString(Constants.KEY_TITLE_UA, context.getString(ua.constitution.R.string.preamble))
                 val paragraphsArr = preObj.optJSONArray(Constants.KEY_PARAGRAPHS)
                 val paragraphs = parseParagraphs(paragraphsArr)
                 val preambleSourceUrl = preObj.optString(Constants.KEY_SOURCE_URL, Constants.PREAMBLE_SOURCE_URL)
@@ -236,7 +236,7 @@ object ConstitutionData {
                     Chapter(
                         id = 0,
                         titleUa = titleUa,
-                        info = context.getString(com.example.R.string.preamble_info),
+                        info = context.getString(ua.constitution.R.string.preamble_info),
                         sourceUrl = preambleSourceUrl
                     )
                 )
@@ -253,8 +253,8 @@ object ConstitutionData {
                 parsedChapters.add(
                     Chapter(
                         id = 0,
-                        titleUa = context.getString(com.example.R.string.preamble),
-                        info = context.getString(com.example.R.string.preamble_info),
+                        titleUa = context.getString(ua.constitution.R.string.preamble),
+                        info = context.getString(ua.constitution.R.string.preamble_info),
                         sourceUrl = Constants.PREAMBLE_SOURCE_URL
                     )
                 )
@@ -262,10 +262,10 @@ object ConstitutionData {
                     Article(
                         id = 0,
                         chapterId = 0,
-                        titleUa = context.getString(com.example.R.string.preamble),
+                        titleUa = context.getString(ua.constitution.R.string.preamble),
                         paragraphs = listOf(
                             Paragraph(
-                                listOf(ContentSegment(Constants.TYPE_TEXT, value = context.getString(com.example.R.string.preamble_fallback_text))),
+                                listOf(ContentSegment(Constants.TYPE_TEXT, value = context.getString(ua.constitution.R.string.preamble_fallback_text))),
                                 emptyList()
                             )
                         ),

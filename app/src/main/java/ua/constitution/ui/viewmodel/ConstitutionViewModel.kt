@@ -1,11 +1,11 @@
-package com.example.ui.viewmodel
+package ua.constitution.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.data.database.BookmarkEntity
-import com.example.data.model.Article
-import com.example.data.model.ConstitutionData
-import com.example.data.repository.ConstitutionRepository
+import ua.constitution.data.database.BookmarkEntity
+import ua.constitution.data.model.Article
+import ua.constitution.data.model.ConstitutionData
+import ua.constitution.data.repository.ConstitutionRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 

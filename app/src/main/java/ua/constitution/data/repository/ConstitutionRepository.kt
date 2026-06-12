@@ -1,7 +1,7 @@
-package com.example.data.repository
+package ua.constitution.data.repository
 
-import com.example.data.database.BookmarkEntity
-import com.example.data.database.ConstitutionDao
+import ua.constitution.data.database.BookmarkEntity
+import ua.constitution.data.database.ConstitutionDao
 import kotlinx.coroutines.flow.Flow
 
 class ConstitutionRepository(private val dao: ConstitutionDao) {

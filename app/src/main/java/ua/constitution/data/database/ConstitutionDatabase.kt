@@ -1,10 +1,10 @@
-package com.example.data.database
+package ua.constitution.data.database
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.utils.Constants
+import ua.constitution.utils.Constants
 
 @Database(
     entities = [

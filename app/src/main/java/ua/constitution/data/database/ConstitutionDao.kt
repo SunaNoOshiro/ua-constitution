@@ -1,8 +1,8 @@
-package com.example.data.database
+package ua.constitution.data.database
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
-import com.example.utils.Constants
+import ua.constitution.utils.Constants
 
 @Dao
 interface ConstitutionDao {

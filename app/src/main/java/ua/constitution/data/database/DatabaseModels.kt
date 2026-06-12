@@ -1,8 +1,8 @@
-package com.example.data.database
+package ua.constitution.data.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.utils.Constants
+import ua.constitution.utils.Constants
 
 @Entity(tableName = Constants.TABLE_BOOKMARKS)
 data class BookmarkEntity(
