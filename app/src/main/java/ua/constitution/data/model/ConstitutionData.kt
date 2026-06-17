@@ -353,6 +353,14 @@ object ConstitutionData {
         }
     }
 
+    fun initializeForTests(articles: List<Article>, chapters: List<Chapter> = emptyList()) {
+        parsedArticles.clear()
+        parsedArticles.addAll(articles)
+        parsedChapters.clear()
+        parsedChapters.addAll(chapters)
+        isInitialized = true
+    }
+
     val articles: List<Article>
         get() = parsedArticles
 
