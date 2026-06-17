@@ -1,6 +1,7 @@
 package ua.constitution
 
 import androidx.compose.ui.graphics.Color
+import ua.constitution.ui.safeParseColor
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

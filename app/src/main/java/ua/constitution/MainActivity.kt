@@ -126,6 +126,15 @@ import ua.constitution.audio.AnthemVersion
 import ua.constitution.audio.ProceduralAnthemSynth
 import ua.constitution.ui.model.DashboardTab
 import ua.constitution.ui.model.FullscreenSymbol
+import ua.constitution.domain.bookmark.BookmarkEditsParser
+import ua.constitution.domain.text.StyledRange
+import ua.constitution.domain.text.formatStringToSuperscript
+import ua.constitution.domain.text.getWordRangeAtOffset
+import ua.constitution.domain.text.getWordSnappedRange
+import ua.constitution.domain.text.mapFormattedToOriginal
+import ua.constitution.domain.text.mapOriginalToFormatted
+import ua.constitution.domain.text.mergeAdjacentStyledRanges
+import ua.constitution.ui.safeParseColor
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -1140,8 +1149,6 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                          bookmarkPanelExpanded = false
                                      }
                                  }
-
-
 
                                 LazyColumn(
                                     state = bookmarksListState,
@@ -2561,16 +2568,6 @@ fun HomeTabContent(
 
 }
 
-data class StyledRange(
-    val start: Int,
-    val end: Int,
-    val colorHex: String,
-    val highlight: Boolean,
-    val underscore: Boolean,
-    val highlightColorHex: String = colorHex,
-    val underscoreColorHex: String = colorHex
-)
-
 class ParagraphRegistryEntry(
     val paragraphIndex: Int,
     val paragraphText: String,
@@ -2579,207 +2576,6 @@ class ParagraphRegistryEntry(
     val getTextLayoutResult: () -> androidx.compose.ui.text.TextLayoutResult?,
     val applyStyleToRanges: (Collection<Pair<Int, Int>>, String, String) -> Unit
 )
-
-object BookmarkEditsParser {
-    fun parse(jsonStr: String?): Map<Int, List<StyledRange>> {
-        val result = mutableMapOf<Int, List<StyledRange>>()
-        if (jsonStr.isNullOrBlank()) return result
-        try {
-            val root = org.json.JSONObject(jsonStr)
-            val paragraphEdits = root.optJSONObject("paragraphEdits") ?: return result
-            val keys = paragraphEdits.keys()
-            while (keys.hasNext()) {
-                val key = keys.next()
-                val paragraphIndex = key.toIntOrNull() ?: continue
-                val arr = paragraphEdits.optJSONArray(key) ?: continue
-                val ranges = mutableListOf<StyledRange>()
-                for (i in 0 until arr.length()) {
-                    val obj = arr.getJSONObject(i)
-                    val start = obj.getInt("start")
-                    val end = obj.getInt("end")
-                    val colorHex = obj.getString("colorHex")
-                    val highlight = obj.getBoolean("highlight")
-                    val underscore = obj.getBoolean("underscore")
-                    val highlightColorHex = obj.optString("highlightColorHex", colorHex)
-                    val underscoreColorHex = obj.optString("underscoreColorHex", colorHex)
-                    ranges.add(
-                        StyledRange(
-                            start = start,
-                            end = end,
-                            colorHex = colorHex,
-                            highlight = highlight,
-                            underscore = underscore,
-                            highlightColorHex = highlightColorHex,
-                            underscoreColorHex = underscoreColorHex
-                        )
-                    )
-                }
-                result[paragraphIndex] = ranges
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return result
-    }
-
-    fun toJson(edits: Map<Int, List<StyledRange>>): String {
-        try {
-            val root = org.json.JSONObject()
-            val paragraphEdits = org.json.JSONObject()
-            for ((paragraphIndex, ranges) in edits) {
-                if (ranges.isEmpty()) continue
-                val arr = org.json.JSONArray()
-                for (range in ranges) {
-                    val obj = org.json.JSONObject()
-                    obj.put("start", range.start)
-                    obj.put("end", range.end)
-                    obj.put("colorHex", range.colorHex)
-                    obj.put("highlight", range.highlight)
-                    obj.put("underscore", range.underscore)
-                    obj.put("highlightColorHex", range.highlightColorHex)
-                    obj.put("underscoreColorHex", range.underscoreColorHex)
-                    arr.put(obj)
-                }
-                paragraphEdits.put(paragraphIndex.toString(), arr)
-            }
-            root.put("paragraphEdits", paragraphEdits)
-            return root.toString()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return ""
-        }
-    }
-}
-
-fun getWordRangeAtOffset(text: String, offset: Int): Pair<Int, Int>? {
-    if (offset < 0 || offset >= text.length) return null
-    if (text[offset].isWhitespace()) return null
-    
-    var start = offset
-    while (start > 0 && !text[start - 1].isWhitespace()) {
-        start--
-    }
-    
-    var end = offset
-    while (end < text.length && !text[end].isWhitespace()) {
-        end++
-    }
-    
-    // Trim leading punctuation
-    while (start < end && !text[start].isLetterOrDigit()) {
-        start++
-    }
-    
-    // Trim trailing punctuation
-    while (end > start && !text[end - 1].isLetterOrDigit()) {
-        end--
-    }
-    
-    return if (start < end) Pair(start, end) else null
-}
-
-fun getWordSnappedRange(text: String, offset1: Int, offset2: Int): Pair<Int, Int>? {
-    val o1 = offset1.coerceIn(0, (text.length - 1).coerceAtLeast(0))
-    val o2 = offset2.coerceIn(0, (text.length - 1).coerceAtLeast(0))
-    val minO = minOf(o1, o2)
-    val maxO = maxOf(o1, o2)
-    
-    var finalStart = minO
-    val startWord = getWordRangeAtOffset(text, minO)
-    if (startWord != null) {
-        finalStart = startWord.first
-    } else {
-        var found = false
-        for (i in minO until text.length) {
-            val word = getWordRangeAtOffset(text, i)
-            if (word != null) {
-                finalStart = word.first
-                found = true
-                break
-            }
-        }
-        if (!found) {
-            for (i in minO downTo 0) {
-                val word = getWordRangeAtOffset(text, i)
-                if (word != null) {
-                    finalStart = word.first
-                    break
-                }
-            }
-        }
-    }
-    
-    var finalEnd = maxO
-    val endWord = getWordRangeAtOffset(text, maxO)
-    if (endWord != null) {
-        finalEnd = endWord.second
-    } else {
-        var found = false
-        for (i in maxO downTo 0) {
-            val word = getWordRangeAtOffset(text, i)
-            if (word != null) {
-                finalEnd = word.second
-                found = true
-                break
-            }
-        }
-        if (!found) {
-            for (i in maxO until text.length) {
-                val word = getWordRangeAtOffset(text, i)
-                if (word != null) {
-                    finalEnd = word.second
-                    break
-                }
-            }
-        }
-    }
-    
-    if (finalStart < finalEnd) {
-        return Pair(finalStart, finalEnd)
-    }
-    return null
-}
-
-fun mergeAdjacentStyledRanges(text: String, ranges: List<StyledRange>): List<StyledRange> {
-    if (ranges.size <= 1) return ranges
-    
-    val sorted = ranges.sortedBy { it.start }
-    val result = mutableListOf<StyledRange>()
-    
-    for (range in sorted) {
-        if (result.isEmpty()) {
-            result.add(range)
-        } else {
-            val last = result.last()
-            val sameSpec = last.highlight == range.highlight && 
-                           last.underscore == range.underscore && 
-                           last.highlightColorHex.lowercase() == range.highlightColorHex.lowercase() && 
-                           last.underscoreColorHex.lowercase() == range.underscoreColorHex.lowercase() && 
-                           last.colorHex.lowercase() == range.colorHex.lowercase()
-            
-            if (sameSpec) {
-                val canMerge = if (range.start <= last.end) {
-                    true
-                } else {
-                    val intermediateText = text.substring(last.end, range.start)
-                    intermediateText.all { it.isWhitespace() || !it.isLetterOrDigit() }
-                }
-                
-                if (canMerge) {
-                    result[result.size - 1] = last.copy(
-                        start = last.start,
-                        end = maxOf(last.end, range.end)
-                    )
-                } else {
-                    result.add(range)
-                }
-            } else {
-                result.add(range)
-            }
-        }
-    }
-    return result
-}
 
 @Composable
 fun SegmentedTextWithEdits(
@@ -4936,131 +4732,6 @@ fun InteractiveParagraphText(
             }
         }
     }
-}
-
-fun safeParseColor(hex: String?, default: Color): Color {
-    if (hex.isNullOrBlank()) return default
-    return try {
-        val normalized = if (hex.startsWith("#")) hex else "#$hex"
-        Color(android.graphics.Color.parseColor(normalized))
-    } catch (e: Exception) {
-        default
-    }
-}
-
-fun isSuperscriptEquivalent(normal: Char, superChar: Char): Boolean {
-    val map = mapOf(
-        '0' to '⁰', '1' to '¹', '2' to '²', '3' to '³', '4' to '⁴',
-        '5' to '⁵', '6' to '⁶', '7' to '⁷', '8' to '⁸', '9' to '⁹'
-    )
-    return map[normal] == superChar
-}
-
-fun mapOriginalToFormatted(original: String, formatted: String): IntArray {
-    val origToForm = IntArray(original.length + 1) { formatted.length }
-    var formIdx = 0
-    for (origIdx in 0..original.length) {
-        if (origIdx == original.length) {
-            origToForm[origIdx] = formatted.length
-            break
-        }
-        val origChar = original[origIdx]
-        if (formIdx < formatted.length) {
-            val formChar = formatted[formIdx]
-            if (origChar == formChar || isSuperscriptEquivalent(origChar, formChar)) {
-                origToForm[origIdx] = formIdx
-                formIdx++
-            } else if (origChar == '.' || origChar == '-') {
-                origToForm[origIdx] = formIdx
-            } else {
-                origToForm[origIdx] = formIdx
-                formIdx++
-            }
-        } else {
-            origToForm[origIdx] = formatted.length
-        }
-    }
-    return origToForm
-}
-
-fun mapFormattedToOriginal(original: String, formatted: String): IntArray {
-    val formToOrig = IntArray(formatted.length + 1) { original.length }
-    var origIdx = 0
-    for (formIdx in 0..formatted.length) {
-        if (formIdx == formatted.length) {
-            formToOrig[formIdx] = original.length
-            break
-        }
-        val formChar = formatted[formIdx]
-        var assigned = false
-        while (origIdx < original.length) {
-            val origChar = original[origIdx]
-            if (origChar == formChar || isSuperscriptEquivalent(origChar, formChar)) {
-                formToOrig[formIdx] = origIdx
-                origIdx++
-                assigned = true
-                break
-            } else if (origChar == '.' || origChar == '-') {
-                origIdx++
-            } else {
-                formToOrig[formIdx] = origIdx
-                origIdx++
-                assigned = true
-                break
-            }
-        }
-        if (!assigned) {
-            formToOrig[formIdx] = original.length
-        }
-    }
-    return formToOrig
-}
-
-fun formatStringToSuperscript(input: String): String {
-    var result = input
-    val regexDots = """(\d+)\.(\d+)""".toRegex()
-    result = regexDots.replace(result) { matchResult ->
-        val base = matchResult.groupValues[1]
-        val suffix = matchResult.groupValues[2]
-        val sup = suffix.map { char ->
-            when (char) {
-                '0' -> '⁰'
-                '1' -> '¹'
-                '2' -> '²'
-                '3' -> '³'
-                '4' -> '⁴'
-                '5' -> '⁵'
-                '6' -> '⁶'
-                '7' -> '⁷'
-                '8' -> '⁸'
-                '9' -> '⁹'
-                else -> char
-            }
-        }.joinToString("")
-        "$base$sup"
-    }
-    val regexHyphens = """(\d+)-(\d+)""".toRegex()
-    result = regexHyphens.replace(result) { matchResult ->
-        val base = matchResult.groupValues[1]
-        val suffix = matchResult.groupValues[2]
-        val sup = suffix.map { char ->
-            when (char) {
-                '0' -> '⁰'
-                '1' -> '¹'
-                '2' -> '²'
-                '3' -> '³'
-                '4' -> '⁴'
-                '5' -> '⁵'
-                '6' -> '⁶'
-                '7' -> '⁷'
-                '8' -> '⁸'
-                '9' -> '⁹'
-                else -> char
-            }
-        }.joinToString("")
-        "$base$sup"
-    }
-    return result
 }
 
 @Composable

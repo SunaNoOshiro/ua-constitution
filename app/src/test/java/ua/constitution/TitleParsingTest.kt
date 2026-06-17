@@ -3,6 +3,7 @@ package ua.constitution
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
+import ua.constitution.domain.text.formatStringToSuperscript
 import ua.constitution.utils.Constants
 
 /**

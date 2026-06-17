@@ -1,5 +1,9 @@
 package ua.constitution
 
+import ua.constitution.domain.text.StyledRange
+import ua.constitution.domain.text.getWordRangeAtOffset
+import ua.constitution.domain.text.getWordSnappedRange
+import ua.constitution.domain.text.mergeAdjacentStyledRanges
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test

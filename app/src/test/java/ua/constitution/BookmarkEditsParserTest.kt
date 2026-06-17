@@ -1,5 +1,7 @@
 package ua.constitution
 
+import ua.constitution.domain.bookmark.BookmarkEditsParser
+import ua.constitution.domain.text.StyledRange
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

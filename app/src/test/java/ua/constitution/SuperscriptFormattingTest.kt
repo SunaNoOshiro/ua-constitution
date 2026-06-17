@@ -1,5 +1,9 @@
 package ua.constitution
 
+import ua.constitution.domain.text.formatStringToSuperscript
+import ua.constitution.domain.text.isSuperscriptEquivalent
+import ua.constitution.domain.text.mapFormattedToOriginal
+import ua.constitution.domain.text.mapOriginalToFormatted
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
