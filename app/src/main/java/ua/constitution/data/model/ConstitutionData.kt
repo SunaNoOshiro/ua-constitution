@@ -5,6 +5,7 @@ import org.json.JSONArray
 import android.util.Log
 import ua.constitution.utils.Constants
 import ua.constitution.utils.LogMessages
+import ua.constitution.domain.content.ConstitutionContentSource
 
 data class ContentSegment(
     val type: String,
@@ -63,7 +64,7 @@ data class Chapter(
     val sourceUrl: String = ""
 )
 
-object ConstitutionData {
+object ConstitutionData : ConstitutionContentSource {
 
     private var appContext: Context? = null
 
@@ -361,7 +362,7 @@ object ConstitutionData {
         isInitialized = true
     }
 
-    val articles: List<Article>
+    override val articles: List<Article>
         get() = parsedArticles
 
     val chapters: List<Chapter>

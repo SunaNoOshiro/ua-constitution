@@ -4,13 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ua.constitution.data.database.BookmarkEntity
 import ua.constitution.data.model.Article
-import ua.constitution.data.model.ConstitutionData
 import ua.constitution.data.repository.BookmarkRepository
+import ua.constitution.domain.content.ConstitutionContentSource
 import ua.constitution.domain.content.searchArticles
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-class ConstitutionViewModel(private val repository: BookmarkRepository) : ViewModel() {
+class ConstitutionViewModel(
+    private val repository: BookmarkRepository,
+    private val contentSource: ConstitutionContentSource
+) : ViewModel() {
 
     // --- Search & Exploration State ---
     private val _searchQuery = MutableStateFlow("")
@@ -47,8 +50,8 @@ class ConstitutionViewModel(private val repository: BookmarkRepository) : ViewMo
     // Reactive list of Articles matching search query
     val filteredArticles: StateFlow<List<Article>> = _searchQuery
         .combine(_selectedChapterId) { query, chapterId ->
-            searchArticles(ConstitutionData.articles, query, chapterId)
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ConstitutionData.articles)
+            searchArticles(contentSource.articles, query, chapterId)
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), contentSource.articles)
 
     // --- Bookmarking & Study Notes ---
     fun toggleBookmark(articleId: Int) {

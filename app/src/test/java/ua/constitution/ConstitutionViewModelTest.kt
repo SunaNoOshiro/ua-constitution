@@ -15,7 +15,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import ua.constitution.data.model.ConstitutionData
+import ua.constitution.domain.content.ConstitutionContentSource
 import ua.constitution.ui.viewmodel.ConstitutionViewModel
 import ua.constitution.data.repository.ConstitutionRepository
 
@@ -36,25 +36,28 @@ class ConstitutionViewModelTest {
     private lateinit var fakeDao: FakeConstitutionDao
     private lateinit var viewModel: ConstitutionViewModel
 
+    // After the DIP refactor the ViewModel takes a content source, so we inject a tiny fake instead
+    // of seeding the ConstitutionData global.
+    private val contentSource = object : ConstitutionContentSource {
+        override val articles = listOf(
+            articleOf(id = 0, chapterId = 0, titleUa = "Преамбула"),
+            articleOf(
+                id = 1, chapterId = 1, titleUa = "Стаття 1",
+                paragraphs = listOf(paragraphOf(textSegment("Україна є суверенна і незалежна держава")))
+            ),
+            articleOf(id = 2, chapterId = 1, titleUa = "Стаття 2"),
+            articleOf(
+                id = 20, chapterId = 2, titleUa = "Стаття 20",
+                paragraphs = listOf(paragraphOf(textSegment("Державні символи України")))
+            )
+        )
+    }
+
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        ConstitutionData.initializeForTests(
-            listOf(
-                articleOf(id = 0, chapterId = 0, titleUa = "Преамбула"),
-                articleOf(
-                    id = 1, chapterId = 1, titleUa = "Стаття 1",
-                    paragraphs = listOf(paragraphOf(textSegment("Україна є суверенна і незалежна держава")))
-                ),
-                articleOf(id = 2, chapterId = 1, titleUa = "Стаття 2"),
-                articleOf(
-                    id = 20, chapterId = 2, titleUa = "Стаття 20",
-                    paragraphs = listOf(paragraphOf(textSegment("Державні символи України")))
-                )
-            )
-        )
         fakeDao = FakeConstitutionDao()
-        viewModel = ConstitutionViewModel(ConstitutionRepository(fakeDao))
+        viewModel = ConstitutionViewModel(ConstitutionRepository(fakeDao), contentSource)
     }
 
     @After
