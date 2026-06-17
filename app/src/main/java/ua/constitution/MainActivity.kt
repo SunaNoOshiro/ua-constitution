@@ -127,6 +127,7 @@ import ua.constitution.audio.ProceduralAnthemSynth
 import ua.constitution.ui.model.DashboardTab
 import ua.constitution.ui.model.FullscreenSymbol
 import ua.constitution.domain.link.findArticleByLink
+import ua.constitution.domain.title.parseArticleTitle
 import ua.constitution.domain.bookmark.BookmarkEditsParser
 import ua.constitution.domain.text.StyledRange
 import ua.constitution.domain.text.formatStringToSuperscript
@@ -1467,21 +1468,9 @@ fun ArticleCard(
     val context = LocalContext.current
     
     // Split the title (e.g., "Стаття 20. Державні символи України") into number and title
-    val titleParts = remember(article.id, article.titleUa) {
-        val regex = """^(Стаття|Пункт)\s+(\d+(?:[\.\-]\d+)?)\.?\s*(.*)$""".toRegex()
-        val match = regex.find(article.titleUa)
-        if (match != null) {
-            val label = match.groupValues[1]
-            val rawNumber = match.groupValues[2]
-            val formattedNumber = formatStringToSuperscript(rawNumber)
-            val namePart = match.groupValues[3]
-            Pair("$label $formattedNumber", namePart)
-        } else {
-            Pair(formatStringToSuperscript(article.titleUa), "")
-        }
-    }
-    val articleNumber = titleParts.first
-    val articleName = titleParts.second
+    val titleParts = remember(article.id, article.titleUa) { parseArticleTitle(article.titleUa) }
+    val articleNumber = titleParts.display
+    val articleName = titleParts.name
 
     var localEdits by remember(isEditable) { mutableStateOf(emptyMap<Int, List<StyledRange>>()) }
     var lastSavedJson by remember { mutableStateOf("") }
