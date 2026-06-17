@@ -1,11 +1,11 @@
 package ua.constitution.data.model
 
 import android.content.Context
-import org.json.JSONArray
 import android.util.Log
 import ua.constitution.utils.Constants
 import ua.constitution.utils.LogMessages
 import ua.constitution.domain.content.ConstitutionContentSource
+import ua.constitution.data.source.ConstitutionJsonParser
 
 data class ContentSegment(
     val type: String,
@@ -128,218 +128,20 @@ object ConstitutionData : ConstitutionContentSource {
     private val parsedArticles = mutableListOf<Article>()
     private val parsedChapters = mutableListOf<Chapter>()
 
-    private fun parseContentSegments(arr: org.json.JSONArray?): List<ContentSegment> {
-        if (arr == null) return emptyList()
-        val list = mutableListOf<ContentSegment>()
-        for (i in 0 until arr.length()) {
-            val obj = arr.getJSONObject(i)
-            val type = obj.optString(Constants.KEY_TYPE, Constants.TYPE_TEXT)
-            val value = obj.optString(Constants.KEY_VALUE, "")
-            val text = obj.optString(Constants.KEY_TEXT, "")
-            val url = obj.optString(Constants.KEY_URL, "")
-            list.add(ContentSegment(type, value, text, url))
-        }
-        return list
-    }
-
-    private fun parseLinks(arr: org.json.JSONArray?): List<Link> {
-        if (arr == null) return emptyList()
-        val list = mutableListOf<Link>()
-        for (i in 0 until arr.length()) {
-            val obj = arr.getJSONObject(i)
-            list.add(Link(obj.getString(Constants.KEY_TEXT), obj.getString(Constants.KEY_URL)))
-        }
-        return list
-    }
-
-    private fun parseNotes(arr: org.json.JSONArray?): List<Note> {
-        if (arr == null) return emptyList()
-        val list = mutableListOf<Note>()
-        for (i in 0 until arr.length()) {
-            val obj = arr.getJSONObject(i)
-            val contentArr = obj.optJSONArray(Constants.KEY_CONTENT)
-            list.add(Note(parseContentSegments(contentArr)))
-        }
-        return list
-    }
-
-    private fun parseParagraphs(arr: org.json.JSONArray?): List<Paragraph> {
-        if (arr == null) return emptyList()
-        val list = mutableListOf<Paragraph>()
-        for (i in 0 until arr.length()) {
-            val obj = arr.getJSONObject(i)
-            val contentArr = obj.optJSONArray(Constants.KEY_CONTENT)
-            val notesArr = obj.optJSONArray(Constants.KEY_NOTES)
-            list.add(Paragraph(parseContentSegments(contentArr), parseNotes(notesArr)))
-        }
-        return list
-    }
-
     fun initialize(context: Context) {
         if (isInitialized) return
         appContext = context.applicationContext
+        val parser = ConstitutionJsonParser(context)
         try {
-            // Compute SHA-256 Hash of the asset file to verify integrity at startup
-            try {
-                val assetStream = context.assets.open(Constants.CONSTITUTION_JSON_FILE)
-                val digest = java.security.MessageDigest.getInstance(Constants.ALGORITHM_SHA_256)
-                val buffer = ByteArray(8192)
-                var bytesRead: Int
-                while (assetStream.read(buffer).also { bytesRead = it } != -1) {
-                    digest.update(buffer, 0, bytesRead)
-                }
-                assetStream.close()
-                val hashBytes = digest.digest()
-                computedHash = hashBytes.joinToString("") { Constants.HEX_FORMAT_BYTE.format(it) }
-                
-                if (computedHash == EXPECTED_JSON_HASH) {
-                    integrityVerificationPass = true
-                    Log.d(LogMessages.TAG_CONSTITUTION_DATA, LogMessages.integrityVerified(computedHash))
-                } else {
-                    integrityVerificationPass = true
-                    Log.e(LogMessages.TAG_CONSTITUTION_DATA, LogMessages.integrityMismatch(computedHash, EXPECTED_JSON_HASH))
-                }
-            } catch (hashEx: Exception) {
-                integrityVerificationPass = true
-                computedHash = Constants.ERROR_HASH_VALUE
-                Log.e(LogMessages.TAG_CONSTITUTION_DATA, LogMessages.INTEGRITY_COMPUTE_FAILED, hashEx)
-            }
+            val integrity = parser.computeIntegrity()
+            computedHash = integrity.computedHash
+            integrityVerificationPass = integrity.verificationPass
 
-            // Load JSON from raw resource or assets (for maximum resilience)
-            var jsonString = ""
-            val rawId = context.resources.getIdentifier(Constants.CONSTITUTION_RAW_RESOURCE_NAME, Constants.RAW_DEF_TYPE, context.packageName)
-            if (rawId != 0) {
-                try {
-                    jsonString = context.resources.openRawResource(rawId).bufferedReader().use { it.readText() }
-                    Log.d(LogMessages.TAG_CONSTITUTION_DATA, LogMessages.LOADED_FROM_RAW)
-                } catch (rawEx: Exception) {
-                    Log.e(LogMessages.TAG_CONSTITUTION_DATA, LogMessages.loadFromRawFailed(rawEx.message), rawEx)
-                }
-            }
-            if (jsonString.isEmpty()) {
-                jsonString = context.assets.open(Constants.CONSTITUTION_JSON_FILE).bufferedReader().use { it.readText() }
-                Log.d(LogMessages.TAG_CONSTITUTION_DATA, LogMessages.LOADED_FROM_ASSETS)
-            }
-            val rootObj = org.json.JSONObject(jsonString)
-
+            val parsed = parser.parse(parser.loadJsonString())
             parsedArticles.clear()
+            parsedArticles.addAll(parsed.articles)
             parsedChapters.clear()
-
-            // Dynamic Preamble parsing
-            if (rootObj.has(Constants.KEY_PREAMBLE)) {
-                val preObj = rootObj.getJSONObject(Constants.KEY_PREAMBLE)
-                val titleUa = preObj.optString(Constants.KEY_TITLE_UA, context.getString(ua.constitution.R.string.preamble))
-                val paragraphsArr = preObj.optJSONArray(Constants.KEY_PARAGRAPHS)
-                val paragraphs = parseParagraphs(paragraphsArr)
-                val preambleSourceUrl = preObj.optString(Constants.KEY_SOURCE_URL, Constants.PREAMBLE_SOURCE_URL)
-                
-                parsedChapters.add(
-                    Chapter(
-                        id = 0,
-                        titleUa = titleUa,
-                        info = context.getString(ua.constitution.R.string.preamble_info),
-                        sourceUrl = preambleSourceUrl
-                    )
-                )
-                parsedArticles.add(
-                    Article(
-                        id = 0,
-                        chapterId = 0,
-                        titleUa = titleUa,
-                        paragraphs = paragraphs,
-                        radaUrl = preambleSourceUrl
-                    )
-                )
-            } else {
-                parsedChapters.add(
-                    Chapter(
-                        id = 0,
-                        titleUa = context.getString(ua.constitution.R.string.preamble),
-                        info = context.getString(ua.constitution.R.string.preamble_info),
-                        sourceUrl = Constants.PREAMBLE_SOURCE_URL
-                    )
-                )
-                parsedArticles.add(
-                    Article(
-                        id = 0,
-                        chapterId = 0,
-                        titleUa = context.getString(ua.constitution.R.string.preamble),
-                        paragraphs = listOf(
-                            Paragraph(
-                                listOf(ContentSegment(Constants.TYPE_TEXT, value = context.getString(ua.constitution.R.string.preamble_fallback_text))),
-                                emptyList()
-                            )
-                        ),
-                        radaUrl = Constants.PREAMBLE_SOURCE_URL
-                    )
-                )
-            }
-
-            val chaptersArray = rootObj.getJSONArray(Constants.KEY_CHAPTERS)
-            for (i in 0 until chaptersArray.length()) {
-                val chObj = chaptersArray.getJSONObject(i)
-                val id = chObj.getInt(Constants.KEY_ID)
-                val titleUa = chObj.getString(Constants.KEY_TITLE_UA)
-                val info = chObj.optString(Constants.KEY_INFO, "")
-                val excluded = chObj.optBoolean(Constants.KEY_EXCLUDED, false)
-                val chapterSourceUrl = chObj.optString(Constants.KEY_SOURCE_URL, Constants.DEFAULT_RADA_URL)
-                
-                val excludedNoteObj = chObj.optJSONObject(Constants.KEY_EXCLUDED_NOTE)
-                val excludedNote = if (excludedNoteObj != null) {
-                    val contentArr = excludedNoteObj.optJSONArray(Constants.KEY_CONTENT)
-                    Note(parseContentSegments(contentArr))
-                } else null
-                
-                // Parse nested articles directly from each chapter
-                if (chObj.has(Constants.KEY_ARTICLES)) {
-                    val articlesArr = chObj.getJSONArray(Constants.KEY_ARTICLES)
-                    for (j in 0 until articlesArr.length()) {
-                        val artObj = articlesArr.getJSONObject(j)
-                        val idObj = artObj.get(Constants.KEY_ID)
-                        val artId = when (idObj) {
-                            is Number -> {
-                                val dVal = idObj.toDouble()
-                                if (dVal % 1.0 != 0.0) {
-                                    Math.round(dVal * 10).toInt()
-                                } else {
-                                    dVal.toInt()
-                                }
-                            }
-                            else -> idObj.toString().toIntOrNull() ?: 0
-                        }
-                        val artChapterId = artObj.getInt(Constants.KEY_CHAPTER_ID)
-                        val artTitleUa = artObj.getString(Constants.KEY_TITLE_UA)
-                        val paragraphsArr = artObj.optJSONArray(Constants.KEY_PARAGRAPHS)
-                        val paragraphs = parseParagraphs(paragraphsArr)
-                        val artSourceUrl = artObj.optString(Constants.KEY_SOURCE_URL, Constants.DEFAULT_RADA_URL)
-                        
-                        parsedArticles.add(
-                            Article(
-                                id = artId,
-                                chapterId = artChapterId,
-                                titleUa = artTitleUa,
-                                paragraphs = paragraphs,
-                                radaUrl = artSourceUrl
-                             )
-                        )
-                    }
-                }
-                
-                parsedChapters.add(
-                    Chapter(
-                        id = id,
-                        titleUa = titleUa,
-                        info = info,
-                        excluded = excluded,
-                        excludedNote = excludedNote,
-                        sourceUrl = chapterSourceUrl
-                    )
-                )
-            }
-            
-            parsedArticles.sortBy { 
-                if (it.id > 1000) it.id.toDouble() / 10.0 else it.id.toDouble()
-            }
+            parsedChapters.addAll(parsed.chapters)
 
             isInitialized = true
             usedFallback = false
