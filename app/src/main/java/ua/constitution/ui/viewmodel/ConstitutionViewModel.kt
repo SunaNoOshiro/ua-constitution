@@ -6,6 +6,7 @@ import ua.constitution.data.database.BookmarkEntity
 import ua.constitution.data.model.Article
 import ua.constitution.data.model.ConstitutionData
 import ua.constitution.data.repository.ConstitutionRepository
+import ua.constitution.domain.content.searchArticles
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -46,17 +47,7 @@ class ConstitutionViewModel(private val repository: ConstitutionRepository) : Vi
     // Reactive list of Articles matching search query
     val filteredArticles: StateFlow<List<Article>> = _searchQuery
         .combine(_selectedChapterId) { query, chapterId ->
-            ConstitutionData.articles.filter { article ->
-                val matchesQuery = query.isEmpty() ||
-                        article.id.toString() == query ||
-                        article.id.toString().contains(query) ||
-                        article.titleUa.contains(query, ignoreCase = true) ||
-                        article.textUa.contains(query, ignoreCase = true)
-                
-                // If there is an active search query, perform global search (ignore chapter constraint)
-                val matchesChapter = query.isNotEmpty() || chapterId == null || article.chapterId == chapterId
-                matchesQuery && matchesChapter
-            }
+            searchArticles(ConstitutionData.articles, query, chapterId)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ConstitutionData.articles)
 
     // --- Bookmarking & Study Notes ---
