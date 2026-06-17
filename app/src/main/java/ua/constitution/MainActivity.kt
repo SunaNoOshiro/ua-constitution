@@ -129,6 +129,7 @@ import ua.constitution.ui.model.FullscreenSymbol
 import ua.constitution.domain.link.findArticleByLink
 import ua.constitution.domain.title.parseArticleTitle
 import ua.constitution.domain.bookmark.BookmarkEditsParser
+import ua.constitution.domain.text.ArticleNumberFormatter
 import ua.constitution.domain.text.StyledRange
 import ua.constitution.domain.text.formatStringToSuperscript
 import ua.constitution.domain.text.getWordRangeAtOffset
@@ -4727,28 +4728,7 @@ fun InteractiveParagraphText(
 @Composable
 fun formatArticleId(id: Int, chapterId: Int = 0): String {
     if (id == 0) return stringResource(R.string.preamble)
-    if (chapterId == 15 && id == 161) {
-        return "16¹"
-    }
-    if (id > 1000) {
-        val base = id / 10
-        val suffix = id % 10
-        val superscript = when (suffix) {
-            0 -> "⁰"
-            1 -> "¹"
-            2 -> "²"
-            3 -> "³"
-            4 -> "⁴"
-            5 -> "⁵"
-            6 -> "⁶"
-            7 -> "⁷"
-            8 -> "⁸"
-            9 -> "⁹"
-            else -> suffix.toString()
-        }
-        return "$base$superscript"
-    }
-    return id.toString()
+    return ArticleNumberFormatter.format(id, chapterId)
 }
 
 @Composable
@@ -4778,9 +4758,8 @@ fun ArticleIdText(
             buildAnnotatedString {
                 append(preambleText)
             }
-        } else if (id > 1000 || (chapterId == 15 && id == 161)) {
-            val base = if (chapterId == 15 && id == 161) "16" else (id / 10).toString()
-            val suffix = if (chapterId == 15 && id == 161) "1" else (id % 10).toString()
+        } else if (ArticleNumberFormatter.isFractional(id, chapterId)) {
+            val (base, suffix) = ArticleNumberFormatter.fractionalParts(id, chapterId)
             buildAnnotatedString {
                 append(base)
                 withStyle(
@@ -4798,7 +4777,7 @@ fun ArticleIdText(
             }
         }
     }
-    val isFractional = id > 1000 || (chapterId == 15 && id == 161)
+    val isFractional = ArticleNumberFormatter.isFractional(id, chapterId)
     Text(
         text = text,
         color = color,
