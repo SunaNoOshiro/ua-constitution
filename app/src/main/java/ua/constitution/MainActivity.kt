@@ -126,6 +126,7 @@ import ua.constitution.audio.AnthemVersion
 import ua.constitution.audio.ProceduralAnthemSynth
 import ua.constitution.ui.model.DashboardTab
 import ua.constitution.ui.model.FullscreenSymbol
+import ua.constitution.domain.link.findArticleByLink
 import ua.constitution.domain.bookmark.BookmarkEditsParser
 import ua.constitution.domain.text.StyledRange
 import ua.constitution.domain.text.formatStringToSuperscript
@@ -2980,7 +2981,7 @@ fun SegmentedTextWithEdits(
 
                                         var articleNavigated = false
                                         if (clickedUrl.startsWith("#") || (!clickedUrl.startsWith("http://") && !clickedUrl.startsWith("https://"))) {
-                                            val targetArticle = findArticleByLink(segmentText)
+                                            val targetArticle = findArticleByLink(segmentText, ConstitutionData.articles)
                                             if (targetArticle != null && onArticleClick != null) {
                                                 onArticleClick(targetArticle)
                                                 articleNavigated = true
@@ -3346,7 +3347,7 @@ fun SegmentedTextWithEdits(
 
                                                     var articleNavigated = false
                                                     if (clickedUrl.startsWith("#") || (!clickedUrl.startsWith("http://") && !clickedUrl.startsWith("https://"))) {
-                                                        val targetArticle = findArticleByLink(segmentText)
+                                                        val targetArticle = findArticleByLink(segmentText, ConstitutionData.articles)
                                                         if (targetArticle != null && onArticleClick != null) {
                                                             onArticleClick(targetArticle)
                                                             articleNavigated = true
@@ -4822,56 +4823,6 @@ fun ArticleIdText(
     )
 }
 
-fun findArticleByLink(text: String): Article? {
-    // Normalise text
-    val normalized = text
-        .replace("¹", ".1")
-        .replace("²", ".2")
-        .replace("³", ".3")
-        .replace("⁴", ".4")
-        .replace("⁵", ".5")
-        .replace("⁶", ".6")
-        .replace("⁷", ".7")
-        .replace("⁸", ".8")
-        .replace("⁹", ".9")
-        .replace("⁰", ".0")
-        .replace("-", ".") // "16-1" -> "16.1"
-        .replace("–", ".") // en-dash
-        .replace("—", ".") // em-dash
-    
-    // Check if the link specifically refers to a "punkt" / "п"
-    val lower = text.lowercase()
-    val isPunkt = lower.contains(Constants.LINK_PUNKT_FULL) || 
-                  lower.contains(Constants.LINK_P_DOT) || 
-                  lower.startsWith(Constants.LINK_P_SPACE_START) || 
-                  lower.contains(Constants.LINK_P_SPACE_MID)
-    
-    // Find decimal or integer number (e.g. "125" or "16.1")
-    val regex = """\d+(?:\.\d+)?""".toRegex()
-    val match = regex.find(normalized)
-    if (match != null) {
-        val numberStr = match.value
-        val dVal = numberStr.toDoubleOrNull()
-        if (dVal != null) {
-            val targetId = if (dVal % 1.0 != 0.0) {
-                Math.round(dVal * 10).toInt()
-            } else {
-                dVal.toInt()
-            }
-            // If it's labeled as a "punkt" (point) or chapter 15 reference, look in chapter 15 first
-            val article = if (isPunkt) {
-                ConstitutionData.articles.find { it.id == targetId && it.chapterId == 15 }
-                    ?: ConstitutionData.articles.find { it.id == targetId }
-            } else {
-                ConstitutionData.articles.find { it.id == targetId && it.chapterId != 15 }
-                    ?: ConstitutionData.articles.find { it.id == targetId }
-            }
-            if (article != null) return article
-        }
-    }
-    return null
-}
-
 @Composable
 fun SegmentedText(
     segments: List<ua.constitution.data.model.ContentSegment>,
@@ -4955,7 +4906,7 @@ fun SegmentedText(
                         
                         var articleNavigated = false
                         if (clickedUrl.startsWith("#") || (!clickedUrl.startsWith("http://") && !clickedUrl.startsWith("https://"))) {
-                            val targetArticle = findArticleByLink(segmentText)
+                            val targetArticle = findArticleByLink(segmentText, ConstitutionData.articles)
                             if (targetArticle != null && onArticleClick != null) {
                                 onArticleClick(targetArticle)
                                 articleNavigated = true
