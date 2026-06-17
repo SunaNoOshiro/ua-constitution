@@ -5,12 +5,12 @@ import androidx.lifecycle.viewModelScope
 import ua.constitution.data.database.BookmarkEntity
 import ua.constitution.data.model.Article
 import ua.constitution.data.model.ConstitutionData
-import ua.constitution.data.repository.ConstitutionRepository
+import ua.constitution.data.repository.BookmarkRepository
 import ua.constitution.domain.content.searchArticles
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-class ConstitutionViewModel(private val repository: ConstitutionRepository) : ViewModel() {
+class ConstitutionViewModel(private val repository: BookmarkRepository) : ViewModel() {
 
     // --- Search & Exploration State ---
     private val _searchQuery = MutableStateFlow("")
