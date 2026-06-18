@@ -22,6 +22,13 @@ object ArticleNumberFormatter {
     }
 
     /**
+     * [format], but returns [preambleLabel] for the preamble (id == 0). Lets the UI keep resolving
+     * the localized preamble string while the id == 0 branch becomes pure and unit-testable.
+     */
+    fun formatWithPreamble(id: Int, chapterId: Int, preambleLabel: String): String =
+        if (id == 0) preambleLabel else format(id, chapterId)
+
+    /**
      * Renders the article number with a unicode superscript suffix where applicable:
      * (161, 15) -> "16¹", (1001, 0) -> "100¹", (20, 1) -> "20". Does not handle id == 0.
      */

@@ -126,6 +126,8 @@ import ua.constitution.ui.model.FullscreenSymbol
 import ua.constitution.domain.title.parseArticleTitle
 import ua.constitution.domain.bookmark.BookmarkEditsParser
 import ua.constitution.domain.text.ArticleNumberFormatter
+import ua.constitution.domain.text.BackNavigationTarget
+import ua.constitution.domain.text.backNavigationTarget
 import ua.constitution.domain.text.StyledRange
 import ua.constitution.domain.text.ParagraphRangeMapping
 import ua.constitution.domain.text.formatStringToSuperscript
@@ -532,20 +534,16 @@ fun ArticleCard(
 // Vector-based high-fidelity Coat of Arms of Ukraine (Герб України/Тризуб)
 
 @Composable
-fun formatArticleId(id: Int, chapterId: Int = 0): String {
-    if (id == 0) return stringResource(R.string.preamble)
-    return ArticleNumberFormatter.format(id, chapterId)
-}
+fun formatArticleId(id: Int, chapterId: Int = 0): String =
+    ArticleNumberFormatter.formatWithPreamble(id, chapterId, stringResource(R.string.preamble))
 
 @Composable
 fun getBackNavigationText(article: Article): String {
     val artLabel = formatArticleId(article.id, article.chapterId)
-    return if (article.chapterId == 15) {
-        stringResource(R.string.back_to_chapter_15, artLabel)
-    } else if (article.chapterId == 0) {
-        stringResource(R.string.back_to_preamble)
-    } else {
-        stringResource(R.string.back_to_chapter_article, article.chapterId, artLabel)
+    return when (backNavigationTarget(article.chapterId)) {
+        BackNavigationTarget.CHAPTER_15 -> stringResource(R.string.back_to_chapter_15, artLabel)
+        BackNavigationTarget.PREAMBLE -> stringResource(R.string.back_to_preamble)
+        BackNavigationTarget.OTHER -> stringResource(R.string.back_to_chapter_article, article.chapterId, artLabel)
     }
 }
 

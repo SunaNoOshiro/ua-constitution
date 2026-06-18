@@ -47,4 +47,12 @@ class ArticleNumberFormatterTest {
         assertEquals("100" to "9", ArticleNumberFormatter.fractionalParts(1009, 0))
         assertEquals("16" to "1", ArticleNumberFormatter.fractionalParts(161, 15))
     }
+
+    @Test
+    fun `formatWithPreamble returns the preamble label only for id 0`() {
+        assertEquals("Преамбула", ArticleNumberFormatter.formatWithPreamble(0, 0, "Преамбула"))
+        // id != 0 ignores the label and defers to format()
+        assertEquals("20", ArticleNumberFormatter.formatWithPreamble(20, 1, "Преамбула"))
+        assertEquals("16¹", ArticleNumberFormatter.formatWithPreamble(161, 15, "Преамбула"))
+    }
 }
