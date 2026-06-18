@@ -123,6 +123,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import ua.constitution.audio.AnthemVersion
 import ua.constitution.ui.model.DashboardTab
 import ua.constitution.ui.model.FullscreenSymbol
+import ua.constitution.domain.content.ChapterRangeKind
+import ua.constitution.domain.content.chapterRangeKind
 import ua.constitution.domain.link.findArticleByLink
 import ua.constitution.domain.title.parseArticleTitle
 import ua.constitution.domain.bookmark.BookmarkEditsParser
@@ -632,18 +634,12 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                         val rangeText = if (chapterArticles.isNotEmpty()) {
                                             val firstId = formatArticleId(chapterArticles.first().id, chapter.id)
                                             val lastId = formatArticleId(chapterArticles.last().id, chapter.id)
-                                            if (chapter.id == 0) {
-                                                preambleStr
-                                            } else if (chapter.id == 15) {
-                                                if (firstId == lastId) {
-                                                    stringResource(R.string.point_range_single, firstId)
-                                                } else {
-                                                    stringResource(R.string.point_range_multi, firstId, lastId)
-                                                }
-                                            } else if (firstId == lastId) {
-                                                stringResource(R.string.article_range_single, firstId)
-                                            } else {
-                                                stringResource(R.string.article_range_multi, firstId, lastId)
+                                            when (chapterRangeKind(chapter.id, firstId == lastId)) {
+                                                ChapterRangeKind.PREAMBLE -> preambleStr
+                                                ChapterRangeKind.POINT_SINGLE -> stringResource(R.string.point_range_single, firstId)
+                                                ChapterRangeKind.POINT_MULTI -> stringResource(R.string.point_range_multi, firstId, lastId)
+                                                ChapterRangeKind.ARTICLE_SINGLE -> stringResource(R.string.article_range_single, firstId)
+                                                ChapterRangeKind.ARTICLE_MULTI -> stringResource(R.string.article_range_multi, firstId, lastId)
                                             }
                                         } else {
                                             ""
