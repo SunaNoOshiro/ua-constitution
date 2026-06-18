@@ -64,7 +64,7 @@ class ConstitutionViewModel(
     // --- Content read accessors -----------------------------------------------------------------
     // Plain getters/functions (deliberately NOT StateFlows/derivedStateOf) so composables read
     // content through the ViewModel with the SAME recomposition timing as the previous direct
-    // ConstitutionData global reads. Each one moves former inline UI logic here verbatim (DIP).
+    // content-global reads. Each one moves former inline UI logic here verbatim (DIP).
 
     val chapters: List<Chapter>
         get() = chapterSource.chapters
@@ -73,7 +73,7 @@ class ConstitutionViewModel(
         articleLookup.getArticlesForChapter(chapterId)
 
     /** The article a bookmark refers to (by its derived bookmarkId), or null. Mirrors the former
-     *  inline `ConstitutionData.articles.find { it.bookmarkId == ... }`. */
+     *  inline `articles.find { it.bookmarkId == ... }` that the bookmarks screen ran on the global. */
     fun articleByBookmarkId(bookmarkId: Int?): Article? =
         contentSource.articles.find { it.bookmarkId == bookmarkId }
 
