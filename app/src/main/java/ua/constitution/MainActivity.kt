@@ -4,13 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import ua.constitution.data.database.ConstitutionDatabase
 import ua.constitution.data.source.ConstitutionLoader
 import ua.constitution.data.repository.ConstitutionRepository
 import ua.constitution.ui.theme.MyApplicationTheme
 import ua.constitution.ui.viewmodel.ConstitutionViewModel
+import ua.constitution.ui.viewmodel.ConstitutionViewModelFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,21 +33,9 @@ class MainActivity : ComponentActivity() {
         // Load official formatted articles from JSON assets into an immutable content store.
         val content = ConstitutionLoader.load(this)
 
-        val viewModel = ViewModelProvider(this, object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                if (modelClass.isAssignableFrom(ConstitutionViewModel::class.java)) {
-                    @Suppress("UNCHECKED_CAST")
-                    return ConstitutionViewModel(
-                        repository,
-                        content,
-                        content,
-                        content,
-                        content
-                    ) as T
-                }
-                throw IllegalArgumentException("Unknown ViewModel class")
-            }
-        })[ConstitutionViewModel::class.java]
+        // content implements all four segregated read interfaces (ISP), so it is passed for each.
+        val factory = ConstitutionViewModelFactory(repository, content, content, content, content)
+        val viewModel = ViewModelProvider(this, factory)[ConstitutionViewModel::class.java]
 
         setContent {
             MyApplicationTheme {
