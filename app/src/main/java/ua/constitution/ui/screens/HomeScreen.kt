@@ -371,251 +371,297 @@ fun HomeTabContent(
                 .padding(horizontal = 20.dp)
         ) {
         item {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .shadow(4.dp, RoundedCornerShape(20.dp)),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                border = BorderStroke(2.dp, Color(0xFF0D47A1))
-            ) {
-                Column(
-                    modifier = Modifier.padding(18.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = stringResource(R.string.national_symbols_header),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Black,
-                        fontSize = 17.sp,
-                        color = Color(0xFF0D47A1),
-                        modifier = Modifier.padding(bottom = 12.dp)
-                    )
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        // 1. National Flag
-                        Column(
-                            modifier = Modifier
-                                .size(width = 130.dp, height = 86.dp)
-                                .shadow(4.dp, RoundedCornerShape(12.dp))
-                                .clip(RoundedCornerShape(12.dp))
-                                .clickable { onOpenFullscreenSymbol(FullscreenSymbol.FLAG) }
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f)
-                                    .background(Color(0xFF0057B7)) // Sovereign blue
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f)
-                                    .background(Color(0xFFFFD700)) // Golden yellow
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.width(28.dp))
-
-                        // 2. Coat of Arms (Tryzub) - Clean, high-fidelity shield logo matching the visual weight of the Flag
-                        UkrainianCoatOfArms(
-                            modifier = Modifier
-                                .height(96.dp)
-                                .aspectRatio(165f / 230.5f)
-                                .clickable { onOpenFullscreenSymbol(FullscreenSymbol.COAT_OF_ARMS) }
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Text(
-                        text = stringResource(R.string.flag_and_coat_desc),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Black,
-                        color = Color(0xFF0D47A1)
-                    )
-                }
-            }
+            NationalSymbolsCard(onOpenFullscreenSymbol = onOpenFullscreenSymbol)
         }
 
         // Anthem block
         item {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .shadow(4.dp, RoundedCornerShape(20.dp)),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF0D47A1)),
-                border = BorderStroke(1.5.dp, Color(0xFFFFD500))
-            ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 18.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.MusicNote,
-                            contentDescription = null,
-                            tint = Color(0xFFFFD500),
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = stringResource(R.string.national_anthem_header),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Black,
-                            fontSize = 17.sp,
-                            color = Color(0xFFFFD500)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    val lines = listOf(
-                        stringResource(R.string.anthem_line_1),
-                        stringResource(R.string.anthem_line_2),
-                        stringResource(R.string.anthem_line_3),
-                        stringResource(R.string.anthem_line_4),
-                        "",
-                        stringResource(R.string.anthem_line_5),
-                        stringResource(R.string.anthem_line_6)
-                    )
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 2.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        lines.forEach { line ->
-                            if (line.isEmpty()) {
-                                Spacer(modifier = Modifier.height(4.dp))
-                            } else {
-                                AutoScaleText(
-                                    text = line,
-                                    maxTextSize = 13.5f,
-                                    minTextSize = 9.5f,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Text(
-                        text = stringResource(R.string.orchestra_recording_info),
-                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White.copy(alpha = 0.75f),
-                        modifier = Modifier.padding(vertical = 4.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Slimmed down, centered high-fidelity player capsule
-                    Row(
-                        modifier = Modifier
-                            .widthIn(max = 290.dp)
-                            .fillMaxWidth(0.9f)
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(Color(0xFF092C66))
-                            .border(1.dp, Color(0xFFFFD500).copy(alpha = 0.3f), RoundedCornerShape(16.dp))
-                            .padding(horizontal = 10.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        IconButton(
-                            onClick = { togglePlayAnthem() },
-                            modifier = Modifier
-                                .size(34.dp)
-                                .shadow(2.dp, CircleShape)
-                                .clip(CircleShape)
-                                .background(Color(0xFFFFD500))
-                                .testTag("play_button_unified")
-                        ) {
-                            if (isBuffering) {
-                                CircularProgressIndicator(
-                                    color = Color(0xFF0D47A1),
-                                    strokeWidth = 2.dp,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            } else {
-                                Icon(
-                                    imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                                    contentDescription = if (isPlaying) stringResource(R.string.btn_stop) else stringResource(R.string.btn_play),
-                                    tint = Color(0xFF0D47A1),
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                        }
-
-                        val progress = if (playerDuration > 0) playerPosition.toFloat() / playerDuration else 0f
-
-                        AudioWaveformVisualizer(
-                            isPlaying = isPlaying,
-                            progress = progress,
-                            onSeek = onSeek,
-                            modifier = Modifier.weight(1f)
-                        )
-
-                        Text(
-                            text = if (playerDuration > 0) "${formatMillisToMinutesSeconds(playerPosition)} / ${formatMillisToMinutesSeconds(playerDuration)}" else "00:00 / 01:24",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 8.5.sp,
-                            color = Color.White.copy(alpha = 0.55f),
-                            modifier = Modifier.padding(end = 4.dp)
-                        )
-                    }
-                }
-            }
+            AnthemCard(
+                isPlaying = isPlaying,
+                isBuffering = isBuffering,
+                playerPosition = playerPosition,
+                playerDuration = playerDuration,
+                onTogglePlay = { togglePlayAnthem() },
+                onSeek = onSeek
+            )
         }
 
         // Article of the day block
         item {
-            Column {
-                Text(
-                    text = stringResource(R.string.article_of_the_day),
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Black,
-                    color = Color(0xFF0D47A1),
-                    modifier = Modifier.padding(vertical = 10.dp)
-                )
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(4.dp, RoundedCornerShape(16.dp))
-                        .clip(RoundedCornerShape(16.dp))
-                        .clickable { onNavigateToArticle(todayArticle, null) }
-                ) {
-                    ArticleCard(
-                        article = todayArticle,
-                        isBookmarked = isTodayBookmarked,
-                        onToggleBookmark = { viewModel.toggleBookmark(todayArticle.bookmarkId) },
-                        onArticleClick = { target -> onNavigateToArticle(target, todayArticle) },
-                        resolveArticleLink = viewModel::resolveLink,
-                        initialEditsJson = bookmarksList.find { it.articleId == todayArticle.bookmarkId }?.editsJson ?: ""
-                    )
-                }
-            }
+            ArticleOfTheDayCard(
+                article = todayArticle,
+                isBookmarked = isTodayBookmarked,
+                initialEditsJson = bookmarksList.find { it.articleId == todayArticle.bookmarkId }?.editsJson ?: "",
+                onToggleBookmark = { viewModel.toggleBookmark(todayArticle.bookmarkId) },
+                onArticleClick = { target -> onNavigateToArticle(target, todayArticle) },
+                resolveArticleLink = viewModel::resolveLink,
+                onOpen = { onNavigateToArticle(todayArticle, null) }
+            )
         }
     }
 
         // Old InvisibleYouTubePlayer replaced by UnifiedAnthemPlayer at the outer Box
     }
 
+}
+
+
+@Composable
+fun NationalSymbolsCard(onOpenFullscreenSymbol: (FullscreenSymbol) -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(4.dp, RoundedCornerShape(20.dp)),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(2.dp, Color(0xFF0D47A1))
+    ) {
+        Column(
+            modifier = Modifier.padding(18.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = stringResource(R.string.national_symbols_header),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Black,
+                fontSize = 17.sp,
+                color = Color(0xFF0D47A1),
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                // 1. National Flag
+                Column(
+                    modifier = Modifier
+                        .size(width = 130.dp, height = 86.dp)
+                        .shadow(4.dp, RoundedCornerShape(12.dp))
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable { onOpenFullscreenSymbol(FullscreenSymbol.FLAG) }
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .background(Color(0xFF0057B7)) // Sovereign blue
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .background(Color(0xFFFFD700)) // Golden yellow
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(28.dp))
+
+                // 2. Coat of Arms (Tryzub) - Clean, high-fidelity shield logo matching the visual weight of the Flag
+                UkrainianCoatOfArms(
+                    modifier = Modifier
+                        .height(96.dp)
+                        .aspectRatio(165f / 230.5f)
+                        .clickable { onOpenFullscreenSymbol(FullscreenSymbol.COAT_OF_ARMS) }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Text(
+                text = stringResource(R.string.flag_and_coat_desc),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Black,
+                color = Color(0xFF0D47A1)
+            )
+        }
+    }
+}
+
+@Composable
+fun AnthemCard(
+    isPlaying: Boolean,
+    isBuffering: Boolean,
+    playerPosition: Int,
+    playerDuration: Int,
+    onTogglePlay: () -> Unit,
+    onSeek: (Float) -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(4.dp, RoundedCornerShape(20.dp)),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF0D47A1)),
+        border = BorderStroke(1.5.dp, Color(0xFFFFD500))
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 18.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MusicNote,
+                    contentDescription = null,
+                    tint = Color(0xFFFFD500),
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.national_anthem_header),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Black,
+                    fontSize = 17.sp,
+                    color = Color(0xFFFFD500)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            val lines = listOf(
+                stringResource(R.string.anthem_line_1),
+                stringResource(R.string.anthem_line_2),
+                stringResource(R.string.anthem_line_3),
+                stringResource(R.string.anthem_line_4),
+                "",
+                stringResource(R.string.anthem_line_5),
+                stringResource(R.string.anthem_line_6)
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 2.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                lines.forEach { line ->
+                    if (line.isEmpty()) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                    } else {
+                        AutoScaleText(
+                            text = line,
+                            maxTextSize = 13.5f,
+                            minTextSize = 9.5f,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = stringResource(R.string.orchestra_recording_info),
+                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                color = Color.White.copy(alpha = 0.75f),
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Slimmed down, centered high-fidelity player capsule
+            Row(
+                modifier = Modifier
+                    .widthIn(max = 290.dp)
+                    .fillMaxWidth(0.9f)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0xFF092C66))
+                    .border(1.dp, Color(0xFFFFD500).copy(alpha = 0.3f), RoundedCornerShape(16.dp))
+                    .padding(horizontal = 10.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                IconButton(
+                    onClick = { onTogglePlay() },
+                    modifier = Modifier
+                        .size(34.dp)
+                        .shadow(2.dp, CircleShape)
+                        .clip(CircleShape)
+                        .background(Color(0xFFFFD500))
+                        .testTag("play_button_unified")
+                ) {
+                    if (isBuffering) {
+                        CircularProgressIndicator(
+                            color = Color(0xFF0D47A1),
+                            strokeWidth = 2.dp,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    } else {
+                        Icon(
+                            imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                            contentDescription = if (isPlaying) stringResource(R.string.btn_stop) else stringResource(R.string.btn_play),
+                            tint = Color(0xFF0D47A1),
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+
+                val progress = if (playerDuration > 0) playerPosition.toFloat() / playerDuration else 0f
+
+                AudioWaveformVisualizer(
+                    isPlaying = isPlaying,
+                    progress = progress,
+                    onSeek = onSeek,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Text(
+                    text = if (playerDuration > 0) "${formatMillisToMinutesSeconds(playerPosition)} / ${formatMillisToMinutesSeconds(playerDuration)}" else "00:00 / 01:24",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 8.5.sp,
+                    color = Color.White.copy(alpha = 0.55f),
+                    modifier = Modifier.padding(end = 4.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ArticleOfTheDayCard(
+    article: Article,
+    isBookmarked: Boolean,
+    initialEditsJson: String,
+    onToggleBookmark: () -> Unit,
+    onArticleClick: (Article) -> Unit,
+    resolveArticleLink: (String) -> Article?,
+    onOpen: () -> Unit
+) {
+    Column {
+        Text(
+            text = stringResource(R.string.article_of_the_day),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Black,
+            color = Color(0xFF0D47A1),
+            modifier = Modifier.padding(vertical = 10.dp)
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(4.dp, RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(16.dp))
+                .clickable { onOpen() }
+        ) {
+            ArticleCard(
+                article = article,
+                isBookmarked = isBookmarked,
+                onToggleBookmark = onToggleBookmark,
+                onArticleClick = onArticleClick,
+                resolveArticleLink = resolveArticleLink,
+                initialEditsJson = initialEditsJson
+            )
+        }
+    }
 }
