@@ -135,6 +135,7 @@ import ua.constitution.domain.text.getWordSnappedRange
 import ua.constitution.domain.text.mapFormattedToOriginal
 import ua.constitution.domain.text.mapOriginalToFormatted
 import ua.constitution.domain.text.mergeAdjacentStyledRanges
+import ua.constitution.domain.content.mergeAdjacentLinkSegments
 import ua.constitution.ui.safeParseColor
 
 @Composable
@@ -161,32 +162,7 @@ fun SegmentedTextWithEdits(
     val context = LocalContext.current
     var textLayoutResult by remember { mutableStateOf<androidx.compose.ui.text.TextLayoutResult?>(null) }
     
-    val mergedSegments = remember(segments) {
-        val result = mutableListOf<ua.constitution.data.model.ContentSegment>()
-        var currentLink: ua.constitution.data.model.ContentSegment? = null
-        for (segment in segments) {
-            if (segment.type == "link") {
-                if (currentLink != null && currentLink.url == segment.url) {
-                    currentLink = currentLink.copy(text = currentLink.text + segment.text)
-                } else {
-                    if (currentLink != null) {
-                        result.add(currentLink)
-                    }
-                    currentLink = segment
-                }
-            } else {
-                if (currentLink != null) {
-                    result.add(currentLink)
-                    currentLink = null
-                }
-                result.add(segment)
-            }
-        }
-        if (currentLink != null) {
-            result.add(currentLink)
-        }
-        result
-    }
+    val mergedSegments = remember(segments) { mergeAdjacentLinkSegments(segments) }
 
     val originalText = remember(mergedSegments) {
         mergedSegments.joinToString("") { if (it.type == "link") it.text else it.value }
@@ -1179,32 +1155,7 @@ fun SegmentedText(
     val context = LocalContext.current
 
     // Merge adjacent link segments that share the same URL to prevent split link issues (e.g., 149-1)
-    val mergedSegments = remember(segments) {
-        val result = mutableListOf<ua.constitution.data.model.ContentSegment>()
-        var currentLink: ua.constitution.data.model.ContentSegment? = null
-        for (segment in segments) {
-            if (segment.type == "link") {
-                if (currentLink != null && currentLink.url == segment.url) {
-                    currentLink = currentLink.copy(text = currentLink.text + segment.text)
-                } else {
-                    if (currentLink != null) {
-                        result.add(currentLink)
-                    }
-                    currentLink = segment
-                }
-            } else {
-                if (currentLink != null) {
-                    result.add(currentLink)
-                    currentLink = null
-                }
-                result.add(segment)
-            }
-        }
-        if (currentLink != null) {
-            result.add(currentLink)
-        }
-        result
-    }
+    val mergedSegments = remember(segments) { mergeAdjacentLinkSegments(segments) }
 
     val annotatedString = remember(mergedSegments) {
         buildAnnotatedString {
