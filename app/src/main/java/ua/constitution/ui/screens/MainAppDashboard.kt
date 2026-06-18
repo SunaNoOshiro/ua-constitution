@@ -95,10 +95,8 @@ import ua.constitution.data.model.Note
 import ua.constitution.data.model.Link
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import ua.constitution.data.database.ConstitutionDatabase
 import ua.constitution.data.model.Article
 import ua.constitution.data.model.Chapter
-import ua.constitution.data.model.ConstitutionData
 import ua.constitution.data.repository.ConstitutionRepository
 import ua.constitution.ui.theme.MyApplicationTheme
 import ua.constitution.ui.viewmodel.ConstitutionViewModel
@@ -215,7 +213,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
             currentSelectedChapterId = targetArticle.chapterId
             activeTab = DashboardTab.ARTICLES
             coroutineScope.launch {
-                val chapterArticles = ConstitutionData.articles.filter { it.chapterId == targetArticle.chapterId }
+                val chapterArticles = viewModel.articlesForChapter(targetArticle.chapterId)
                 val index = chapterArticles.indexOfFirst { it.bookmarkId == targetArticle.bookmarkId }
                 if (index >= 0) {
                     ignoreScrollActiveIndexSetting = true
@@ -229,7 +227,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
     val navigateToArticleWithOrigin: (Article, Article?) -> Unit = { targetArticle, originArticle ->
         val currentArticle = originArticle ?: run {
             if (activeTab == DashboardTab.ARTICLES) {
-                val chapterArticles = ConstitutionData.articles.filter { it.chapterId == currentSelectedChapterId }
+                val chapterArticles = viewModel.articlesForChapter(currentSelectedChapterId)
                 val activeArticleIndexVal = articlesLazyListState.firstVisibleItemIndex
                 chapterArticles.getOrNull(activeArticleIndexVal)
             } else {
@@ -244,7 +242,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
         currentSelectedChapterId = targetArticle.chapterId
         activeTab = DashboardTab.ARTICLES
         coroutineScope.launch {
-            val chapterArticles = ConstitutionData.articles.filter { it.chapterId == targetArticle.chapterId }
+            val chapterArticles = viewModel.articlesForChapter(targetArticle.chapterId)
             val index = chapterArticles.indexOfFirst { it.bookmarkId == targetArticle.bookmarkId }
             if (index >= 0) {
                 ignoreScrollActiveIndexSetting = true
@@ -455,7 +453,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                 }
             }
 
-            if (ConstitutionData.initializationError.isNotEmpty() || ConstitutionData.articles.isEmpty()) {
+            if (viewModel.initializationError.isNotEmpty() || viewModel.articlesEmpty) {
                 Surface(
                     color = Color(0xFFF8D7DA),
                     contentColor = Color(0xFF721C24),
@@ -471,7 +469,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Error: ${ConstitutionData.initializationError}. Articles count: ${ConstitutionData.articles.size}. Verified hash: ${ConstitutionData.computedHash}",
+                            text = "Error: ${viewModel.initializationError}. Articles count: ${viewModel.articlesCount}. Verified hash: ${viewModel.computedHash}",
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
@@ -627,9 +625,9 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                     contentPadding = PaddingValues(top = 8.dp, bottom = 20.dp),
                                     modifier = Modifier.fillMaxSize()
                                 ) {
-                                    items(ConstitutionData.chapters) { chapter ->
+                                    items(viewModel.chapters) { chapter ->
                                         val chapterArticles = remember(chapter.id) {
-                                            ConstitutionData.articles.filter { it.chapterId == chapter.id }
+                                            viewModel.articlesForChapter(chapter.id)
                                         }
                                         val preambleStr = stringResource(R.string.preamble)
                                         val rangeText = if (chapterArticles.isNotEmpty()) {
@@ -753,9 +751,9 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                         }
 
                         DashboardTab.ARTICLES -> {
-                            val selectedChapter = ConstitutionData.chapters.find { it.id == currentSelectedChapterId }
-                                ?: ConstitutionData.chapters.first()
-                            val chapterArticles = ConstitutionData.articles.filter { it.chapterId == currentSelectedChapterId }
+                            val selectedChapter = viewModel.chapters.find { it.id == currentSelectedChapterId }
+                                ?: viewModel.chapters.first()
+                            val chapterArticles = viewModel.articlesForChapter(currentSelectedChapterId)
 
                             val context = LocalContext.current
                             val activeArticleIndex by remember {
@@ -818,7 +816,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                                     currentSelectedChapterId = targetArticle.chapterId
                                                     activeTab = DashboardTab.ARTICLES
                                                     coroutineScope.launch {
-                                                        val chapterArticles = ConstitutionData.articles.filter { it.chapterId == targetArticle.chapterId }
+                                                        val chapterArticles = viewModel.articlesForChapter(targetArticle.chapterId)
                                                         val index = chapterArticles.indexOfFirst { it.bookmarkId == targetArticle.bookmarkId }
                                                         if (index >= 0) {
                                                             ignoreScrollActiveIndexSetting = true
@@ -1053,13 +1051,11 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                         }
 
                         DashboardTab.BOOKMARKS -> {
-                            val bookmarkedArticles = ConstitutionData.articles.filter { article ->
-                                bookmarksList.any { it.articleId == article.bookmarkId }
-                            }
+                            val bookmarkedArticles = viewModel.bookmarkedArticles(bookmarksList)
 
                             val editingArticleObj = remember(bookmarkEditingArticleId) {
                                 if (bookmarkEditingArticleId != null) {
-                                    ConstitutionData.articles.find { it.bookmarkId == bookmarkEditingArticleId }
+                                    viewModel.articleByBookmarkId(bookmarkEditingArticleId)
                                 } else {
                                     null
                                 }

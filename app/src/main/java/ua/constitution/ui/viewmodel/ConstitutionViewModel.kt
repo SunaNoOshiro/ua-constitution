@@ -74,7 +74,7 @@ class ConstitutionViewModel(
 
     /** The article a bookmark refers to (by its derived bookmarkId), or null. Mirrors the former
      *  inline `ConstitutionData.articles.find { it.bookmarkId == ... }`. */
-    fun articleByBookmarkId(bookmarkId: Int): Article? =
+    fun articleByBookmarkId(bookmarkId: Int?): Article? =
         contentSource.articles.find { it.bookmarkId == bookmarkId }
 
     /** Articles that are currently bookmarked, in article order. Mirrors the former inline filter. */
