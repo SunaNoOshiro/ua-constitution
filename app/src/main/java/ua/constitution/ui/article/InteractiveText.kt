@@ -136,6 +136,7 @@ import ua.constitution.domain.text.mapOriginalToFormatted
 import ua.constitution.domain.text.mergeAdjacentStyledRanges
 import ua.constitution.domain.content.mergeAdjacentLinkSegments
 import ua.constitution.domain.link.handleLinkAnnotationTap
+import ua.constitution.ui.createEraserIcon
 import ua.constitution.ui.safeParseColor
 import ua.constitution.ui.selectionToolbarOffset
 
@@ -324,38 +325,7 @@ fun SegmentedTextWithEdits(
     val lastMarkerColor = selectedMarkerColorHex
     val lastUnderlineColor = selectedUnderlineColorHex
 
-    val eraserIcon = remember {
-        androidx.compose.ui.graphics.vector.ImageVector.Builder(
-            name = "Eraser",
-            defaultWidth = 24.dp,
-            defaultHeight = 24.dp,
-            viewportWidth = 24f,
-            viewportHeight = 24f
-        ).apply {
-            path(
-                fill = androidx.compose.ui.graphics.SolidColor(Color.White),
-                stroke = null,
-                strokeLineWidth = 1f,
-                strokeLineCap = androidx.compose.ui.graphics.StrokeCap.Butt,
-                strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Miter,
-                strokeLineMiter = 1f
-            ) {
-                moveTo(16.24f, 3.56f)
-                lineTo(21.19f, 8.51f)
-                curveTo(21.97f, 9.29f, 21.97f, 10.56f, 21.19f, 11.34f)
-                lineTo(14.12f, 18.41f)
-                lineTo(9.17f, 13.46f)
-                lineTo(16.24f, 3.56f)
-                close()
-                moveTo(7.76f, 14.88f)
-                lineTo(12.71f, 19.83f)
-                lineTo(5.64f, 21.0f)
-                lineTo(2.0f, 21.0f)
-                lineTo(7.76f, 14.88f)
-                close()
-            }
-        }.build()
-    }
+    val eraserIcon = remember { createEraserIcon(Color.White) }
 
     val applyStyleToRanges = remember(originalText, ranges, onUpdateRanges) {
         { wordRanges: Collection<Pair<Int, Int>>, tool: String, colorHex: String ->
@@ -1130,34 +1100,7 @@ fun GlobalFormattingPanel(
         }
     }
 
-    val eraserIcon = remember {
-        androidx.compose.ui.graphics.vector.ImageVector.Builder(
-            name = "Eraser",
-            defaultWidth = 24.dp,
-            defaultHeight = 24.dp,
-            viewportWidth = 24f,
-            viewportHeight = 24f
-        ).apply {
-            path(
-                fill = androidx.compose.ui.graphics.SolidColor(Color.Black),
-                strokeLineWidth = 0f
-            ) {
-                moveTo(16.24f, 3.56f)
-                lineTo(21.19f, 8.51f)
-                curveTo(21.97f, 9.29f, 21.97f, 10.56f, 21.19f, 11.34f)
-                lineTo(14.12f, 18.41f)
-                lineTo(9.17f, 13.46f)
-                lineTo(16.24f, 3.56f)
-                close()
-                moveTo(7.76f, 14.88f)
-                lineTo(12.71f, 19.83f)
-                lineTo(5.64f, 21.0f)
-                lineTo(2.0f, 21.0f)
-                lineTo(7.76f, 14.88f)
-                close()
-            }
-        }.build()
-    }
+    val eraserIcon = remember { createEraserIcon(Color.Black) }
 
     val markerColors = Constants.MARKER_COLORS
     val underlineColors = Constants.UNDERLINE_COLORS
