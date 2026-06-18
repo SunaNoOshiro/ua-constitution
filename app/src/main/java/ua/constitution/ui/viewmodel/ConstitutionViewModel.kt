@@ -10,7 +10,9 @@ import ua.constitution.domain.content.ArticleLookup
 import ua.constitution.domain.content.ChapterSource
 import ua.constitution.domain.content.ConstitutionContentSource
 import ua.constitution.domain.content.IntegrityStatus
+import ua.constitution.domain.content.articleOfDayIndex
 import ua.constitution.domain.content.searchArticles
+import ua.constitution.domain.content.selectArticlesByBookmarkIds
 import ua.constitution.domain.link.findArticleByLink
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -77,14 +79,15 @@ class ConstitutionViewModel(
     fun articleByBookmarkId(bookmarkId: Int?): Article? =
         contentSource.articles.find { it.bookmarkId == bookmarkId }
 
-    /** Articles that are currently bookmarked, in article order. Mirrors the former inline filter. */
+    /** Articles that are currently bookmarked, in article order. Delegates to the pure
+     *  [selectArticlesByBookmarkIds]. */
     fun bookmarkedArticles(bookmarks: List<BookmarkEntity>): List<Article> =
-        contentSource.articles.filter { article -> bookmarks.any { it.articleId == article.bookmarkId } }
+        selectArticlesByBookmarkIds(contentSource.articles, bookmarks.map { it.articleId })
 
     /** The "article of the day" for a day-of-year seed, or null when there is no content (the
-     *  caller supplies the localized UI fallback). Mirrors the former HomeScreen modulo selection. */
+     *  caller supplies the localized UI fallback). Delegates to the pure [articleOfDayIndex]. */
     fun articleOfDay(dayOfYear: Int): Article? =
-        contentSource.articles.let { if (it.isNotEmpty()) it[dayOfYear % it.size] else null }
+        articleOfDayIndex(dayOfYear, contentSource.articles.size)?.let { contentSource.articles[it] }
 
     /** Resolves cross-reference link text (e.g. "ст. 20") to an article via the content list. */
     fun resolveLink(text: String): Article? =
