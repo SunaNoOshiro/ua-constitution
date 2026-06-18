@@ -121,6 +121,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
 import ua.constitution.audio.AnthemVersion
+import ua.constitution.audio.computeWaveformBarStates
+import ua.constitution.ui.formatMillisToMinutesSeconds
 import ua.constitution.ui.model.DashboardTab
 import ua.constitution.ui.model.FullscreenSymbol
 import ua.constitution.domain.link.findArticleByLink
@@ -186,6 +188,7 @@ fun AudioWaveformVisualizer(
         horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        val barStates = computeWaveformBarStates(heights.size, progress)
         heights.forEachIndexed { index, baseHeight ->
             val animHeight by if (isPlaying) {
                 infiniteTransition.animateFloat(
@@ -201,7 +204,7 @@ fun AudioWaveformVisualizer(
                 remember { mutableStateOf(baseHeight * 0.15f) }
             }
             
-            val isPlayed = (index.toFloat() / heights.size) <= progress
+            val isPlayed = barStates[index]
             val barColor = if (isPlayed) Color(0xFFFFD500) else Color(0xFFFFD500).copy(alpha = 0.35f)
 
             Box(
@@ -270,13 +273,6 @@ fun HomeTabContent(
     var nativeMediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
     var playerPosition by remember { mutableStateOf(0) }
     var playerDuration by remember { mutableStateOf(0) }
-
-    fun formatTime(ms: Int): String {
-        val totalSecs = ms / 1000
-        val mins = totalSecs / 60
-        val secs = totalSecs % 60
-        return String.format("%02d:%02d", mins, secs)
-    }
 
     LaunchedEffect(isPlaying, nativeMediaPlayer) {
         if (isPlaying && nativeMediaPlayer != null) {
@@ -576,7 +572,7 @@ fun HomeTabContent(
                         )
 
                         Text(
-                            text = if (playerDuration > 0) "${formatTime(playerPosition)} / ${formatTime(playerDuration)}" else "00:00 / 01:24",
+                            text = if (playerDuration > 0) "${formatMillisToMinutesSeconds(playerPosition)} / ${formatMillisToMinutesSeconds(playerDuration)}" else "00:00 / 01:24",
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
                             fontSize = 8.5.sp,
