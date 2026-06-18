@@ -128,6 +128,7 @@ import ua.constitution.domain.title.parseArticleTitle
 import ua.constitution.domain.bookmark.BookmarkEditsParser
 import ua.constitution.domain.text.ArticleNumberFormatter
 import ua.constitution.domain.text.StyledRange
+import ua.constitution.domain.text.ParagraphRangeMapping
 import ua.constitution.domain.text.formatStringToSuperscript
 import ua.constitution.domain.text.getWordRangeAtOffset
 import ua.constitution.domain.text.getWordSnappedRange
@@ -420,67 +421,21 @@ fun ArticleCard(
             }
 
             val combinedSegments = remember(article.paragraphs) {
-                val result = mutableListOf<ua.constitution.data.model.ContentSegment>()
-                article.paragraphs.forEachIndexed { index, paragraph ->
-                    result.addAll(paragraph.content)
-                    if (index < article.paragraphs.lastIndex) {
-                        result.add(ua.constitution.data.model.ContentSegment(type = "text", value = "\n\n"))
-                    }
-                }
-                result
+                ParagraphRangeMapping.flattenToSegments(article.paragraphs)
             }
 
             val paragraphOffsets = remember(article.paragraphs) {
-                val offsets = IntArray(article.paragraphs.size)
-                var currentOffset = 0
-                article.paragraphs.forEachIndexed { index, paragraph ->
-                    offsets[index] = currentOffset
-                    currentOffset += paragraph.text.length + 2 // 2 for "\n\n"
-                }
-                offsets
+                ParagraphRangeMapping.paragraphOffsets(article.paragraphs)
             }
 
             val combinedRanges = remember(localEdits, paragraphOffsets) {
-                val result = mutableListOf<StyledRange>()
-                localEdits.forEach { (pIdx, ranges) ->
-                    val offset = paragraphOffsets.getOrNull(pIdx) ?: 0
-                    ranges.forEach { range ->
-                        result.add(
-                            range.copy(
-                                start = range.start + offset,
-                                end = range.end + offset
-                            )
-                        )
-                    }
-                }
-                result
+                ParagraphRangeMapping.toCombined(localEdits, paragraphOffsets)
             }
 
             val onUpdateCombinedRanges: (List<StyledRange>) -> Unit = { newCombinedRanges ->
-                val newMap = mutableMapOf<Int, List<StyledRange>>()
-                article.paragraphs.forEachIndexed { pIdx, paragraph ->
-                    val offset = paragraphOffsets[pIdx]
-                    val pLen = paragraph.text.length
-                    val pStartInCombined = offset
-                    val pEndInCombined = offset + pLen
-                    
-                    val pRanges = mutableListOf<StyledRange>()
-                    newCombinedRanges.forEach { range ->
-                        val intersectStart = maxOf(range.start, pStartInCombined)
-                        val intersectEnd = minOf(range.end, pEndInCombined)
-                        if (intersectStart < intersectEnd) {
-                            pRanges.add(
-                                range.copy(
-                                    start = intersectStart - offset,
-                                    end = intersectEnd - offset
-                                )
-                            )
-                        }
-                    }
-                    if (pRanges.isNotEmpty()) {
-                        newMap[pIdx] = pRanges
-                    }
-                }
+                val newMap = ParagraphRangeMapping.toPerParagraph(
+                    newCombinedRanges, article.paragraphs, paragraphOffsets
+                )
                 localEdits = newMap
                 val json = BookmarkEditsParser.toJson(newMap)
                 lastSavedJson = json
