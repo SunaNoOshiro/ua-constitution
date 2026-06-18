@@ -121,7 +121,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
 import ua.constitution.audio.AnthemVersion
-import ua.constitution.audio.ProceduralAnthemSynth
 import ua.constitution.ui.model.DashboardTab
 import ua.constitution.ui.model.FullscreenSymbol
 import ua.constitution.domain.title.parseArticleTitle

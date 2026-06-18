@@ -121,7 +121,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
 import ua.constitution.audio.AnthemVersion
-import ua.constitution.audio.ProceduralAnthemSynth
 import ua.constitution.ui.model.DashboardTab
 import ua.constitution.ui.model.FullscreenSymbol
 import ua.constitution.domain.link.findArticleByLink
@@ -1053,39 +1052,6 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                         DashboardTab.BOOKMARKS -> {
                             val bookmarkedArticles = viewModel.bookmarkedArticles(bookmarksList)
 
-                            val editingArticleObj = remember(bookmarkEditingArticleId) {
-                                if (bookmarkEditingArticleId != null) {
-                                    viewModel.articleByBookmarkId(bookmarkEditingArticleId)
-                                } else {
-                                    null
-                                }
-                            }
-                            
-                            val editingArticleTitle = remember(editingArticleObj) {
-                                editingArticleObj?.let { article ->
-                                    val regex = """^(Стаття|Пункт)\s+(\d+(?:[\.\-]\d+)?)\.?\s*(.*)$""".toRegex()
-                                    val match = regex.find(article.titleUa)
-                                    if (match != null) {
-                                        val label = match.groupValues[1]
-                                        val rawNumber = match.groupValues[2]
-                                        "$label $rawNumber"
-                                    } else {
-                                        article.titleUa
-                                    }
-                                }
-                            }
-
-                            val editingBookmarkEntity = remember(bookmarksList, bookmarkEditingArticleId) {
-                                if (bookmarkEditingArticleId != null) {
-                                    bookmarksList.find { it.articleId == bookmarkEditingArticleId }
-                                } else {
-                                    null
-                                }
-                            }
-                            val activeBookmarkHasEdits = !editingBookmarkEntity?.editsJson.isNullOrBlank() && 
-                                editingBookmarkEntity?.editsJson != "{}" && 
-                                editingBookmarkEntity?.editsJson != "{\"paragraphEdits\":{}}"
-
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -1185,23 +1151,6 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                                  onPanelExpandedChange = { bookmarkPanelExpanded = it },
                                                  onActiveToolChange = { tool ->
                                                      bookmarkActiveTool = tool
-                                                     val markerColors = Constants.MARKER_COLORS
-                                                     val underlineColors = Constants.UNDERLINE_COLORS
-                                                     if (false) {
-                                                         val idx = -1
-                                                         if (idx >= 0) {
-                                                             // none
-                                                         } else if (false) {
-                                                             // none
-                                                         }
-                                                     } else if (false) {
-                                                         val idx = -1
-                                                         if (idx >= 0) {
-                                                             // none
-                                                         } else if (false) {
-                                                             // none
-                                                         }
-                                                     }
                                                  },
                                                  onColorHexChange = { color ->
                                                       if (bookmarkActiveTool == Constants.TOOL_UNDERLINE) {
