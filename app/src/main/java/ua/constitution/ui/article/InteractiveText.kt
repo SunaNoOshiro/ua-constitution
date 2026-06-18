@@ -180,6 +180,110 @@ fun SegmentedTextWithEdits(
         mapFormattedToOriginal(originalText, formattedText)
     }
 
+    // Highlight/underline overlay shared by the editable and read-only render paths.
+    val drawStyledOverlay: androidx.compose.ui.graphics.drawscope.ContentDrawScope.() -> Unit = {
+                            // Draw highlights first behind the text
+                            try {
+                                textLayoutResult?.let { layoutResult ->
+                                    ranges.forEach { range ->
+                                        if (range.highlight) {
+                                            val colorVal = safeParseColor(range.highlightColorHex, Color.Yellow).copy(alpha = 0.85f)
+                                            val safeStart = range.start.coerceIn(0, originalText.length)
+                                            val safeEnd = range.end.coerceIn(0, originalText.length)
+                                            val rawMappedStart = origToFormMapping.getOrElse(safeStart) { safeStart }
+                                            val rawMappedEnd = origToFormMapping.getOrElse(safeEnd) { safeEnd }
+                                            val textLen = layoutResult.layoutInput.text.length
+                                            val mappedSelectStart = rawMappedStart.coerceIn(0, textLen)
+                                            val mappedSelectEnd = rawMappedEnd.coerceIn(0, textLen)
+                                            if (mappedSelectStart < mappedSelectEnd) {
+                                                val startLine = layoutResult.getLineForOffset(mappedSelectStart)
+                                                val endLine = layoutResult.getLineForOffset(maxOf(0, mappedSelectEnd - 1))
+                                                for (line in startLine..endLine) {
+                                                    val lineStart = layoutResult.getLineStart(line)
+                                                    val lineEnd = layoutResult.getLineEnd(line)
+                                                    val segmentStart = maxOf(mappedSelectStart, lineStart)
+                                                    val segmentEnd = minOf(mappedSelectEnd, lineEnd)
+                                                    if (segmentStart < segmentEnd) {
+                                                        val left = if (segmentStart == lineStart) {
+                                                            layoutResult.getLineLeft(line)
+                                                        } else {
+                                                            layoutResult.getHorizontalPosition(segmentStart, usePrimaryDirection = true)
+                                                        }
+                                                        val right = if (segmentEnd == lineEnd) {
+                                                            layoutResult.getLineRight(line)
+                                                        } else {
+                                                            layoutResult.getHorizontalPosition(segmentEnd, usePrimaryDirection = true)
+                                                        }
+                                                        val topHeight = layoutResult.getLineTop(line)
+                                                        val bottomHeight = layoutResult.getLineBottom(line)
+                                                        drawRect(
+                                                            color = colorVal,
+                                                            topLeft = androidx.compose.ui.geometry.Offset(minOf(left, right), topHeight),
+                                                            size = androidx.compose.ui.geometry.Size(kotlin.math.abs(right - left), bottomHeight - topHeight)
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                // ignore
+                            }
+
+                            drawContent()
+
+                            // Draw underlines on top of the text
+                            try {
+                                textLayoutResult?.let { layoutResult ->
+                                    ranges.forEach { range ->
+                                        if (range.underscore) {
+                                            val colorVal = safeParseColor(range.underscoreColorHex, Color.Red)
+                                            val safeStart = range.start.coerceIn(0, originalText.length)
+                                            val safeEnd = range.end.coerceIn(0, originalText.length)
+                                            val rawMappedStart = origToFormMapping.getOrElse(safeStart) { safeStart }
+                                            val rawMappedEnd = origToFormMapping.getOrElse(safeEnd) { safeEnd }
+                                            val textLen = layoutResult.layoutInput.text.length
+                                            val mappedSelectStart = rawMappedStart.coerceIn(0, textLen)
+                                            val mappedSelectEnd = rawMappedEnd.coerceIn(0, textLen)
+                                            if (mappedSelectStart < mappedSelectEnd) {
+                                                val startLine = layoutResult.getLineForOffset(mappedSelectStart)
+                                                val endLine = layoutResult.getLineForOffset(maxOf(0, mappedSelectEnd - 1))
+                                                for (line in startLine..endLine) {
+                                                    val lineStart = layoutResult.getLineStart(line)
+                                                    val lineEnd = layoutResult.getLineEnd(line)
+                                                    val segmentStart = maxOf(mappedSelectStart, lineStart)
+                                                    val segmentEnd = minOf(mappedSelectEnd, lineEnd)
+                                                    if (segmentStart < segmentEnd) {
+                                                        val left = if (segmentStart == lineStart) {
+                                                            layoutResult.getLineLeft(line)
+                                                        } else {
+                                                            layoutResult.getHorizontalPosition(segmentStart, usePrimaryDirection = true)
+                                                        }
+                                                        val right = if (segmentEnd == lineEnd) {
+                                                            layoutResult.getLineRight(line)
+                                                        } else {
+                                                            layoutResult.getHorizontalPosition(segmentEnd, usePrimaryDirection = true)
+                                                        }
+                                                        val bottomHeight = layoutResult.getLineBottom(line)
+                                                        val lineY = bottomHeight - 2.dp.toPx()
+                                                        drawLine(
+                                                            color = colorVal,
+                                                            start = androidx.compose.ui.geometry.Offset(minOf(left, right), lineY),
+                                                            end = androidx.compose.ui.geometry.Offset(maxOf(left, right), lineY),
+                                                            strokeWidth = 2.dp.toPx()
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                // ignore drawing errors to avoid crashing the Compose drawing thread
+                            }
+    }
+
     val annotatedString = remember(mergedSegments, formattedText, origToFormMapping) {
         buildAnnotatedString {
             var originalOffset = 0
@@ -369,108 +473,7 @@ fun SegmentedTextWithEdits(
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester)
-                        .drawWithContent {
-                            // Draw highlights first behind the text
-                            try {
-                                textLayoutResult?.let { layoutResult ->
-                                    ranges.forEach { range ->
-                                        if (range.highlight) {
-                                            val colorVal = safeParseColor(range.highlightColorHex, Color.Yellow).copy(alpha = 0.85f)
-                                            val safeStart = range.start.coerceIn(0, originalText.length)
-                                            val safeEnd = range.end.coerceIn(0, originalText.length)
-                                            val rawMappedStart = origToFormMapping.getOrElse(safeStart) { safeStart }
-                                            val rawMappedEnd = origToFormMapping.getOrElse(safeEnd) { safeEnd }
-                                            val textLen = layoutResult.layoutInput.text.length
-                                            val mappedSelectStart = rawMappedStart.coerceIn(0, textLen)
-                                            val mappedSelectEnd = rawMappedEnd.coerceIn(0, textLen)
-                                            if (mappedSelectStart < mappedSelectEnd) {
-                                                val startLine = layoutResult.getLineForOffset(mappedSelectStart)
-                                                val endLine = layoutResult.getLineForOffset(maxOf(0, mappedSelectEnd - 1))
-                                                for (line in startLine..endLine) {
-                                                    val lineStart = layoutResult.getLineStart(line)
-                                                    val lineEnd = layoutResult.getLineEnd(line)
-                                                    val segmentStart = maxOf(mappedSelectStart, lineStart)
-                                                    val segmentEnd = minOf(mappedSelectEnd, lineEnd)
-                                                    if (segmentStart < segmentEnd) {
-                                                        val left = if (segmentStart == lineStart) {
-                                                            layoutResult.getLineLeft(line)
-                                                        } else {
-                                                            layoutResult.getHorizontalPosition(segmentStart, usePrimaryDirection = true)
-                                                        }
-                                                        val right = if (segmentEnd == lineEnd) {
-                                                            layoutResult.getLineRight(line)
-                                                        } else {
-                                                            layoutResult.getHorizontalPosition(segmentEnd, usePrimaryDirection = true)
-                                                        }
-                                                        val topHeight = layoutResult.getLineTop(line)
-                                                        val bottomHeight = layoutResult.getLineBottom(line)
-                                                        drawRect(
-                                                            color = colorVal,
-                                                            topLeft = androidx.compose.ui.geometry.Offset(minOf(left, right), topHeight),
-                                                            size = androidx.compose.ui.geometry.Size(kotlin.math.abs(right - left), bottomHeight - topHeight)
-                                                        )
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            } catch (e: Exception) {
-                                // ignore
-                            }
-
-                            drawContent()
-
-                            // Draw underlines on top of the text
-                            try {
-                                textLayoutResult?.let { layoutResult ->
-                                    ranges.forEach { range ->
-                                        if (range.underscore) {
-                                            val colorVal = safeParseColor(range.underscoreColorHex, Color.Red)
-                                            val safeStart = range.start.coerceIn(0, originalText.length)
-                                            val safeEnd = range.end.coerceIn(0, originalText.length)
-                                            val rawMappedStart = origToFormMapping.getOrElse(safeStart) { safeStart }
-                                            val rawMappedEnd = origToFormMapping.getOrElse(safeEnd) { safeEnd }
-                                            val textLen = layoutResult.layoutInput.text.length
-                                            val mappedSelectStart = rawMappedStart.coerceIn(0, textLen)
-                                            val mappedSelectEnd = rawMappedEnd.coerceIn(0, textLen)
-                                            if (mappedSelectStart < mappedSelectEnd) {
-                                                val startLine = layoutResult.getLineForOffset(mappedSelectStart)
-                                                val endLine = layoutResult.getLineForOffset(maxOf(0, mappedSelectEnd - 1))
-                                                for (line in startLine..endLine) {
-                                                    val lineStart = layoutResult.getLineStart(line)
-                                                    val lineEnd = layoutResult.getLineEnd(line)
-                                                    val segmentStart = maxOf(mappedSelectStart, lineStart)
-                                                    val segmentEnd = minOf(mappedSelectEnd, lineEnd)
-                                                    if (segmentStart < segmentEnd) {
-                                                        val left = if (segmentStart == lineStart) {
-                                                            layoutResult.getLineLeft(line)
-                                                        } else {
-                                                            layoutResult.getHorizontalPosition(segmentStart, usePrimaryDirection = true)
-                                                        }
-                                                        val right = if (segmentEnd == lineEnd) {
-                                                            layoutResult.getLineRight(line)
-                                                        } else {
-                                                            layoutResult.getHorizontalPosition(segmentEnd, usePrimaryDirection = true)
-                                                        }
-                                                        val bottomHeight = layoutResult.getLineBottom(line)
-                                                        val lineY = bottomHeight - 2.dp.toPx()
-                                                        drawLine(
-                                                            color = colorVal,
-                                                            start = androidx.compose.ui.geometry.Offset(minOf(left, right), lineY),
-                                                            end = androidx.compose.ui.geometry.Offset(maxOf(left, right), lineY),
-                                                            strokeWidth = 2.dp.toPx()
-                                                        )
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            } catch (e: Exception) {
-                                // ignore drawing errors to avoid crashing the Compose drawing thread
-                            }
-                        }
+                        .drawWithContent(drawStyledOverlay)
                 )
 
                 // High Z-index interactive overlay solely to capture and handle styling gestures (swiping over words)
@@ -580,108 +583,7 @@ fun SegmentedTextWithEdits(
             ),
             onTextLayout = { textLayoutResult = it },
             modifier = modifier
-                .drawWithContent {
-                    // Draw highlights first behind the text
-                    try {
-                        textLayoutResult?.let { layoutResult ->
-                            ranges.forEach { range ->
-                                if (range.highlight) {
-                                    val colorVal = safeParseColor(range.highlightColorHex, Color.Yellow).copy(alpha = 0.85f)
-                                    val safeStart = range.start.coerceIn(0, originalText.length)
-                                    val safeEnd = range.end.coerceIn(0, originalText.length)
-                                    val rawMappedStart = origToFormMapping.getOrElse(safeStart) { safeStart }
-                                    val rawMappedEnd = origToFormMapping.getOrElse(safeEnd) { safeEnd }
-                                    val textLen = layoutResult.layoutInput.text.length
-                                    val mappedSelectStart = rawMappedStart.coerceIn(0, textLen)
-                                    val mappedSelectEnd = rawMappedEnd.coerceIn(0, textLen)
-                                    if (mappedSelectStart < mappedSelectEnd) {
-                                        val startLine = layoutResult.getLineForOffset(mappedSelectStart)
-                                        val endLine = layoutResult.getLineForOffset(maxOf(0, mappedSelectEnd - 1))
-                                        for (line in startLine..endLine) {
-                                            val lineStart = layoutResult.getLineStart(line)
-                                            val lineEnd = layoutResult.getLineEnd(line)
-                                            val segmentStart = maxOf(mappedSelectStart, lineStart)
-                                            val segmentEnd = minOf(mappedSelectEnd, lineEnd)
-                                            if (segmentStart < segmentEnd) {
-                                                val left = if (segmentStart == lineStart) {
-                                                    layoutResult.getLineLeft(line)
-                                                } else {
-                                                    layoutResult.getHorizontalPosition(segmentStart, usePrimaryDirection = true)
-                                                }
-                                                val right = if (segmentEnd == lineEnd) {
-                                                    layoutResult.getLineRight(line)
-                                                } else {
-                                                    layoutResult.getHorizontalPosition(segmentEnd, usePrimaryDirection = true)
-                                                }
-                                                val topHeight = layoutResult.getLineTop(line)
-                                                val bottomHeight = layoutResult.getLineBottom(line)
-                                                drawRect(
-                                                    color = colorVal,
-                                                    topLeft = androidx.compose.ui.geometry.Offset(minOf(left, right), topHeight),
-                                                    size = androidx.compose.ui.geometry.Size(kotlin.math.abs(right - left), bottomHeight - topHeight)
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } catch (e: Exception) {
-                        // ignore
-                    }
-
-                    drawContent()
-
-                    // Draw underlines on top of the text
-                    try {
-                        textLayoutResult?.let { layoutResult ->
-                            ranges.forEach { range ->
-                                if (range.underscore) {
-                                    val colorVal = safeParseColor(range.underscoreColorHex, Color.Red)
-                                    val safeStart = range.start.coerceIn(0, originalText.length)
-                                    val safeEnd = range.end.coerceIn(0, originalText.length)
-                                    val rawMappedStart = origToFormMapping.getOrElse(safeStart) { safeStart }
-                                    val rawMappedEnd = origToFormMapping.getOrElse(safeEnd) { safeEnd }
-                                    val textLen = layoutResult.layoutInput.text.length
-                                    val mappedSelectStart = rawMappedStart.coerceIn(0, textLen)
-                                    val mappedSelectEnd = rawMappedEnd.coerceIn(0, textLen)
-                                    if (mappedSelectStart < mappedSelectEnd) {
-                                        val startLine = layoutResult.getLineForOffset(mappedSelectStart)
-                                        val endLine = layoutResult.getLineForOffset(maxOf(0, mappedSelectEnd - 1))
-                                        for (line in startLine..endLine) {
-                                            val lineStart = layoutResult.getLineStart(line)
-                                            val lineEnd = layoutResult.getLineEnd(line)
-                                            val segmentStart = maxOf(mappedSelectStart, lineStart)
-                                            val segmentEnd = minOf(mappedSelectEnd, lineEnd)
-                                            if (segmentStart < segmentEnd) {
-                                                val left = if (segmentStart == lineStart) {
-                                                    layoutResult.getLineLeft(line)
-                                                } else {
-                                                    layoutResult.getHorizontalPosition(segmentStart, usePrimaryDirection = true)
-                                                }
-                                                val right = if (segmentEnd == lineEnd) {
-                                                    layoutResult.getLineRight(line)
-                                                } else {
-                                                    layoutResult.getHorizontalPosition(segmentEnd, usePrimaryDirection = true)
-                                                }
-                                                val bottomHeight = layoutResult.getLineBottom(line)
-                                                val lineY = bottomHeight - 2.dp.toPx()
-                                                drawLine(
-                                                    color = colorVal,
-                                                    start = androidx.compose.ui.geometry.Offset(minOf(left, right), lineY),
-                                                    end = androidx.compose.ui.geometry.Offset(maxOf(left, right), lineY),
-                                                    strokeWidth = 2.dp.toPx()
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } catch (e: Exception) {
-                        // ignore drawing errors to avoid crashing the Compose drawing thread
-                    }
-                }
+                .drawWithContent(drawStyledOverlay)
                 .then(
                     Modifier.pointerInput(annotatedString) {
                         detectTapGestures(
