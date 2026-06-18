@@ -95,10 +95,8 @@ import ua.constitution.data.model.Note
 import ua.constitution.data.model.Link
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import ua.constitution.data.database.ConstitutionDatabase
 import ua.constitution.data.model.Article
 import ua.constitution.data.model.Chapter
-import ua.constitution.data.model.ConstitutionData
 import ua.constitution.data.repository.ConstitutionRepository
 import ua.constitution.ui.theme.MyApplicationTheme
 import ua.constitution.ui.viewmodel.ConstitutionViewModel
@@ -450,11 +448,8 @@ fun HomeTabContent(
     val todayArticle = remember {
         val calendar = Calendar.getInstance()
         val dayOfYear = calendar.get(Calendar.DAY_OF_YEAR)
-        if (ConstitutionData.articles.isNotEmpty()) {
-            ConstitutionData.articles[dayOfYear % ConstitutionData.articles.size]
-        } else {
-            Article(1, 1, "${context.getString(R.string.article_label)} 1", listOf(Paragraph(listOf(ua.constitution.data.model.ContentSegment("text", value = context.getString(R.string.article_1_fallback_content))), emptyList())))
-        }
+        viewModel.articleOfDay(dayOfYear)
+            ?: Article(1, 1, "${context.getString(R.string.article_label)} 1", listOf(Paragraph(listOf(ua.constitution.data.model.ContentSegment("text", value = context.getString(R.string.article_1_fallback_content))), emptyList())))
     }
     val isTodayBookmarked = bookmarksList.any { it.articleId == todayArticle.bookmarkId }
 
