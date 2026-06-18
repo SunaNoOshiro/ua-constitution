@@ -137,6 +137,7 @@ import ua.constitution.domain.text.mapOriginalToFormatted
 import ua.constitution.domain.text.mergeAdjacentStyledRanges
 import ua.constitution.domain.content.mergeAdjacentLinkSegments
 import ua.constitution.ui.safeParseColor
+import ua.constitution.ui.selectionToolbarOffset
 
 @Composable
 fun SegmentedTextWithEdits(
@@ -652,33 +653,14 @@ fun SegmentedTextWithEdits(
                     windowSize: androidx.compose.ui.unit.IntSize,
                     layoutDirection: androidx.compose.ui.unit.LayoutDirection,
                     popupContentSize: androidx.compose.ui.unit.IntSize
-                ): androidx.compose.ui.unit.IntOffset {
-                    val left = currentMenuRect.left
-                    val right = currentMenuRect.right
-                    val top = currentMenuRect.top
-                    val bottom = currentMenuRect.bottom
-
-                    val safeLeft = if (left.isNaN() || left.isInfinite()) 0f else left
-                    val safeRight = if (right.isNaN() || right.isInfinite()) 0f else right
-                    val safeTop = if (top.isNaN() || top.isInfinite()) 0f else top
-                    val safeBottom = if (bottom.isNaN() || bottom.isInfinite()) 0f else bottom
-
-                    val x = anchorBounds.left + (safeLeft + safeRight) / 2 - popupContentSize.width / 2
-                    val buffer = with(density) { 60.dp.toPx() }
-                    var y = anchorBounds.top + safeTop - popupContentSize.height - with(density) { 8.dp.toPx() }
-                    
-                    if (y < buffer) {
-                        y = anchorBounds.top + safeBottom + with(density) { 8.dp.toPx() }
-                    }
-                    
-                    val maxX = (windowSize.width - popupContentSize.width - 8).toFloat()
-                    val finalX = if (8f >= maxX) 8f else x.coerceIn(8f, maxX)
-                    
-                    val maxY = (windowSize.height - popupContentSize.height - 8).toFloat()
-                    val finalY = if (8f >= maxY) 8f else y.coerceIn(8f, maxY)
-                    
-                    return androidx.compose.ui.unit.IntOffset(finalX.toInt(), finalY.toInt())
-                }
+                ): androidx.compose.ui.unit.IntOffset = selectionToolbarOffset(
+                    selectionRect = currentMenuRect,
+                    anchorBounds = anchorBounds,
+                    windowSize = windowSize,
+                    popupContentSize = popupContentSize,
+                    gapPx = with(density) { 8.dp.toPx() },
+                    bufferPx = with(density) { 60.dp.toPx() }
+                )
             }
         }
 
