@@ -643,8 +643,6 @@ fun SegmentedTextWithEdits(
         val hasEditsInSelection = remember(ranges, mappedStart, mappedEnd) {
             ranges.any { range -> range.start < mappedEnd && range.end > mappedStart }
         }
-        var showedColorPickerMode by remember(currentMenuRect) { mutableStateOf<String?>(null) }
-
         val density = LocalDensity.current
         val popupPositionProvider = remember(currentMenuRect) {
             object : androidx.compose.ui.window.PopupPositionProvider {
@@ -664,322 +662,78 @@ fun SegmentedTextWithEdits(
             }
         }
 
-        androidx.compose.ui.window.Popup(
-            popupPositionProvider = popupPositionProvider,
+        // Action lambdas keep the selection/menu/text-field state mutation in this composable;
+        // SelectionToolbarPopup is a dumb view that just invokes them (moved verbatim).
+        val applyMarker: (String) -> Unit = { colorHex ->
+            textFieldValue = textFieldValue.copy(selection = androidx.compose.ui.text.TextRange.Zero)
+            menuRect = null
+            menuCallbacks = null
+            applyStyleToRange(mappedStart, mappedEnd, "MARKER", colorHex)
+            onSelectedMarkerColorChange?.invoke(colorHex)
+        }
+        val applyUnderline: (String) -> Unit = { colorHex ->
+            textFieldValue = textFieldValue.copy(selection = androidx.compose.ui.text.TextRange.Zero)
+            menuRect = null
+            menuCallbacks = null
+            applyStyleToRange(mappedStart, mappedEnd, "UNDERLINE", colorHex)
+            onSelectedUnderlineColorChange?.invoke(colorHex)
+        }
+        val applyEraser: () -> Unit = {
+            textFieldValue = textFieldValue.copy(selection = androidx.compose.ui.text.TextRange.Zero)
+            menuRect = null
+            menuCallbacks = null
+            applyStyleToRange(mappedStart, mappedEnd, "ERASER", "#FFFFFF")
+        }
+        val performCopy: () -> Unit = {
+            if (fullArticleTextToCopy != null && selStart == 0 && selEnd == textFieldValue.text.length) {
+                try {
+                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    val clip = ClipData.newPlainText(context.getString(R.string.article_label), fullArticleTextToCopy)
+                    clipboard.setPrimaryClip(clip)
+                    Toast.makeText(context, context.getString(R.string.toast_article_copied), Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    Toast.makeText(context, context.getString(R.string.toast_copy_error, e.message ?: ""), Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                menuCallbacks?.onCopy?.invoke()
+            }
+            menuRect = null
+            menuCallbacks = null
+            textFieldValue = textFieldValue.copy(selection = androidx.compose.ui.text.TextRange.Zero)
+        }
+        val performSelectAll: () -> Unit = {
+            val onSelectAll = menuCallbacks?.onSelectAll
+            if (onSelectAll != null) {
+                onSelectAll()
+            } else {
+                textFieldValue = textFieldValue.copy(
+                    selection = androidx.compose.ui.text.TextRange(0, textFieldValue.text.length)
+                )
+            }
+        }
+
+        SelectionToolbarPopup(
+            positionProvider = popupPositionProvider,
             onDismissRequest = {
                 android.util.Log.d(LogMessages.TAG_SELECTION_BUG, LogMessages.POPUP_DISMISS_PRESERVE_SELECTION)
                 menuRect = null
                 menuCallbacks = null
-            }
-        ) {
-            Surface(
-                shape = RoundedCornerShape(24.dp),
-                color = Color(0xFF1E293B), // slate-800
-                shadowElevation = 8.dp,
-                border = BorderStroke(1.dp, Color(0xFF334155)), // slate-700
-                modifier = Modifier.padding(2.dp)
-            ) {
-                if (showedColorPickerMode == Constants.TOOL_MARKER) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        IconButton(
-                            onClick = { showedColorPickerMode = null },
-                            modifier = Modifier.size(32.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowBack,
-                                contentDescription = stringResource(R.string.btn_back),
-                                tint = Color.White,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .width(1.dp)
-                                .height(16.dp)
-                                .background(Color(0xFF475569)) // slate-600
-                        )
-                        markerColors.forEach { colorHex ->
-                            val colorVal = safeParseColor(colorHex, Color.Yellow)
-                            Box(
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .clip(CircleShape)
-                                    .background(colorVal)
-                                    .border(
-                                        width = if (lastMarkerColor == colorHex) 2.dp else 1.dp,
-                                        color = if (lastMarkerColor == colorHex) Color.White else Color.Gray.copy(alpha = 0.4f),
-                                        shape = CircleShape
-                                    )
-                                    .clickable {
-                                        textFieldValue = textFieldValue.copy(selection = androidx.compose.ui.text.TextRange.Zero)
-                                        menuRect = null
-                                        menuCallbacks = null
-                                        applyStyleToRange(mappedStart, mappedEnd, "MARKER", colorHex)
-                                        onSelectedMarkerColorChange?.invoke(colorHex)
-                                        showedColorPickerMode = null
-                                    }
-                            )
-                        }
-                    }
-                } else if (showedColorPickerMode == "UNDERLINE") {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        IconButton(
-                            onClick = { showedColorPickerMode = null },
-                            modifier = Modifier.size(32.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowBack,
-                                contentDescription = stringResource(R.string.btn_back),
-                                tint = Color.White,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .width(1.dp)
-                                .height(16.dp)
-                                .background(Color(0xFF475569)) // slate-600
-                        )
-                        underlineColors.forEach { colorHex ->
-                            val colorVal = safeParseColor(colorHex, Color.Red)
-                            Box(
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .clip(CircleShape)
-                                    .background(colorVal)
-                                    .border(
-                                        width = if (lastUnderlineColor == colorHex) 2.dp else 1.dp,
-                                        color = if (lastUnderlineColor == colorHex) Color.White else Color.Gray.copy(alpha = 0.4f),
-                                        shape = CircleShape
-                                    )
-                                    .clickable {
-                                        textFieldValue = textFieldValue.copy(selection = androidx.compose.ui.text.TextRange.Zero)
-                                        menuRect = null
-                                        menuCallbacks = null
-                                        applyStyleToRange(mappedStart, mappedEnd, "UNDERLINE", colorHex)
-                                        onSelectedUnderlineColorChange?.invoke(colorHex)
-                                        showedColorPickerMode = null
-                                    }
-                            )
-                        }
-                    }
-                } else {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        menuCallbacks?.onCopy?.let { onCopy ->
-                            IconButton(
-                                onClick = {
-                                    if (fullArticleTextToCopy != null && selStart == 0 && selEnd == textFieldValue.text.length) {
-                                        try {
-                                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                            val clip = ClipData.newPlainText(context.getString(R.string.article_label), fullArticleTextToCopy)
-                                            clipboard.setPrimaryClip(clip)
-                                            Toast.makeText(context, context.getString(R.string.toast_article_copied), Toast.LENGTH_SHORT).show()
-                                        } catch (e: Exception) {
-                                            Toast.makeText(context, context.getString(R.string.toast_copy_error, e.message ?: ""), Toast.LENGTH_SHORT).show()
-                                        }
-                                    } else {
-                                        onCopy()
-                                    }
-                                    menuRect = null
-                                    menuCallbacks = null
-                                    textFieldValue = textFieldValue.copy(selection = androidx.compose.ui.text.TextRange.Zero)
-                                },
-                                modifier = Modifier.size(36.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.ContentCopy,
-                                    contentDescription = stringResource(R.string.btn_copy),
-                                tint = Color.White,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
-                    }
-
-                    IconButton(
-                        onClick = {
-                            val onSelectAll = menuCallbacks?.onSelectAll
-                            if (onSelectAll != null) {
-                                onSelectAll()
-                            } else {
-                                textFieldValue = textFieldValue.copy(
-                                    selection = androidx.compose.ui.text.TextRange(0, textFieldValue.text.length)
-                                )
-                            }
-                        },
-                        modifier = Modifier.size(36.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.SelectAll,
-                            contentDescription = stringResource(R.string.btn_select_all),
-                            tint = Color.White,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                    
-                    // Only show formatting options if edit callbacks are provided
-                    if (onUpdateRanges != null) {
-                        // Divider
-                        Box(
-                            modifier = Modifier
-                                .width(1.dp)
-                                .height(16.dp)
-                                .background(Color(0xFF475569)) // slate-600
-                        )
-
-                        // --- MARKER GROUP ---
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(2.dp)
-                        ) {
-                            // Marker Color Indicator dropdown slot
-                            Box(contentAlignment = Alignment.Center) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(6.dp))
-                                        .clickable { showedColorPickerMode = "MARKER" }
-                                        .padding(horizontal = 4.dp, vertical = 4.dp)
-                                  ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(20.dp)
-                                            .clip(CircleShape)
-                                            .background(safeParseColor(lastMarkerColor, Color.Yellow))
-                                            .border(0.5.dp, Color.White.copy(alpha = 0.6f), CircleShape)
-                                    )
-                                    Icon(
-                                        imageVector = Icons.Default.ArrowDropDown,
-                                        contentDescription = null,
-                                        tint = Color.White,
-                                        modifier = Modifier.size(12.dp)
-                                    )
-                                }
-                            }
-
-                            // Marker quick application text button
-                            TextButtonWithIcon(
-                                icon = Icons.Default.Brush,
-                                iconTint = safeParseColor(lastMarkerColor, Color.Yellow),
-                                text = stringResource(R.string.tool_marker),
-                                onClick = {
-                                    val targetStart = mappedStart
-                                    val targetEnd = mappedEnd
-                                    textFieldValue = textFieldValue.copy(selection = androidx.compose.ui.text.TextRange.Zero)
-                                    menuRect = null
-                                    menuCallbacks = null
-                                    applyStyleToRange(targetStart, targetEnd, "MARKER", lastMarkerColor)
-                                    onSelectedMarkerColorChange?.invoke(lastMarkerColor)
-                                },
-                                iconSize = 15.dp,
-                                fontSize = 12.sp,
-                                paddingHorizontal = 2.dp,
-                                paddingVertical = 4.dp
-                            )
-                        }
-
-                        // Divider
-                        Box(
-                            modifier = Modifier
-                                .width(1.dp)
-                                .height(16.dp)
-                                .background(Color(0xFF475569)) // slate-600
-                        )
-
-                        // --- UNDERLINE (LINE) GROUP ---
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(2.dp)
-                        ) {
-                            // Underline Color Indicator dropdown slot
-                            Box(contentAlignment = Alignment.Center) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(6.dp))
-                                        .clickable { showedColorPickerMode = "UNDERLINE" }
-                                        .padding(horizontal = 4.dp, vertical = 4.dp)
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(20.dp)
-                                            .clip(CircleShape)
-                                            .background(safeParseColor(lastUnderlineColor, Color.Red))
-                                            .border(0.5.dp, Color.White.copy(alpha = 0.6f), CircleShape)
-                                    )
-                                    Icon(
-                                        imageVector = Icons.Default.ArrowDropDown,
-                                        contentDescription = null,
-                                        tint = Color.White,
-                                        modifier = Modifier.size(12.dp)
-                                    )
-                                }
-                            }
-
-                            // Underline quick application text button
-                            TextButtonWithIcon(
-                                icon = Icons.Default.FormatUnderlined,
-                                iconTint = safeParseColor(lastUnderlineColor, Color.Red),
-                                text = stringResource(R.string.tool_underline),
-                                onClick = {
-                                    val targetStart = mappedStart
-                                    val targetEnd = mappedEnd
-                                    textFieldValue = textFieldValue.copy(selection = androidx.compose.ui.text.TextRange.Zero)
-                                    menuRect = null
-                                    menuCallbacks = null
-                                    applyStyleToRange(targetStart, targetEnd, "UNDERLINE", lastUnderlineColor)
-                                    onSelectedUnderlineColorChange?.invoke(lastUnderlineColor)
-                                },
-                                iconSize = 15.dp,
-                                fontSize = 12.sp,
-                                paddingHorizontal = 2.dp,
-                                paddingVertical = 4.dp
-                            )
-                        }
-
-                        if (hasEditsInSelection) {
-                            // Divider
-                            Box(
-                                modifier = Modifier
-                                    .width(1.dp)
-                                    .height(16.dp)
-                                    .background(Color(0xFF475569)) // slate-600
-                            )
-
-                            TextButtonWithIcon(
-                                icon = eraserIcon,
-                                iconTint = Color(0xFFEF4444), // red-500
-                                text = stringResource(R.string.tool_eraser),
-                                onClick = {
-                                    val targetStart = mappedStart
-                                    val targetEnd = mappedEnd
-                                    textFieldValue = textFieldValue.copy(selection = androidx.compose.ui.text.TextRange.Zero)
-                                    menuRect = null
-                                    menuCallbacks = null
-                                    applyStyleToRange(targetStart, targetEnd, "ERASER", "#FFFFFF")
-                                },
-                                iconSize = 15.dp,
-                                fontSize = 12.sp,
-                                paddingHorizontal = 2.dp,
-                                paddingVertical = 4.dp
-                            )
-                        }
-                    }
-                    }
-                }
-            }
-        }
+            },
+            selectionKey = currentMenuRect,
+            showCopy = menuCallbacks?.onCopy != null,
+            onCopy = performCopy,
+            onSelectAll = performSelectAll,
+            showFormatting = onUpdateRanges != null,
+            markerColors = markerColors,
+            underlineColors = underlineColors,
+            lastMarkerColor = lastMarkerColor,
+            lastUnderlineColor = lastUnderlineColor,
+            eraserIcon = eraserIcon,
+            showEraser = hasEditsInSelection,
+            onApplyMarker = applyMarker,
+            onApplyUnderline = applyUnderline,
+            onApplyEraser = applyEraser
+        )
     }
 }
 
@@ -1107,6 +861,295 @@ fun SegmentedText(
                 }
         }
     )
+}
+
+/**
+ * The floating selection toolbar (copy / select-all / marker / underline / eraser, with color
+ * pickers). A "dumb" presentational composable: all state-mutating actions are supplied as lambdas
+ * by the caller (SegmentedTextWithEdits), so this can be rendered and tested in isolation. Only the
+ * marker/underline color-picker sub-mode is its own internal state, reset per [selectionKey].
+ */
+@Composable
+internal fun SelectionToolbarPopup(
+    positionProvider: androidx.compose.ui.window.PopupPositionProvider,
+    onDismissRequest: () -> Unit,
+    selectionKey: Any?,
+    showCopy: Boolean,
+    onCopy: () -> Unit,
+    onSelectAll: () -> Unit,
+    showFormatting: Boolean,
+    markerColors: List<String>,
+    underlineColors: List<String>,
+    lastMarkerColor: String,
+    lastUnderlineColor: String,
+    eraserIcon: androidx.compose.ui.graphics.vector.ImageVector,
+    showEraser: Boolean,
+    onApplyMarker: (String) -> Unit,
+    onApplyUnderline: (String) -> Unit,
+    onApplyEraser: () -> Unit
+) {
+    var showedColorPickerMode by remember(selectionKey) { mutableStateOf<String?>(null) }
+
+    androidx.compose.ui.window.Popup(
+        popupPositionProvider = positionProvider,
+        onDismissRequest = onDismissRequest
+    ) {
+        Surface(
+            shape = RoundedCornerShape(24.dp),
+            color = Color(0xFF1E293B), // slate-800
+            shadowElevation = 8.dp,
+            border = BorderStroke(1.dp, Color(0xFF334155)), // slate-700
+            modifier = Modifier.padding(2.dp)
+        ) {
+            if (showedColorPickerMode == Constants.TOOL_MARKER) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    IconButton(
+                        onClick = { showedColorPickerMode = null },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = stringResource(R.string.btn_back),
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .width(1.dp)
+                            .height(16.dp)
+                            .background(Color(0xFF475569)) // slate-600
+                    )
+                    markerColors.forEach { colorHex ->
+                        val colorVal = safeParseColor(colorHex, Color.Yellow)
+                        Box(
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clip(CircleShape)
+                                .background(colorVal)
+                                .border(
+                                    width = if (lastMarkerColor == colorHex) 2.dp else 1.dp,
+                                    color = if (lastMarkerColor == colorHex) Color.White else Color.Gray.copy(alpha = 0.4f),
+                                    shape = CircleShape
+                                )
+                                .testTag("toolbar_marker_swatch")
+                                .clickable {
+                                    onApplyMarker(colorHex)
+                                    showedColorPickerMode = null
+                                }
+                        )
+                    }
+                }
+            } else if (showedColorPickerMode == "UNDERLINE") {
+                Row(
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    IconButton(
+                        onClick = { showedColorPickerMode = null },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = stringResource(R.string.btn_back),
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .width(1.dp)
+                            .height(16.dp)
+                            .background(Color(0xFF475569)) // slate-600
+                    )
+                    underlineColors.forEach { colorHex ->
+                        val colorVal = safeParseColor(colorHex, Color.Red)
+                        Box(
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clip(CircleShape)
+                                .background(colorVal)
+                                .border(
+                                    width = if (lastUnderlineColor == colorHex) 2.dp else 1.dp,
+                                    color = if (lastUnderlineColor == colorHex) Color.White else Color.Gray.copy(alpha = 0.4f),
+                                    shape = CircleShape
+                                )
+                                .testTag("toolbar_underline_swatch")
+                                .clickable {
+                                    onApplyUnderline(colorHex)
+                                    showedColorPickerMode = null
+                                }
+                        )
+                    }
+                }
+            } else {
+                Row(
+                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    if (showCopy) {
+                        IconButton(
+                            onClick = onCopy,
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ContentCopy,
+                                contentDescription = stringResource(R.string.btn_copy),
+                                tint = Color.White,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
+
+                    IconButton(
+                        onClick = onSelectAll,
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.SelectAll,
+                            contentDescription = stringResource(R.string.btn_select_all),
+                            tint = Color.White,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+
+                    // Only show formatting options if edit callbacks are provided
+                    if (showFormatting) {
+                        // Divider
+                        Box(
+                            modifier = Modifier
+                                .width(1.dp)
+                                .height(16.dp)
+                                .background(Color(0xFF475569)) // slate-600
+                        )
+
+                        // --- MARKER GROUP ---
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            // Marker Color Indicator dropdown slot
+                            Box(contentAlignment = Alignment.Center) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .testTag("toolbar_marker_picker")
+                                        .clickable { showedColorPickerMode = "MARKER" }
+                                        .padding(horizontal = 4.dp, vertical = 4.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                            .clip(CircleShape)
+                                            .background(safeParseColor(lastMarkerColor, Color.Yellow))
+                                            .border(0.5.dp, Color.White.copy(alpha = 0.6f), CircleShape)
+                                    )
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowDropDown,
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier.size(12.dp)
+                                    )
+                                }
+                            }
+
+                            // Marker quick application text button
+                            TextButtonWithIcon(
+                                icon = Icons.Default.Brush,
+                                iconTint = safeParseColor(lastMarkerColor, Color.Yellow),
+                                text = stringResource(R.string.tool_marker),
+                                onClick = { onApplyMarker(lastMarkerColor) },
+                                iconSize = 15.dp,
+                                fontSize = 12.sp,
+                                paddingHorizontal = 2.dp,
+                                paddingVertical = 4.dp
+                            )
+                        }
+
+                        // Divider
+                        Box(
+                            modifier = Modifier
+                                .width(1.dp)
+                                .height(16.dp)
+                                .background(Color(0xFF475569)) // slate-600
+                        )
+
+                        // --- UNDERLINE (LINE) GROUP ---
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            // Underline Color Indicator dropdown slot
+                            Box(contentAlignment = Alignment.Center) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .testTag("toolbar_underline_picker")
+                                        .clickable { showedColorPickerMode = "UNDERLINE" }
+                                        .padding(horizontal = 4.dp, vertical = 4.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                            .clip(CircleShape)
+                                            .background(safeParseColor(lastUnderlineColor, Color.Red))
+                                            .border(0.5.dp, Color.White.copy(alpha = 0.6f), CircleShape)
+                                    )
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowDropDown,
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier.size(12.dp)
+                                    )
+                                }
+                            }
+
+                            // Underline quick application text button
+                            TextButtonWithIcon(
+                                icon = Icons.Default.FormatUnderlined,
+                                iconTint = safeParseColor(lastUnderlineColor, Color.Red),
+                                text = stringResource(R.string.tool_underline),
+                                onClick = { onApplyUnderline(lastUnderlineColor) },
+                                iconSize = 15.dp,
+                                fontSize = 12.sp,
+                                paddingHorizontal = 2.dp,
+                                paddingVertical = 4.dp
+                            )
+                        }
+
+                        if (showEraser) {
+                            // Divider
+                            Box(
+                                modifier = Modifier
+                                    .width(1.dp)
+                                    .height(16.dp)
+                                    .background(Color(0xFF475569)) // slate-600
+                            )
+
+                            TextButtonWithIcon(
+                                icon = eraserIcon,
+                                iconTint = Color(0xFFEF4444), // red-500
+                                text = stringResource(R.string.tool_eraser),
+                                onClick = onApplyEraser,
+                                iconSize = 15.dp,
+                                fontSize = 12.sp,
+                                paddingHorizontal = 2.dp,
+                                paddingVertical = 4.dp
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable
