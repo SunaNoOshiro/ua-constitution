@@ -801,6 +801,7 @@ fun HomeTabContent(
                         isBookmarked = isTodayBookmarked,
                         onToggleBookmark = { viewModel.toggleBookmark(todayArticle.bookmarkId) },
                         onArticleClick = { target -> onNavigateToArticle(target, todayArticle) },
+                        resolveArticleLink = viewModel::resolveLink,
                         initialEditsJson = bookmarksList.find { it.articleId == todayArticle.bookmarkId }?.editsJson ?: ""
                     )
                 }

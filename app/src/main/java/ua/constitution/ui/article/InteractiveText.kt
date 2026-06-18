@@ -95,10 +95,8 @@ import ua.constitution.data.model.Note
 import ua.constitution.data.model.Link
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import ua.constitution.data.database.ConstitutionDatabase
 import ua.constitution.data.model.Article
 import ua.constitution.data.model.Chapter
-import ua.constitution.data.model.ConstitutionData
 import ua.constitution.data.repository.ConstitutionRepository
 import ua.constitution.ui.theme.MyApplicationTheme
 import ua.constitution.ui.viewmodel.ConstitutionViewModel
@@ -126,7 +124,6 @@ import ua.constitution.audio.AnthemVersion
 import ua.constitution.audio.ProceduralAnthemSynth
 import ua.constitution.ui.model.DashboardTab
 import ua.constitution.ui.model.FullscreenSymbol
-import ua.constitution.domain.link.findArticleByLink
 import ua.constitution.domain.title.parseArticleTitle
 import ua.constitution.domain.bookmark.BookmarkEditsParser
 import ua.constitution.domain.text.ArticleNumberFormatter
@@ -159,6 +156,7 @@ fun SegmentedTextWithEdits(
     fontWeight: FontWeight = FontWeight.Medium,
     fontStyle: FontStyle? = null,
     onArticleClick: ((Article) -> Unit)? = null,
+    resolveArticleLink: ((String) -> Article?)? = null,
     onUpdateRanges: ((List<StyledRange>) -> Unit)? = null,
     selectedMarkerColorHex: String = "#FFF59D",
     selectedUnderlineColorHex: String = "#F57F17",
@@ -551,7 +549,7 @@ fun SegmentedTextWithEdits(
 
                                         var articleNavigated = false
                                         if (clickedUrl.startsWith("#") || (!clickedUrl.startsWith("http://") && !clickedUrl.startsWith("https://"))) {
-                                            val targetArticle = findArticleByLink(segmentText, ConstitutionData.articles)
+                                            val targetArticle = resolveArticleLink?.invoke(segmentText)
                                             if (targetArticle != null && onArticleClick != null) {
                                                 onArticleClick(targetArticle)
                                                 articleNavigated = true
@@ -917,7 +915,7 @@ fun SegmentedTextWithEdits(
 
                                                     var articleNavigated = false
                                                     if (clickedUrl.startsWith("#") || (!clickedUrl.startsWith("http://") && !clickedUrl.startsWith("https://"))) {
-                                                        val targetArticle = findArticleByLink(segmentText, ConstitutionData.articles)
+                                                        val targetArticle = resolveArticleLink?.invoke(segmentText)
                                                         if (targetArticle != null && onArticleClick != null) {
                                                             onArticleClick(targetArticle)
                                                             articleNavigated = true
@@ -2314,10 +2312,11 @@ fun SegmentedText(
     lineHeight: androidx.compose.ui.unit.TextUnit = 24.sp,
     fontWeight: FontWeight = FontWeight.Medium,
     fontStyle: FontStyle? = null,
-    onArticleClick: ((Article) -> Unit)? = null
+    onArticleClick: ((Article) -> Unit)? = null,
+    resolveArticleLink: ((String) -> Article?)? = null
 ) {
     val context = LocalContext.current
-    
+
     // Merge adjacent link segments that share the same URL to prevent split link issues (e.g., 149-1)
     val mergedSegments = remember(segments) {
         val result = mutableListOf<ua.constitution.data.model.ContentSegment>()
@@ -2388,7 +2387,7 @@ fun SegmentedText(
                         
                         var articleNavigated = false
                         if (clickedUrl.startsWith("#") || (!clickedUrl.startsWith("http://") && !clickedUrl.startsWith("https://"))) {
-                            val targetArticle = findArticleByLink(segmentText, ConstitutionData.articles)
+                            val targetArticle = resolveArticleLink?.invoke(segmentText)
                             if (targetArticle != null && onArticleClick != null) {
                                 onArticleClick(targetArticle)
                                 articleNavigated = true

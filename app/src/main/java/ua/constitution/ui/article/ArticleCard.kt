@@ -95,10 +95,8 @@ import ua.constitution.data.model.Note
 import ua.constitution.data.model.Link
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import ua.constitution.data.database.ConstitutionDatabase
 import ua.constitution.data.model.Article
 import ua.constitution.data.model.Chapter
-import ua.constitution.data.model.ConstitutionData
 import ua.constitution.data.repository.ConstitutionRepository
 import ua.constitution.ui.theme.MyApplicationTheme
 import ua.constitution.ui.viewmodel.ConstitutionViewModel
@@ -126,7 +124,6 @@ import ua.constitution.audio.AnthemVersion
 import ua.constitution.audio.ProceduralAnthemSynth
 import ua.constitution.ui.model.DashboardTab
 import ua.constitution.ui.model.FullscreenSymbol
-import ua.constitution.domain.link.findArticleByLink
 import ua.constitution.domain.title.parseArticleTitle
 import ua.constitution.domain.bookmark.BookmarkEditsParser
 import ua.constitution.domain.text.ArticleNumberFormatter
@@ -146,6 +143,7 @@ fun ArticleCard(
     onToggleBookmark: () -> Unit,
     modifier: Modifier = Modifier,
     onArticleClick: ((Article) -> Unit)? = null,
+    resolveArticleLink: (String) -> Article?,
     isEditable: Boolean = false,
     initialEditsJson: String = "",
     onSaveEdits: ((String) -> Unit)? = null,
@@ -502,6 +500,7 @@ fun ArticleCard(
                             lineHeight = 24.sp,
                             fontWeight = FontWeight.Medium,
                             onArticleClick = onArticleClick,
+                            resolveArticleLink = resolveArticleLink,
                             onUpdateRanges = onUpdateCombinedRanges,
                             selectedMarkerColorHex = selectedMarkerColorHex,
                             selectedUnderlineColorHex = selectedUnderlineColorHex,
@@ -523,7 +522,7 @@ fun ArticleCard(
                         if (allNotes.isNotEmpty()) {
                             Spacer(modifier = Modifier.height(4.dp))
                             allNotes.forEach { note ->
-                                NoteCard(note = note, onArticleClick = onArticleClick)
+                                NoteCard(note = note, onArticleClick = onArticleClick, resolveArticleLink = resolveArticleLink)
                             }
                         }
                     }
@@ -546,6 +545,7 @@ fun ArticleCard(
                                     lineHeight = 24.sp,
                                     fontWeight = FontWeight.Medium,
                                     onArticleClick = onArticleClick,
+                                    resolveArticleLink = resolveArticleLink,
                                     onUpdateRanges = null,
                                     selectedMarkerColorHex = selectedMarkerColorHex,
                                     selectedUnderlineColorHex = selectedUnderlineColorHex,
@@ -554,7 +554,7 @@ fun ArticleCard(
                                     fullArticleTextToCopy = fullArticleTextToCopy
                                 )
                                 paragraph.notes.forEach { note ->
-                                    NoteCard(note = note, onArticleClick = onArticleClick)
+                                    NoteCard(note = note, onArticleClick = onArticleClick, resolveArticleLink = resolveArticleLink)
                                 }
                             }
                         }
@@ -646,7 +646,7 @@ fun ArticleIdText(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun NoteCard(note: Note, modifier: Modifier = Modifier, onArticleClick: ((Article) -> Unit)? = null) {
+fun NoteCard(note: Note, resolveArticleLink: (String) -> Article?, modifier: Modifier = Modifier, onArticleClick: ((Article) -> Unit)? = null) {
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -666,7 +666,8 @@ fun NoteCard(note: Note, modifier: Modifier = Modifier, onArticleClick: ((Articl
                 color = Color(0xFF475569),
                 lineHeight = 18.sp,
                 fontWeight = FontWeight.Medium,
-                onArticleClick = onArticleClick
+                onArticleClick = onArticleClick,
+                resolveArticleLink = resolveArticleLink
             )
         }
     }

@@ -588,7 +588,8 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                         isBookmarked = isBookmarked,
                                         initialEditsJson = editsJson,
                                         onToggleBookmark = { viewModel.toggleBookmark(article.bookmarkId) },
-                                        onArticleClick = { target -> navigateToArticleWithOrigin(target, article) }
+                                        onArticleClick = { target -> navigateToArticleWithOrigin(target, article) },
+                                        resolveArticleLink = viewModel::resolveLink
                                     )
                                 }
                             }
@@ -1016,7 +1017,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                                     )
                                                 }
                                                 selectedChapter.excludedNote?.let { note ->
-                                                    NoteCard(note = note, onArticleClick = navigateToArticle)
+                                                    NoteCard(note = note, onArticleClick = navigateToArticle, resolveArticleLink = viewModel::resolveLink)
                                                 }
                                                 if (selectedChapter.info.isEmpty() && selectedChapter.excludedNote == null) {
                                                     Box(
@@ -1042,7 +1043,8 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                                 isBookmarked = isBookmarked,
                                                 onToggleBookmark = { viewModel.toggleBookmark(article.bookmarkId) },
                                                 initialEditsJson = editsJson,
-                                                onArticleClick = { target -> navigateToArticleWithOrigin(target, article) }
+                                                onArticleClick = { target -> navigateToArticleWithOrigin(target, article) },
+                                                resolveArticleLink = viewModel::resolveLink
                                             )
                                         }
                                     }
@@ -1175,6 +1177,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                                     viewModel.toggleBookmark(article.bookmarkId)
                                                 },
                                                 onArticleClick = { target -> navigateToArticleWithOrigin(target, article) },
+                                                resolveArticleLink = viewModel::resolveLink,
                                                 isEditable = isCurrentEditable,
                                                 initialEditsJson = editsJson,
                                                 onSaveEdits = onSaveCallback,
