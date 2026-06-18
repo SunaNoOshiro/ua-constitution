@@ -4,15 +4,23 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ua.constitution.data.database.BookmarkEntity
 import ua.constitution.data.model.Article
+import ua.constitution.data.model.Chapter
 import ua.constitution.data.repository.BookmarkRepository
+import ua.constitution.domain.content.ArticleLookup
+import ua.constitution.domain.content.ChapterSource
 import ua.constitution.domain.content.ConstitutionContentSource
+import ua.constitution.domain.content.IntegrityStatus
 import ua.constitution.domain.content.searchArticles
+import ua.constitution.domain.link.findArticleByLink
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class ConstitutionViewModel(
     private val repository: BookmarkRepository,
-    private val contentSource: ConstitutionContentSource
+    private val contentSource: ConstitutionContentSource,
+    private val chapterSource: ChapterSource,
+    private val articleLookup: ArticleLookup,
+    private val integrity: IntegrityStatus
 ) : ViewModel() {
 
     // --- Search & Exploration State ---
@@ -52,6 +60,45 @@ class ConstitutionViewModel(
         .combine(_selectedChapterId) { query, chapterId ->
             searchArticles(contentSource.articles, query, chapterId)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), contentSource.articles)
+
+    // --- Content read accessors -----------------------------------------------------------------
+    // Plain getters/functions (deliberately NOT StateFlows/derivedStateOf) so composables read
+    // content through the ViewModel with the SAME recomposition timing as the previous direct
+    // ConstitutionData global reads. Each one moves former inline UI logic here verbatim (DIP).
+
+    val chapters: List<Chapter>
+        get() = chapterSource.chapters
+
+    fun articlesForChapter(chapterId: Int): List<Article> =
+        articleLookup.getArticlesForChapter(chapterId)
+
+    /** The article a bookmark refers to (by its derived bookmarkId), or null. Mirrors the former
+     *  inline `ConstitutionData.articles.find { it.bookmarkId == ... }`. */
+    fun articleByBookmarkId(bookmarkId: Int): Article? =
+        contentSource.articles.find { it.bookmarkId == bookmarkId }
+
+    /** Articles that are currently bookmarked, in article order. Mirrors the former inline filter. */
+    fun bookmarkedArticles(bookmarks: List<BookmarkEntity>): List<Article> =
+        contentSource.articles.filter { article -> bookmarks.any { it.articleId == article.bookmarkId } }
+
+    /** The "article of the day" for a day-of-year seed, or null when there is no content (the
+     *  caller supplies the localized UI fallback). Mirrors the former HomeScreen modulo selection. */
+    fun articleOfDay(dayOfYear: Int): Article? =
+        contentSource.articles.let { if (it.isNotEmpty()) it[dayOfYear % it.size] else null }
+
+    /** Resolves cross-reference link text (e.g. "ст. 20") to an article via the content list. */
+    fun resolveLink(text: String): Article? =
+        findArticleByLink(text, contentSource.articles)
+
+    // --- Initialization / integrity status (for the load-error banner) --------------------------
+    val initializationError: String
+        get() = integrity.initializationError
+    val computedHash: String
+        get() = integrity.computedHash
+    val articlesEmpty: Boolean
+        get() = contentSource.articles.isEmpty()
+    val articlesCount: Int
+        get() = contentSource.articles.size
 
     // --- Bookmarking & Study Notes ---
     fun toggleBookmark(articleId: Int) {

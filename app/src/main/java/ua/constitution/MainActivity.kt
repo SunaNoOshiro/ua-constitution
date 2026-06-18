@@ -37,7 +37,13 @@ class MainActivity : ComponentActivity() {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 if (modelClass.isAssignableFrom(ConstitutionViewModel::class.java)) {
                     @Suppress("UNCHECKED_CAST")
-                    return ConstitutionViewModel(repository, ConstitutionData) as T
+                    return ConstitutionViewModel(
+                        repository,
+                        ConstitutionData,
+                        ConstitutionData,
+                        ConstitutionData,
+                        ConstitutionData
+                    ) as T
                 }
                 throw IllegalArgumentException("Unknown ViewModel class")
             }

@@ -56,7 +56,9 @@ class ConstitutionViewModelTest {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         fakeDao = FakeConstitutionDao()
-        viewModel = ConstitutionViewModel(ConstitutionRepository(fakeDao), contentSource)
+        viewModel = ConstitutionViewModel(
+            ConstitutionRepository(fakeDao), contentSource, contentSource, contentSource, contentSource
+        )
     }
 
     @After
