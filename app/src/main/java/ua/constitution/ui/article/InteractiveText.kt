@@ -135,6 +135,7 @@ import ua.constitution.domain.text.mapFormattedToOriginal
 import ua.constitution.domain.text.mapOriginalToFormatted
 import ua.constitution.domain.text.mergeAdjacentStyledRanges
 import ua.constitution.domain.content.mergeAdjacentLinkSegments
+import ua.constitution.domain.link.handleLinkAnnotationTap
 import ua.constitution.ui.safeParseColor
 import ua.constitution.ui.selectionToolbarOffset
 
@@ -430,29 +431,13 @@ fun SegmentedTextWithEdits(
                             annotatedString.getStringAnnotations(tag = Constants.ANNOTATION_TAG_URL, start = clickedOffset, end = clickedOffset)
                                 .firstOrNull()?.let { annotation ->
                                     try {
-                                        val parts = annotation.item.split("|")
-                                        val clickedUrl = parts.getOrNull(0) ?: ""
-                                        val segmentText = parts.getOrNull(1) ?: ""
-
-                                        var articleNavigated = false
-                                        if (clickedUrl.startsWith("#") || (!clickedUrl.startsWith("http://") && !clickedUrl.startsWith("https://"))) {
-                                            val targetArticle = resolveArticleLink?.invoke(segmentText)
-                                            if (targetArticle != null && onArticleClick != null) {
-                                                onArticleClick(targetArticle)
-                                                articleNavigated = true
-                                            }
-                                        }
-
-                                        if (!articleNavigated) {
-                                            val finalUrl = if (clickedUrl.startsWith("#")) {
-                                                "${Constants.DEFAULT_RADA_URL}$clickedUrl"
-                                            } else {
-                                                clickedUrl
-                                            }
-                                            if (finalUrl.isNotEmpty()) {
-                                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(finalUrl))
-                                                context.startActivity(intent)
-                                            }
+                                        handleLinkAnnotationTap(
+                                            annotation.item,
+                                            Constants.DEFAULT_RADA_URL,
+                                            resolveArticleLink,
+                                            onArticleClick,
+                                        ) { finalUrl ->
+                                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(finalUrl)))
                                         }
                                     } catch (e: Exception) {
                                         android.util.Log.e(LogMessages.TAG_SEGMENTED_TEXT_EDITS, LogMessages.openUrlFailed(annotation.item, e.message), e)
@@ -594,29 +579,13 @@ fun SegmentedTextWithEdits(
                                         annotatedString.getStringAnnotations(tag = "URL", start = position, end = position)
                                             .firstOrNull()?.let { annotation ->
                                                 try {
-                                                    val parts = annotation.item.split("|")
-                                                    val clickedUrl = parts.getOrNull(0) ?: ""
-                                                    val segmentText = parts.getOrNull(1) ?: ""
-
-                                                    var articleNavigated = false
-                                                    if (clickedUrl.startsWith("#") || (!clickedUrl.startsWith("http://") && !clickedUrl.startsWith("https://"))) {
-                                                        val targetArticle = resolveArticleLink?.invoke(segmentText)
-                                                        if (targetArticle != null && onArticleClick != null) {
-                                                            onArticleClick(targetArticle)
-                                                            articleNavigated = true
-                                                        }
-                                                    }
-
-                                                    if (!articleNavigated) {
-                                                        val finalUrl = if (clickedUrl.startsWith("#")) {
-                                                            "${Constants.DEFAULT_RADA_URL}$clickedUrl"
-                                                        } else {
-                                                            clickedUrl
-                                                        }
-                                                        if (finalUrl.isNotEmpty()) {
-                                                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(finalUrl))
-                                                            context.startActivity(intent)
-                                                        }
+                                                    handleLinkAnnotationTap(
+                                                        annotation.item,
+                                                        Constants.DEFAULT_RADA_URL,
+                                                        resolveArticleLink,
+                                                        onArticleClick,
+                                                    ) { finalUrl ->
+                                                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(finalUrl)))
                                                     }
                                                 } catch (e: Exception) {
                                                     android.util.Log.e(LogMessages.TAG_SEGMENTED_TEXT_EDITS, LogMessages.openUrlFailed(annotation.item, e.message), e)
@@ -830,29 +799,13 @@ fun SegmentedText(
             annotatedString.getStringAnnotations(tag = "URL", start = offset, end = offset)
                 .firstOrNull()?.let { annotation ->
                     try {
-                        val parts = annotation.item.split("|")
-                        val clickedUrl = parts.getOrNull(0) ?: ""
-                        val segmentText = parts.getOrNull(1) ?: ""
-                        
-                        var articleNavigated = false
-                        if (clickedUrl.startsWith("#") || (!clickedUrl.startsWith("http://") && !clickedUrl.startsWith("https://"))) {
-                            val targetArticle = resolveArticleLink?.invoke(segmentText)
-                            if (targetArticle != null && onArticleClick != null) {
-                                onArticleClick(targetArticle)
-                                articleNavigated = true
-                            }
-                        }
-                        
-                        if (!articleNavigated) {
-                            val finalUrl = if (clickedUrl.startsWith("#")) {
-                                "${Constants.DEFAULT_RADA_URL}$clickedUrl"
-                            } else {
-                                clickedUrl
-                            }
-                            if (finalUrl.isNotEmpty()) {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(finalUrl))
-                                context.startActivity(intent)
-                            }
+                        handleLinkAnnotationTap(
+                            annotation.item,
+                            Constants.DEFAULT_RADA_URL,
+                            resolveArticleLink,
+                            onArticleClick,
+                        ) { finalUrl ->
+                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(finalUrl)))
                         }
                     } catch (e: Exception) {
                         android.util.Log.e(LogMessages.TAG_SEGMENTED_TEXT, LogMessages.openUrlFailed(annotation.item, e.message), e)
