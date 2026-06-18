@@ -9,25 +9,27 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import ua.constitution.data.source.ConstitutionJsonParser
+import ua.constitution.data.source.ConstitutionJsonDeserializer
 
 /**
- * Characterizes the extracted ConstitutionJsonParser on crafted JSON — parse() in isolation, plus a
- * smoke check of computeIntegrity. Needs Robolectric for Context / org.json / string resources.
+ * Characterizes the extracted ConstitutionJsonDeserializer on crafted JSON — deserialize() in
+ * isolation. Needs Robolectric for Context / org.json / string resources (preamble fallback).
+ * Split out of the former ConstitutionJsonParserTest when the parser was decomposed into
+ * IntegrityChecker + ConstitutionJsonDeserializer (assertions preserved verbatim).
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
-class ConstitutionJsonParserTest {
+class ConstitutionJsonDeserializerTest {
 
-    private lateinit var parser: ConstitutionJsonParser
+    private lateinit var deserializer: ConstitutionJsonDeserializer
 
     @Before
     fun setup() {
-        parser = ConstitutionJsonParser(ApplicationProvider.getApplicationContext<Context>())
+        deserializer = ConstitutionJsonDeserializer(ApplicationProvider.getApplicationContext<Context>())
     }
 
     @Test
-    fun `parse reads the preamble, nested articles and fractional ids in sorted order`() {
+    fun `deserialize reads the preamble, nested articles and fractional ids in sorted order`() {
         val json = """
             {
               "preamble": { "titleUa": "Преамбула", "paragraphs": [] },
@@ -43,7 +45,7 @@ class ConstitutionJsonParserTest {
             }
         """.trimIndent()
 
-        val parsed = parser.parse(json)
+        val parsed = deserializer.deserialize(json)
 
         // preamble (id 0) + article 1 + fractional 16.1 -> 161, sorted ascending
         assertEquals(listOf(0, 1, 161), parsed.articles.map { it.id })
@@ -56,18 +58,11 @@ class ConstitutionJsonParserTest {
     fun `CHARACTERIZATION when the preamble key is absent a fallback preamble article is synthesized`() {
         val json = """{ "chapters": [ { "id": 1, "titleUa": "X", "articles": [] } ] }"""
 
-        val parsed = parser.parse(json)
+        val parsed = deserializer.deserialize(json)
 
         val preamble = parsed.articles.single { it.id == 0 }
         assertEquals("Преамбула", preamble.titleUa) // R.string.preamble
         assertTrue(preamble.textUa.isNotEmpty())    // fallback text paragraph
         assertEquals(listOf(0, 1), parsed.chapters.map { it.id })
-    }
-
-    @Test
-    fun `computeIntegrity returns a hash and always reports pass`() {
-        val result = parser.computeIntegrity()
-        assertTrue(result.verificationPass) // set true even on mismatch (preserved quirk)
-        assertTrue(result.computedHash.isNotEmpty())
     }
 }

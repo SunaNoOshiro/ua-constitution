@@ -1,7 +1,6 @@
 package ua.constitution.data.source
 
 import android.content.Context
-import android.util.Log
 import ua.constitution.R
 import ua.constitution.data.model.Article
 import ua.constitution.data.model.Chapter
@@ -10,64 +9,19 @@ import ua.constitution.data.model.Link
 import ua.constitution.data.model.Note
 import ua.constitution.data.model.Paragraph
 import ua.constitution.utils.Constants
-import ua.constitution.utils.LogMessages
-
-/** Result of the startup SHA-256 integrity check. */
-data class IntegrityResult(val computedHash: String, val verificationPass: Boolean)
 
 /** The parsed constitution: ordered articles and chapters. */
 data class ParsedConstitution(val articles: List<Article>, val chapters: List<Chapter>)
 
 /**
- * Loads and parses the constitution JSON (from raw resources or assets) and computes the asset
- * integrity hash. Extracted verbatim from ConstitutionData so loading/parsing is a single, testable
- * responsibility separate from the in-memory holder.
+ * Maps the constitution JSON string to the domain model (ordered articles + chapters). Single
+ * responsibility: JSON -> domain deserialization, with NO file IO and NO integrity/crypto. Extracted
+ * verbatim from `ConstitutionJsonParser.parse()` (and its private helpers); still takes a [Context]
+ * only to resolve the localized preamble strings — a future StringProvider seam.
  */
-class ConstitutionJsonParser(private val context: Context) {
+class ConstitutionJsonDeserializer(private val context: Context) {
 
-    fun computeIntegrity(): IntegrityResult {
-        return try {
-            val assetStream = context.assets.open(Constants.CONSTITUTION_JSON_FILE)
-            val digest = java.security.MessageDigest.getInstance(Constants.ALGORITHM_SHA_256)
-            val buffer = ByteArray(8192)
-            var bytesRead: Int
-            while (assetStream.read(buffer).also { bytesRead = it } != -1) {
-                digest.update(buffer, 0, bytesRead)
-            }
-            assetStream.close()
-            val hashBytes = digest.digest()
-            val hash = hashBytes.joinToString("") { Constants.HEX_FORMAT_BYTE.format(it) }
-            if (hash == Constants.EXPECTED_JSON_HASH) {
-                Log.d(LogMessages.TAG_CONSTITUTION_DATA, LogMessages.integrityVerified(hash))
-            } else {
-                Log.e(LogMessages.TAG_CONSTITUTION_DATA, LogMessages.integrityMismatch(hash, Constants.EXPECTED_JSON_HASH))
-            }
-            IntegrityResult(hash, true)
-        } catch (hashEx: Exception) {
-            Log.e(LogMessages.TAG_CONSTITUTION_DATA, LogMessages.INTEGRITY_COMPUTE_FAILED, hashEx)
-            IntegrityResult(Constants.ERROR_HASH_VALUE, true)
-        }
-    }
-
-    fun loadJsonString(): String {
-        var jsonString = ""
-        val rawId = context.resources.getIdentifier(Constants.CONSTITUTION_RAW_RESOURCE_NAME, Constants.RAW_DEF_TYPE, context.packageName)
-        if (rawId != 0) {
-            try {
-                jsonString = context.resources.openRawResource(rawId).bufferedReader().use { it.readText() }
-                Log.d(LogMessages.TAG_CONSTITUTION_DATA, LogMessages.LOADED_FROM_RAW)
-            } catch (rawEx: Exception) {
-                Log.e(LogMessages.TAG_CONSTITUTION_DATA, LogMessages.loadFromRawFailed(rawEx.message), rawEx)
-            }
-        }
-        if (jsonString.isEmpty()) {
-            jsonString = context.assets.open(Constants.CONSTITUTION_JSON_FILE).bufferedReader().use { it.readText() }
-            Log.d(LogMessages.TAG_CONSTITUTION_DATA, LogMessages.LOADED_FROM_ASSETS)
-        }
-        return jsonString
-    }
-
-    fun parse(jsonString: String): ParsedConstitution {
+    fun deserialize(jsonString: String): ParsedConstitution {
         val rootObj = org.json.JSONObject(jsonString)
         val articles = mutableListOf<Article>()
         val chapters = mutableListOf<Chapter>()
