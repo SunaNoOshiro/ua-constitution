@@ -170,7 +170,6 @@ fun ArticleCard(
 
     var localEdits by remember(isEditable) { mutableStateOf(emptyMap<Int, List<StyledRange>>()) }
     var lastSavedJson by remember { mutableStateOf("") }
-    val paragraphRegistry = remember { mutableMapOf<Int, ParagraphRegistryEntry>() }
     
     var showRemoveConfirmDialog by remember { mutableStateOf(false) }
     val hasEdits = remember(initialEditsJson, localEdits) {
