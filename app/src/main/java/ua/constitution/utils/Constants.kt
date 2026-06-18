@@ -78,10 +78,4 @@ object Constants {
     // Reference & source URLs
     const val DEFAULT_RADA_URL = "https://zakon.rada.gov.ua/laws/show/254%D0%BA/96-%D0%B2%D1%80"
     const val PREAMBLE_SOURCE_URL = "https://zakon.rada.gov.ua/laws/show/254%D0%BA/96-%D0%B2%D1%80#n4164"
-
-    // Link checking and normalization constants
-    const val LINK_PUNKT_FULL = "пункт"
-    const val LINK_P_DOT = "п."
-    const val LINK_P_SPACE_START = "п "
-    const val LINK_P_SPACE_MID = " п "
 }

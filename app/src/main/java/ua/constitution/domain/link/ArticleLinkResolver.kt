@@ -1,7 +1,6 @@
 package ua.constitution.domain.link
 
 import ua.constitution.data.model.Article
-import ua.constitution.utils.Constants
 
 /** Resolves cross-reference link text (e.g. "ст. 20", "п. 5", "16¹") to an Article.
  * Takes the article list as a parameter rather than reaching into a global singleton. */
@@ -25,10 +24,10 @@ fun findArticleByLink(text: String, articles: List<Article>): Article? {
 
     // Check if the link specifically refers to a "punkt" / "п"
     val lower = text.lowercase()
-    val isPunkt = lower.contains(Constants.LINK_PUNKT_FULL) ||
-                  lower.contains(Constants.LINK_P_DOT) ||
-                  lower.startsWith(Constants.LINK_P_SPACE_START) ||
-                  lower.contains(Constants.LINK_P_SPACE_MID)
+    val isPunkt = lower.contains(LinkPatterns.PUNKT_FULL) ||
+                  lower.contains(LinkPatterns.P_DOT) ||
+                  lower.startsWith(LinkPatterns.P_SPACE_START) ||
+                  lower.contains(LinkPatterns.P_SPACE_MID)
 
     // Find decimal or integer number (e.g. "125" or "16.1")
     val regex = """\d+(?:\.\d+)?""".toRegex()
