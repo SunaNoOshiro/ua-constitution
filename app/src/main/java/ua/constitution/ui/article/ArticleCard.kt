@@ -128,9 +128,9 @@ import ua.constitution.domain.bookmark.BookmarkEditsParser
 import ua.constitution.domain.text.ArticleNumberFormatter
 import ua.constitution.domain.text.BackNavigationTarget
 import ua.constitution.domain.text.backNavigationTarget
+import ua.constitution.domain.text.formatArticleForCopy
 import ua.constitution.domain.text.StyledRange
 import ua.constitution.domain.text.ParagraphRangeMapping
-import ua.constitution.domain.text.formatStringToSuperscript
 import ua.constitution.domain.text.getWordRangeAtOffset
 import ua.constitution.domain.text.getWordSnappedRange
 import ua.constitution.domain.text.mapFormattedToOriginal
@@ -289,20 +289,7 @@ fun ArticleCard(
                 IconButton(
                     onClick = {
                         try {
-                            val textToCopy = buildString {
-                                append(articleNumber)
-                                if (articleName.isNotEmpty()) {
-                                    append(". ")
-                                    append(articleName)
-                                }
-                                append("\n\n")
-                                article.paragraphs.forEachIndexed { index, paragraph ->
-                                    append(formatStringToSuperscript(paragraph.text))
-                                    if (index < article.paragraphs.lastIndex) {
-                                        append("\n\n")
-                                    }
-                                }
-                            }
+                            val textToCopy = formatArticleForCopy(articleNumber, articleName, article.paragraphs.map { it.text })
                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             val clip = ClipData.newPlainText(context.getString(R.string.tab_articles), textToCopy)
                             clipboard.setPrimaryClip(clip)
@@ -404,20 +391,7 @@ fun ArticleCard(
 
             // Full legislation text (always expanded) - styled perfectly with paragraphs with integrated notes & links
             val fullArticleTextToCopy = remember(articleNumber, articleName, article.paragraphs) {
-                buildString {
-                    append(articleNumber)
-                    if (articleName.isNotEmpty()) {
-                        append(". ")
-                        append(articleName)
-                    }
-                    append("\n\n")
-                    article.paragraphs.forEachIndexed { index, paragraph ->
-                        append(formatStringToSuperscript(paragraph.text))
-                        if (index < article.paragraphs.lastIndex) {
-                            append("\n\n")
-                        }
-                    }
-                }
+                formatArticleForCopy(articleNumber, articleName, article.paragraphs.map { it.text })
             }
 
             val combinedSegments = remember(article.paragraphs) {
