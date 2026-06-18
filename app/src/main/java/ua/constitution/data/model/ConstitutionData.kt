@@ -5,6 +5,9 @@ import android.util.Log
 import ua.constitution.utils.Constants
 import ua.constitution.utils.LogMessages
 import ua.constitution.domain.content.ConstitutionContentSource
+import ua.constitution.domain.content.ChapterSource
+import ua.constitution.domain.content.ArticleLookup
+import ua.constitution.domain.content.IntegrityStatus
 import ua.constitution.data.source.ConstitutionJsonParser
 
 data class ContentSegment(
@@ -64,7 +67,7 @@ data class Chapter(
     val sourceUrl: String = ""
 )
 
-object ConstitutionData : ConstitutionContentSource {
+object ConstitutionData : ConstitutionContentSource, ChapterSource, ArticleLookup, IntegrityStatus {
 
     private var appContext: Context? = null
 
@@ -112,16 +115,16 @@ object ConstitutionData : ConstitutionContentSource {
 
     const val EXPECTED_JSON_HASH = Constants.EXPECTED_JSON_HASH
 
-    var integrityVerificationPass = false
+    override var integrityVerificationPass = false
         private set
 
-    var computedHash = ""
+    override var computedHash = ""
         private set
 
-    var usedFallback = false
+    override var usedFallback = false
         private set
 
-    var initializationError = ""
+    override var initializationError = ""
         private set
 
     private var isInitialized = false
@@ -167,18 +170,18 @@ object ConstitutionData : ConstitutionContentSource {
     override val articles: List<Article>
         get() = parsedArticles
 
-    val chapters: List<Chapter>
+    override val chapters: List<Chapter>
         get() = if (isInitialized && parsedChapters.isNotEmpty()) parsedChapters else defaultChapters
 
-    fun getArticlesForChapter(chapterId: Int): List<Article> {
+    override fun getArticlesForChapter(chapterId: Int): List<Article> {
         return articles.filter { it.chapterId == chapterId }
     }
 
-    fun getArticleById(id: Int): Article? {
+    override fun getArticleById(id: Int): Article? {
         return articles.find { it.id == id } ?: articles.firstOrNull()
     }
 
-    fun getRandomArticle(): Article {
+    override fun getRandomArticle(): Article {
         return articles.random()
     }
 }
