@@ -26,7 +26,7 @@ import ua.constitution.data.repository.ConstitutionRepository
  *    active for the upstream flow to run. Tests that assert on filtering or bookmark state launch a
  *    collector in backgroundScope, and use runTest(testDispatcher) so that collector is hot
  *    synchronously (shares the UnconfinedTestDispatcher set as Main).
- *  - filteredArticles reads ConstitutionData.articles, so each test seeds it via initializeForTests.
+ *  - filteredArticles reads the injected content source, so each test supplies a FakeContentSource.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class ConstitutionViewModelTest {

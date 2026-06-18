@@ -1,9 +1,7 @@
 package ua.constitution
 
-import android.content.Context
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.test.core.app.ApplicationProvider
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
@@ -12,7 +10,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import ua.constitution.data.model.ConstitutionData
 
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -26,9 +23,8 @@ class MainActivityTest {
 
     @Before
     fun setup() {
+        // MainActivity loads its own content in onCreate via ConstitutionLoader; just wait for it.
         activity = composeTestRule.activity
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        ConstitutionData.initialize(context)
         composeTestRule.waitForIdle()
     }
 
