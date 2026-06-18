@@ -15,7 +15,6 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import ua.constitution.domain.content.ConstitutionContentSource
 import ua.constitution.ui.viewmodel.ConstitutionViewModel
 import ua.constitution.data.repository.ConstitutionRepository
 
@@ -36,10 +35,10 @@ class ConstitutionViewModelTest {
     private lateinit var fakeDao: FakeConstitutionDao
     private lateinit var viewModel: ConstitutionViewModel
 
-    // After the DIP refactor the ViewModel takes a content source, so we inject a tiny fake instead
-    // of seeding the ConstitutionData global.
-    private val contentSource = object : ConstitutionContentSource {
-        override val articles = listOf(
+    // After the DIP refactor the ViewModel takes a content source, so we inject the shared
+    // FakeContentSource double instead of seeding the ConstitutionData global.
+    private val contentSource = FakeContentSource(
+        articles = listOf(
             articleOf(id = 0, chapterId = 0, titleUa = "Преамбула"),
             articleOf(
                 id = 1, chapterId = 1, titleUa = "Стаття 1",
@@ -51,7 +50,7 @@ class ConstitutionViewModelTest {
                 paragraphs = listOf(paragraphOf(textSegment("Державні символи України")))
             )
         )
-    }
+    )
 
     @Before
     fun setup() {
