@@ -75,24 +75,6 @@ object Constants {
     const val ALGORITHM_SHA_256 = "SHA-256"
     const val HEX_FORMAT_BYTE = "%02x"
 
-    // Fallback chapter titles and info
-    const val FALLBACK_PREAMBLE_TITLE = "Преамбула"
-    const val FALLBACK_PREAMBLE_INFO = "Вступна частина Конституції України, що визначає історичні, правові підвалини та засади суверенітету нашої держави."
-    const val FALLBACK_CHAPTER_1_TITLE = "Загальні засади"
-    const val FALLBACK_CHAPTER_2_TITLE = "Права, свободи та обов'язки людини і громадянина"
-    const val FALLBACK_CHAPTER_3_TITLE = "Вибори. Референдум"
-    const val FALLBACK_CHAPTER_4_TITLE = "Верховна Рада України"
-    const val FALLBACK_CHAPTER_5_TITLE = "Президент України"
-    const val FALLBACK_CHAPTER_6_TITLE = "Кабінет Міністрів України. Інші органи виконавчої влади"
-    const val FALLBACK_CHAPTER_8_TITLE = "Правосуддя"
-    const val FALLBACK_CHAPTER_9_TITLE = "Територіальний устрій України"
-    const val FALLBACK_CHAPTER_10_TITLE = "Автономна Республіка Крим"
-    const val FALLBACK_CHAPTER_11_TITLE = "Місцеве самоврядування"
-    const val FALLBACK_CHAPTER_12_TITLE = "Конституційний Суд України"
-    const val FALLBACK_CHAPTER_13_TITLE = "Внесення змін до Конституції України"
-    const val FALLBACK_CHAPTER_14_TITLE = "Прикінцеві положення"
-    const val FALLBACK_CHAPTER_15_TITLE = "Перехідні положення"
-
     // Reference & source URLs
     const val DEFAULT_RADA_URL = "https://zakon.rada.gov.ua/laws/show/254%D0%BA/96-%D0%B2%D1%80"
     const val PREAMBLE_SOURCE_URL = "https://zakon.rada.gov.ua/laws/show/254%D0%BA/96-%D0%B2%D1%80#n4164"
