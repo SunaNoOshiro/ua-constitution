@@ -3,13 +3,15 @@ package ua.constitution.domain.text
 /** Pure helpers for rendering article numbers with unicode superscripts and mapping indices
  * between the original ("16.1") and formatted ("16¹") forms. Extracted from MainActivity. */
 
-fun isSuperscriptEquivalent(normal: Char, superChar: Char): Boolean {
-    val map = mapOf(
-        '0' to '⁰', '1' to '¹', '2' to '²', '3' to '³', '4' to '⁴',
-        '5' to '⁵', '6' to '⁶', '7' to '⁷', '8' to '⁸', '9' to '⁹'
-    )
-    return map[normal] == superChar
-}
+private const val SUPERSCRIPT_DIGITS = "⁰¹²³⁴⁵⁶⁷⁸⁹"
+
+/** The unicode superscript form of a digit char ('0'..'9'); any other char is returned unchanged.
+ *  Single source of truth for the digit→superscript mapping (replaces the duplicated 10-arm `when`
+ *  blocks that previously inflated this file's and ArticleNumberFormatter's complexity). */
+fun digitToSuperscript(c: Char): Char = if (c in '0'..'9') SUPERSCRIPT_DIGITS[c - '0'] else c
+
+fun isSuperscriptEquivalent(normal: Char, superChar: Char): Boolean =
+    normal in '0'..'9' && digitToSuperscript(normal) == superChar
 
 fun mapOriginalToFormatted(original: String, formatted: String): IntArray {
     val origToForm = IntArray(original.length + 1) { formatted.length }
@@ -77,42 +79,14 @@ fun formatStringToSuperscript(input: String): String {
     result = regexDots.replace(result) { matchResult ->
         val base = matchResult.groupValues[1]
         val suffix = matchResult.groupValues[2]
-        val sup = suffix.map { char ->
-            when (char) {
-                '0' -> '⁰'
-                '1' -> '¹'
-                '2' -> '²'
-                '3' -> '³'
-                '4' -> '⁴'
-                '5' -> '⁵'
-                '6' -> '⁶'
-                '7' -> '⁷'
-                '8' -> '⁸'
-                '9' -> '⁹'
-                else -> char
-            }
-        }.joinToString("")
+        val sup = suffix.map { digitToSuperscript(it) }.joinToString("")
         "$base$sup"
     }
     val regexHyphens = """(\d+)-(\d+)""".toRegex()
     result = regexHyphens.replace(result) { matchResult ->
         val base = matchResult.groupValues[1]
         val suffix = matchResult.groupValues[2]
-        val sup = suffix.map { char ->
-            when (char) {
-                '0' -> '⁰'
-                '1' -> '¹'
-                '2' -> '²'
-                '3' -> '³'
-                '4' -> '⁴'
-                '5' -> '⁵'
-                '6' -> '⁶'
-                '7' -> '⁷'
-                '8' -> '⁸'
-                '9' -> '⁹'
-                else -> char
-            }
-        }.joinToString("")
+        val sup = suffix.map { digitToSuperscript(it) }.joinToString("")
         "$base$sup"
     }
     return result

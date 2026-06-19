@@ -38,20 +38,7 @@ object ArticleNumberFormatter {
         }
         if (id > 1000) {
             val base = id / 10
-            val suffix = id % 10
-            val superscript = when (suffix) {
-                0 -> "⁰"
-                1 -> "¹"
-                2 -> "²"
-                3 -> "³"
-                4 -> "⁴"
-                5 -> "⁵"
-                6 -> "⁶"
-                7 -> "⁷"
-                8 -> "⁸"
-                9 -> "⁹"
-                else -> suffix.toString()
-            }
+            val superscript = digitToSuperscript('0' + (id % 10))
             return "$base$superscript"
         }
         return id.toString()
