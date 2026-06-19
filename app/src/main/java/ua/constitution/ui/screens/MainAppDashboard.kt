@@ -648,10 +648,11 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                         Card(
                                             modifier = Modifier
                                                 .fillMaxWidth()
+                                                .testTag("chapter_card_${chapter.id}")
                                                 .clickable {
                                                     val isNewChapter = chapter.id != currentSelectedChapterId
                                                     currentSelectedChapterId = chapter.id
-                                                    activeTab = DashboardTab.ARTICLES 
+                                                    activeTab = DashboardTab.ARTICLES
                                                     if (isNewChapter) {
                                                         clickedArticleIndex = null
                                                         coroutineScope.launch {
