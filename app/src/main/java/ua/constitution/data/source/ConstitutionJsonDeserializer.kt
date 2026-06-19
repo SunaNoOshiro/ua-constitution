@@ -17,7 +17,8 @@ data class ParsedConstitution(val articles: List<Article>, val chapters: List<Ch
  * Maps the constitution JSON string to the domain model (ordered articles + chapters). Single
  * responsibility: JSON -> domain deserialization, with NO file IO and NO integrity/crypto. Extracted
  * verbatim from `ConstitutionJsonParser.parse()` (and its private helpers); still takes a [Context]
- * only to resolve the localized preamble strings — a future StringProvider seam.
+ * only to resolve the localized preamble strings — a future StringProvider seam. The work is split
+ * into small per-section helpers to keep each function within the cyclomatic-complexity budget.
  */
 class ConstitutionJsonDeserializer(private val context: Context) {
 
@@ -26,31 +27,32 @@ class ConstitutionJsonDeserializer(private val context: Context) {
         val articles = mutableListOf<Article>()
         val chapters = mutableListOf<Chapter>()
 
-        // Dynamic Preamble parsing
+        addPreamble(rootObj, chapters, articles)
+
+        val chaptersArray = rootObj.getJSONArray(Constants.KEY_CHAPTERS)
+        for (i in 0 until chaptersArray.length()) {
+            val chObj = chaptersArray.getJSONObject(i)
+            articles.addAll(parseChapterArticles(chObj))
+            chapters.add(parseChapter(chObj))
+        }
+
+        articles.sortBy {
+            if (it.id > 1000) it.id.toDouble() / 10.0 else it.id.toDouble()
+        }
+
+        return ParsedConstitution(articles, chapters)
+    }
+
+    /** Adds the preamble chapter + article (id 0): from the JSON `preamble` object, or a localized
+     *  fallback when it is absent. */
+    private fun addPreamble(rootObj: org.json.JSONObject, chapters: MutableList<Chapter>, articles: MutableList<Article>) {
         if (rootObj.has(Constants.KEY_PREAMBLE)) {
             val preObj = rootObj.getJSONObject(Constants.KEY_PREAMBLE)
             val titleUa = preObj.optString(Constants.KEY_TITLE_UA, context.getString(R.string.preamble))
-            val paragraphsArr = preObj.optJSONArray(Constants.KEY_PARAGRAPHS)
-            val paragraphs = parseParagraphs(paragraphsArr)
+            val paragraphs = parseParagraphs(preObj.optJSONArray(Constants.KEY_PARAGRAPHS))
             val preambleSourceUrl = preObj.optString(Constants.KEY_SOURCE_URL, Constants.PREAMBLE_SOURCE_URL)
-
-            chapters.add(
-                Chapter(
-                    id = 0,
-                    titleUa = titleUa,
-                    info = context.getString(R.string.preamble_info),
-                    sourceUrl = preambleSourceUrl
-                )
-            )
-            articles.add(
-                Article(
-                    id = 0,
-                    chapterId = 0,
-                    titleUa = titleUa,
-                    paragraphs = paragraphs,
-                    radaUrl = preambleSourceUrl
-                )
-            )
+            chapters.add(Chapter(id = 0, titleUa = titleUa, info = context.getString(R.string.preamble_info), sourceUrl = preambleSourceUrl))
+            articles.add(Article(id = 0, chapterId = 0, titleUa = titleUa, paragraphs = paragraphs, radaUrl = preambleSourceUrl))
         } else {
             chapters.add(
                 Chapter(
@@ -75,74 +77,52 @@ class ConstitutionJsonDeserializer(private val context: Context) {
                 )
             )
         }
+    }
 
-        val chaptersArray = rootObj.getJSONArray(Constants.KEY_CHAPTERS)
-        for (i in 0 until chaptersArray.length()) {
-            val chObj = chaptersArray.getJSONObject(i)
-            val id = chObj.getInt(Constants.KEY_ID)
-            val titleUa = chObj.getString(Constants.KEY_TITLE_UA)
-            val info = chObj.optString(Constants.KEY_INFO, "")
-            val excluded = chObj.optBoolean(Constants.KEY_EXCLUDED, false)
-            val chapterSourceUrl = chObj.optString(Constants.KEY_SOURCE_URL, Constants.DEFAULT_RADA_URL)
+    /** Parses a chapter object (without its nested articles, which [parseChapterArticles] handles). */
+    private fun parseChapter(chObj: org.json.JSONObject): Chapter {
+        val excludedNoteObj = chObj.optJSONObject(Constants.KEY_EXCLUDED_NOTE)
+        val excludedNote = if (excludedNoteObj != null) {
+            Note(parseContentSegments(excludedNoteObj.optJSONArray(Constants.KEY_CONTENT)))
+        } else null
+        return Chapter(
+            id = chObj.getInt(Constants.KEY_ID),
+            titleUa = chObj.getString(Constants.KEY_TITLE_UA),
+            info = chObj.optString(Constants.KEY_INFO, ""),
+            excluded = chObj.optBoolean(Constants.KEY_EXCLUDED, false),
+            excludedNote = excludedNote,
+            sourceUrl = chObj.optString(Constants.KEY_SOURCE_URL, Constants.DEFAULT_RADA_URL)
+        )
+    }
 
-            val excludedNoteObj = chObj.optJSONObject(Constants.KEY_EXCLUDED_NOTE)
-            val excludedNote = if (excludedNoteObj != null) {
-                val contentArr = excludedNoteObj.optJSONArray(Constants.KEY_CONTENT)
-                Note(parseContentSegments(contentArr))
-            } else null
-
-            // Parse nested articles directly from each chapter
-            if (chObj.has(Constants.KEY_ARTICLES)) {
-                val articlesArr = chObj.getJSONArray(Constants.KEY_ARTICLES)
-                for (j in 0 until articlesArr.length()) {
-                    val artObj = articlesArr.getJSONObject(j)
-                    val idObj = artObj.get(Constants.KEY_ID)
-                    val artId = when (idObj) {
-                        is Number -> {
-                            val dVal = idObj.toDouble()
-                            if (dVal % 1.0 != 0.0) {
-                                Math.round(dVal * 10).toInt()
-                            } else {
-                                dVal.toInt()
-                            }
-                        }
-                        else -> idObj.toString().toIntOrNull() ?: 0
-                    }
-                    val artChapterId = artObj.getInt(Constants.KEY_CHAPTER_ID)
-                    val artTitleUa = artObj.getString(Constants.KEY_TITLE_UA)
-                    val paragraphsArr = artObj.optJSONArray(Constants.KEY_PARAGRAPHS)
-                    val paragraphs = parseParagraphs(paragraphsArr)
-                    val artSourceUrl = artObj.optString(Constants.KEY_SOURCE_URL, Constants.DEFAULT_RADA_URL)
-
-                    articles.add(
-                        Article(
-                            id = artId,
-                            chapterId = artChapterId,
-                            titleUa = artTitleUa,
-                            paragraphs = paragraphs,
-                            radaUrl = artSourceUrl
-                        )
-                    )
-                }
-            }
-
-            chapters.add(
-                Chapter(
-                    id = id,
-                    titleUa = titleUa,
-                    info = info,
-                    excluded = excluded,
-                    excludedNote = excludedNote,
-                    sourceUrl = chapterSourceUrl
+    /** The articles nested directly under a chapter object, in JSON order (empty if none). */
+    private fun parseChapterArticles(chObj: org.json.JSONObject): List<Article> {
+        if (!chObj.has(Constants.KEY_ARTICLES)) return emptyList()
+        val articlesArr = chObj.getJSONArray(Constants.KEY_ARTICLES)
+        val list = mutableListOf<Article>()
+        for (j in 0 until articlesArr.length()) {
+            val artObj = articlesArr.getJSONObject(j)
+            list.add(
+                Article(
+                    id = toArticleId(artObj.get(Constants.KEY_ID)),
+                    chapterId = artObj.getInt(Constants.KEY_CHAPTER_ID),
+                    titleUa = artObj.getString(Constants.KEY_TITLE_UA),
+                    paragraphs = parseParagraphs(artObj.optJSONArray(Constants.KEY_PARAGRAPHS)),
+                    radaUrl = artObj.optString(Constants.KEY_SOURCE_URL, Constants.DEFAULT_RADA_URL)
                 )
             )
         }
+        return list
+    }
 
-        articles.sortBy {
-            if (it.id > 1000) it.id.toDouble() / 10.0 else it.id.toDouble()
+    /** Encodes a JSON article id: a fractional number like 16.1 becomes 161 (round * 10); a whole
+     *  number is its int; a non-numeric value falls back to 0. Verbatim from the former inline `when`. */
+    private fun toArticleId(idObj: Any): Int = when (idObj) {
+        is Number -> {
+            val dVal = idObj.toDouble()
+            if (dVal % 1.0 != 0.0) Math.round(dVal * 10).toInt() else dVal.toInt()
         }
-
-        return ParsedConstitution(articles, chapters)
+        else -> idObj.toString().toIntOrNull() ?: 0
     }
 
     private fun parseContentSegments(arr: org.json.JSONArray?): List<ContentSegment> {
