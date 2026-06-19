@@ -148,14 +148,7 @@ fun SegmentedTextWithEdits(
     textStyle: SegmentTextStyle = SegmentTextStyle(MaterialTheme.typography.bodyMedium),
     onArticleClick: ((Article) -> Unit)? = null,
     resolveArticleLink: ((String) -> Article?)? = null,
-    onUpdateRanges: ((List<StyledRange>) -> Unit)? = null,
-    selectedMarkerColorHex: String = "#FFF59D",
-    selectedUnderlineColorHex: String = "#F57F17",
-    onSelectedMarkerColorChange: ((String) -> Unit)? = null,
-    onSelectedUnderlineColorChange: ((String) -> Unit)? = null,
-    activeTool: String = Constants.TOOL_MARKER,
-    selectedColorHex: String = "#FFF59D",
-    fullArticleTextToCopy: String? = null
+    editing: SegmentEditing = SegmentEditing()
 ) {
     val context = LocalContext.current
     // Unpack the grouped text-style object into the names the body already uses (display-only).
@@ -164,6 +157,15 @@ fun SegmentedTextWithEdits(
     val lineHeight = textStyle.lineHeight
     val fontWeight = textStyle.fontWeight
     val fontStyle = textStyle.fontStyle
+    // Unpack the grouped editing object into the names the body already uses.
+    val onUpdateRanges = editing.onUpdateRanges
+    val selectedMarkerColorHex = editing.selectedMarkerColorHex
+    val selectedUnderlineColorHex = editing.selectedUnderlineColorHex
+    val onSelectedMarkerColorChange = editing.onSelectedMarkerColorChange
+    val onSelectedUnderlineColorChange = editing.onSelectedUnderlineColorChange
+    val activeTool = editing.activeTool
+    val selectedColorHex = editing.selectedColorHex
+    val fullArticleTextToCopy = editing.fullArticleTextToCopy
     var textLayoutResult by remember { mutableStateOf<androidx.compose.ui.text.TextLayoutResult?>(null) }
 
     val mergedSegments = remember(segments) { mergeAdjacentLinkSegments(segments) }

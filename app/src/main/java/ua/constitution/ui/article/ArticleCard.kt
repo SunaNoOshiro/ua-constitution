@@ -391,20 +391,22 @@ fun ArticleCard(
                             textStyle = SegmentTextStyle(MaterialTheme.typography.bodyMedium),
                             onArticleClick = onArticleClick,
                             resolveArticleLink = resolveArticleLink,
-                            onUpdateRanges = onUpdateCombinedRanges,
-                            selectedMarkerColorHex = selectedMarkerColorHex,
-                            selectedUnderlineColorHex = selectedUnderlineColorHex,
-                            onSelectedMarkerColorChange = { color ->
-                                onActiveToolChange?.invoke(Constants.TOOL_MARKER)
-                                onColorHexChange?.invoke(color)
-                            },
-                            onSelectedUnderlineColorChange = { color ->
-                                onActiveToolChange?.invoke(Constants.TOOL_UNDERLINE)
-                                onColorHexChange?.invoke(color)
-                            },
-                            activeTool = if (isCurrentlyEditing) activeTool else Constants.TOOL_NONE,
-                            selectedColorHex = selectedColorHex,
-                            fullArticleTextToCopy = fullArticleTextToCopy
+                            editing = SegmentEditing(
+                                onUpdateRanges = onUpdateCombinedRanges,
+                                selectedMarkerColorHex = selectedMarkerColorHex,
+                                selectedUnderlineColorHex = selectedUnderlineColorHex,
+                                onSelectedMarkerColorChange = { color ->
+                                    onActiveToolChange?.invoke(Constants.TOOL_MARKER)
+                                    onColorHexChange?.invoke(color)
+                                },
+                                onSelectedUnderlineColorChange = { color ->
+                                    onActiveToolChange?.invoke(Constants.TOOL_UNDERLINE)
+                                    onColorHexChange?.invoke(color)
+                                },
+                                activeTool = if (isCurrentlyEditing) activeTool else Constants.TOOL_NONE,
+                                selectedColorHex = selectedColorHex,
+                                fullArticleTextToCopy = fullArticleTextToCopy
+                            )
                         )
                         val allNotes = remember(article.paragraphs) {
                             article.paragraphs.flatMap { it.notes }
@@ -433,12 +435,14 @@ fun ArticleCard(
                                     textStyle = SegmentTextStyle(MaterialTheme.typography.bodyMedium),
                                     onArticleClick = onArticleClick,
                                     resolveArticleLink = resolveArticleLink,
-                                    onUpdateRanges = null,
-                                    selectedMarkerColorHex = selectedMarkerColorHex,
-                                    selectedUnderlineColorHex = selectedUnderlineColorHex,
-                                    onSelectedMarkerColorChange = null,
-                                    onSelectedUnderlineColorChange = null,
-                                    fullArticleTextToCopy = fullArticleTextToCopy
+                                    editing = SegmentEditing(
+                                        onUpdateRanges = null,
+                                        selectedMarkerColorHex = selectedMarkerColorHex,
+                                        selectedUnderlineColorHex = selectedUnderlineColorHex,
+                                        onSelectedMarkerColorChange = null,
+                                        onSelectedUnderlineColorChange = null,
+                                        fullArticleTextToCopy = fullArticleTextToCopy
+                                    )
                                 )
                                 paragraph.notes.forEach { note ->
                                     NoteCard(note = note, onArticleClick = onArticleClick, resolveArticleLink = resolveArticleLink)
