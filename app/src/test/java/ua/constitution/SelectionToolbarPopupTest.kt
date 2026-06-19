@@ -76,16 +76,18 @@ class SelectionToolbarPopupTest {
                     showCopy = showCopy,
                     onCopy = onCopy,
                     onSelectAll = onSelectAll,
-                    showFormatting = true,
-                    markerColors = markerColors,
-                    underlineColors = underlineColors,
-                    lastMarkerColor = "#FFF59D",
-                    lastUnderlineColor = "#F57F17",
-                    eraserIcon = Icons.Default.Clear,
-                    showEraser = showEraser,
-                    onApplyMarker = onApplyMarker,
-                    onApplyUnderline = onApplyUnderline,
-                    onApplyEraser = onApplyEraser
+                    formatting = FormattingTools(
+                        showFormatting = true,
+                        markerColors = markerColors,
+                        underlineColors = underlineColors,
+                        lastMarkerColor = "#FFF59D",
+                        lastUnderlineColor = "#F57F17",
+                        eraserIcon = Icons.Default.Clear,
+                        showEraser = showEraser,
+                        onApplyMarker = onApplyMarker,
+                        onApplyUnderline = onApplyUnderline,
+                        onApplyEraser = onApplyEraser
+                    )
                 )
             }
         }

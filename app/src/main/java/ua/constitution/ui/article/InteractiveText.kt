@@ -665,16 +665,18 @@ fun SegmentedTextWithEdits(
             showCopy = menuCallbacks?.onCopy != null,
             onCopy = performCopy,
             onSelectAll = performSelectAll,
-            showFormatting = onUpdateRanges != null,
-            markerColors = markerColors,
-            underlineColors = underlineColors,
-            lastMarkerColor = lastMarkerColor,
-            lastUnderlineColor = lastUnderlineColor,
-            eraserIcon = eraserIcon,
-            showEraser = hasEditsInSelection,
-            onApplyMarker = applyMarker,
-            onApplyUnderline = applyUnderline,
-            onApplyEraser = applyEraser
+            formatting = FormattingTools(
+                showFormatting = onUpdateRanges != null,
+                markerColors = markerColors,
+                underlineColors = underlineColors,
+                lastMarkerColor = lastMarkerColor,
+                lastUnderlineColor = lastUnderlineColor,
+                eraserIcon = eraserIcon,
+                showEraser = hasEditsInSelection,
+                onApplyMarker = applyMarker,
+                onApplyUnderline = applyUnderline,
+                onApplyEraser = applyEraser
+            )
         )
     }
 }
@@ -805,17 +807,18 @@ internal fun SelectionToolbarPopup(
     showCopy: Boolean,
     onCopy: () -> Unit,
     onSelectAll: () -> Unit,
-    showFormatting: Boolean,
-    markerColors: List<String>,
-    underlineColors: List<String>,
-    lastMarkerColor: String,
-    lastUnderlineColor: String,
-    eraserIcon: androidx.compose.ui.graphics.vector.ImageVector,
-    showEraser: Boolean,
-    onApplyMarker: (String) -> Unit,
-    onApplyUnderline: (String) -> Unit,
-    onApplyEraser: () -> Unit
+    formatting: FormattingTools
 ) {
+    val showFormatting = formatting.showFormatting
+    val markerColors = formatting.markerColors
+    val underlineColors = formatting.underlineColors
+    val lastMarkerColor = formatting.lastMarkerColor
+    val lastUnderlineColor = formatting.lastUnderlineColor
+    val eraserIcon = formatting.eraserIcon
+    val showEraser = formatting.showEraser
+    val onApplyMarker = formatting.onApplyMarker
+    val onApplyUnderline = formatting.onApplyUnderline
+    val onApplyEraser = formatting.onApplyEraser
     var showedColorPickerMode by remember(selectionKey) { mutableStateOf<String?>(null) }
 
     androidx.compose.ui.window.Popup(
