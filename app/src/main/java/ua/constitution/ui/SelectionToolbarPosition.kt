@@ -21,15 +21,10 @@ fun selectionToolbarOffset(
     gapPx: Float,
     bufferPx: Float
 ): IntOffset {
-    val left = selectionRect.left
-    val right = selectionRect.right
-    val top = selectionRect.top
-    val bottom = selectionRect.bottom
-
-    val safeLeft = if (left.isNaN() || left.isInfinite()) 0f else left
-    val safeRight = if (right.isNaN() || right.isInfinite()) 0f else right
-    val safeTop = if (top.isNaN() || top.isInfinite()) 0f else top
-    val safeBottom = if (bottom.isNaN() || bottom.isInfinite()) 0f else bottom
+    val safeLeft = sanitizeEdge(selectionRect.left)
+    val safeRight = sanitizeEdge(selectionRect.right)
+    val safeTop = sanitizeEdge(selectionRect.top)
+    val safeBottom = sanitizeEdge(selectionRect.bottom)
 
     val x = anchorBounds.left + (safeLeft + safeRight) / 2 - popupContentSize.width / 2
     var y = anchorBounds.top + safeTop - popupContentSize.height - gapPx
@@ -46,3 +41,6 @@ fun selectionToolbarOffset(
 
     return IntOffset(finalX.toInt(), finalY.toInt())
 }
+
+/** Treats a NaN/Infinite selection-rect edge as 0 (otherwise returns the value unchanged). */
+private fun sanitizeEdge(value: Float): Float = if (value.isNaN() || value.isInfinite()) 0f else value
