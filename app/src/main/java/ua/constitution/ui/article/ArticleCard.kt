@@ -388,10 +388,7 @@ fun ArticleCard(
                         SegmentedTextWithEdits(
                             segments = combinedSegments,
                             ranges = combinedRanges,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color(0xFF0F172A),
-                            lineHeight = 24.sp,
-                            fontWeight = FontWeight.Medium,
+                            textStyle = SegmentTextStyle(MaterialTheme.typography.bodyMedium),
                             onArticleClick = onArticleClick,
                             resolveArticleLink = resolveArticleLink,
                             onUpdateRanges = onUpdateCombinedRanges,
@@ -433,10 +430,7 @@ fun ArticleCard(
                                 SegmentedTextWithEdits(
                                     segments = paragraph.content,
                                     ranges = paragraphRanges,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = Color(0xFF0F172A),
-                                    lineHeight = 24.sp,
-                                    fontWeight = FontWeight.Medium,
+                                    textStyle = SegmentTextStyle(MaterialTheme.typography.bodyMedium),
                                     onArticleClick = onArticleClick,
                                     resolveArticleLink = resolveArticleLink,
                                     onUpdateRanges = null,
@@ -550,11 +544,13 @@ fun NoteCard(note: Note, resolveArticleLink: (String) -> Article?, modifier: Mod
         ) {
             SegmentedText(
                 segments = note.content,
-                style = MaterialTheme.typography.bodySmall,
-                fontStyle = FontStyle.Italic,
-                color = Color(0xFF475569),
-                lineHeight = 18.sp,
-                fontWeight = FontWeight.Medium,
+                textStyle = SegmentTextStyle(
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(0xFF475569),
+                    lineHeight = 18.sp,
+                    fontWeight = FontWeight.Medium,
+                    fontStyle = FontStyle.Italic
+                ),
                 onArticleClick = onArticleClick,
                 resolveArticleLink = resolveArticleLink
             )

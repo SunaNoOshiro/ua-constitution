@@ -145,11 +145,7 @@ fun SegmentedTextWithEdits(
     segments: List<ua.constitution.data.model.ContentSegment>,
     ranges: List<StyledRange>,
     modifier: Modifier = Modifier,
-    style: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyMedium,
-    color: Color = Color(0xFF0F172A),
-    lineHeight: androidx.compose.ui.unit.TextUnit = 24.sp,
-    fontWeight: FontWeight = FontWeight.Medium,
-    fontStyle: FontStyle? = null,
+    textStyle: SegmentTextStyle = SegmentTextStyle(MaterialTheme.typography.bodyMedium),
     onArticleClick: ((Article) -> Unit)? = null,
     resolveArticleLink: ((String) -> Article?)? = null,
     onUpdateRanges: ((List<StyledRange>) -> Unit)? = null,
@@ -162,8 +158,14 @@ fun SegmentedTextWithEdits(
     fullArticleTextToCopy: String? = null
 ) {
     val context = LocalContext.current
+    // Unpack the grouped text-style object into the names the body already uses (display-only).
+    val style = textStyle.style
+    val color = textStyle.color
+    val lineHeight = textStyle.lineHeight
+    val fontWeight = textStyle.fontWeight
+    val fontStyle = textStyle.fontStyle
     var textLayoutResult by remember { mutableStateOf<androidx.compose.ui.text.TextLayoutResult?>(null) }
-    
+
     val mergedSegments = remember(segments) { mergeAdjacentLinkSegments(segments) }
 
     val originalText = remember(mergedSegments) {
@@ -720,15 +722,17 @@ fun TextButtonWithIcon(
 fun SegmentedText(
     segments: List<ua.constitution.data.model.ContentSegment>,
     modifier: Modifier = Modifier,
-    style: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyMedium,
-    color: Color = Color(0xFF0F172A),
-    lineHeight: androidx.compose.ui.unit.TextUnit = 24.sp,
-    fontWeight: FontWeight = FontWeight.Medium,
-    fontStyle: FontStyle? = null,
+    textStyle: SegmentTextStyle = SegmentTextStyle(MaterialTheme.typography.bodyMedium),
     onArticleClick: ((Article) -> Unit)? = null,
     resolveArticleLink: ((String) -> Article?)? = null
 ) {
     val context = LocalContext.current
+    // Unpack the grouped text-style object into the names the body already uses (display-only).
+    val style = textStyle.style
+    val color = textStyle.color
+    val lineHeight = textStyle.lineHeight
+    val fontWeight = textStyle.fontWeight
+    val fontStyle = textStyle.fontStyle
 
     // Merge adjacent link segments that share the same URL to prevent split link issues (e.g., 149-1)
     val mergedSegments = remember(segments) { mergeAdjacentLinkSegments(segments) }
