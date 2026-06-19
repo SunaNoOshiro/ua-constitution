@@ -142,27 +142,31 @@ fun ArticleCard(
     article: Article,
     isBookmarked: Boolean,
     onToggleBookmark: () -> Unit,
+    resolveArticleLink: (String) -> Article?,
     modifier: Modifier = Modifier,
     onArticleClick: ((Article) -> Unit)? = null,
-    resolveArticleLink: (String) -> Article?,
-    isEditable: Boolean = false,
     initialEditsJson: String = "",
-    onSaveEdits: ((String) -> Unit)? = null,
-    isCurrentlyEditing: Boolean = false,
-    onToggleEditing: (() -> Unit)? = null,
-    activeTool: String = Constants.TOOL_MARKER,
-    selectedColorHex: String = Constants.COLOR_DEFAULT_MARKER,
-    selectedMarkerColorHex: String = Constants.COLOR_DEFAULT_MARKER,
-    selectedUnderlineColorHex: String = Constants.COLOR_DEFAULT_UNDERLINE,
-    isEditButtonEnabled: Boolean = true,
-    isPanelExpanded: Boolean = false,
-    onPanelExpandedChange: ((Boolean) -> Unit)? = null,
-    onActiveToolChange: ((String) -> Unit)? = null,
-    onColorHexChange: ((String) -> Unit)? = null,
-    onDisabledEditClick: (() -> Unit)? = null
+    editing: ArticleEditing = ArticleEditing()
 ) {
     val context = LocalContext.current
-    
+
+    // Unpack the grouped editing parameter object into the names the body already uses, so the
+    // long parameter list collapses to one cohesive object without touching the rendering code.
+    val isEditable = editing.isEditable
+    val isCurrentlyEditing = editing.isCurrentlyEditing
+    val isEditButtonEnabled = editing.isEditButtonEnabled
+    val isPanelExpanded = editing.isPanelExpanded
+    val activeTool = editing.activeTool
+    val selectedColorHex = editing.selectedColorHex
+    val selectedMarkerColorHex = editing.selectedMarkerColorHex
+    val selectedUnderlineColorHex = editing.selectedUnderlineColorHex
+    val onSaveEdits = editing.onSaveEdits
+    val onToggleEditing = editing.onToggleEditing
+    val onPanelExpandedChange = editing.onPanelExpandedChange
+    val onActiveToolChange = editing.onActiveToolChange
+    val onColorHexChange = editing.onColorHexChange
+    val onDisabledEditClick = editing.onDisabledEditClick
+
     // Split the title (e.g., "Стаття 20. Державні символи України") into number and title
     val titleParts = remember(article.id, article.titleUa) { parseArticleTitle(article.titleUa) }
     val articleNumber = titleParts.display

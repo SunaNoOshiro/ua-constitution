@@ -1021,42 +1021,44 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                                 },
                                                 onArticleClick = { target -> navigateToArticleWithOrigin(target, article) },
                                                 resolveArticleLink = viewModel::resolveLink,
-                                                isEditable = isCurrentEditable,
                                                 initialEditsJson = editsJson,
-                                                onSaveEdits = onSaveCallback,
-                                                 onDisabledEditClick = {
-                                                     activeEditingWarningMessage = context.getString(R.string.save_edits_error)
-                                                 },
-                                                 isEditButtonEnabled = (bookmarkEditingArticleId == null || bookmarkEditingArticleId == article.bookmarkId),
-                                                 isPanelExpanded = bookmarkPanelExpanded,
-                                                 onPanelExpandedChange = { bookmarkPanelExpanded = it },
-                                                 onActiveToolChange = { tool ->
-                                                     bookmarkActiveTool = tool
-                                                 },
-                                                 onColorHexChange = { color ->
-                                                      if (bookmarkActiveTool == Constants.TOOL_UNDERLINE) {
-                                                          bookmarkSelectedUnderlineColorHex = color
-                                                      } else {
-                                                          bookmarkSelectedMarkerColorHex = color
-                                                      }
-                                                  },
-                                                isCurrentlyEditing = (bookmarkEditingArticleId == article.bookmarkId),
-                                                onToggleEditing = {
-                                                    if (bookmarkEditingArticleId == article.bookmarkId) {
-                                                        bookmarkEditingArticleId = null
-                                                    } else {
-                                                        bookmarkEditingArticleId = article.bookmarkId
-                                                        bookmarkPanelExpanded = false
-                                                        bookmarkActiveTool = Constants.TOOL_NONE
-                                                        coroutineScope.launch {
-                                                            bookmarksListState.animateScrollToItem(index)
+                                                editing = ArticleEditing(
+                                                    isEditable = isCurrentEditable,
+                                                    isCurrentlyEditing = (bookmarkEditingArticleId == article.bookmarkId),
+                                                    isEditButtonEnabled = (bookmarkEditingArticleId == null || bookmarkEditingArticleId == article.bookmarkId),
+                                                    isPanelExpanded = bookmarkPanelExpanded,
+                                                    activeTool = bookmarkActiveTool,
+                                                    selectedColorHex = if (bookmarkActiveTool == Constants.TOOL_UNDERLINE) bookmarkSelectedUnderlineColorHex else bookmarkSelectedMarkerColorHex,
+                                                    selectedMarkerColorHex = bookmarkSelectedMarkerColorHex,
+                                                    selectedUnderlineColorHex = bookmarkSelectedUnderlineColorHex,
+                                                    onSaveEdits = onSaveCallback,
+                                                    onDisabledEditClick = {
+                                                        activeEditingWarningMessage = context.getString(R.string.save_edits_error)
+                                                    },
+                                                    onPanelExpandedChange = { bookmarkPanelExpanded = it },
+                                                    onActiveToolChange = { tool ->
+                                                        bookmarkActiveTool = tool
+                                                    },
+                                                    onColorHexChange = { color ->
+                                                        if (bookmarkActiveTool == Constants.TOOL_UNDERLINE) {
+                                                            bookmarkSelectedUnderlineColorHex = color
+                                                        } else {
+                                                            bookmarkSelectedMarkerColorHex = color
+                                                        }
+                                                    },
+                                                    onToggleEditing = {
+                                                        if (bookmarkEditingArticleId == article.bookmarkId) {
+                                                            bookmarkEditingArticleId = null
+                                                        } else {
+                                                            bookmarkEditingArticleId = article.bookmarkId
+                                                            bookmarkPanelExpanded = false
+                                                            bookmarkActiveTool = Constants.TOOL_NONE
+                                                            coroutineScope.launch {
+                                                                bookmarksListState.animateScrollToItem(index)
+                                                            }
                                                         }
                                                     }
-                                                },
-                                                activeTool = bookmarkActiveTool,
-                                                selectedColorHex = if (bookmarkActiveTool == Constants.TOOL_UNDERLINE) bookmarkSelectedUnderlineColorHex else bookmarkSelectedMarkerColorHex,
-                                                 selectedMarkerColorHex = bookmarkSelectedMarkerColorHex,
-                                                 selectedUnderlineColorHex = bookmarkSelectedUnderlineColorHex
+                                                )
                                             )
                                         }
                                     }
