@@ -10,14 +10,16 @@ import ua.constitution.data.model.Article
  * ignores the chapter constraint entirely.
  */
 fun searchArticles(all: List<Article>, query: String, chapterId: Int?): List<Article> =
-    all.filter { article ->
-        val matchesQuery = query.isEmpty() ||
-                article.id.toString() == query ||
-                article.id.toString().contains(query) ||
-                article.titleUa.contains(query, ignoreCase = true) ||
-                article.textUa.contains(query, ignoreCase = true)
+    all.filter { matchesQuery(it, query) && matchesChapter(it, query, chapterId) }
 
-        // If there is an active search query, perform global search (ignore chapter constraint)
-        val matchesChapter = query.isNotEmpty() || chapterId == null || article.chapterId == chapterId
-        matchesQuery && matchesChapter
-    }
+/** An empty query matches everything; otherwise the id (exact or substring) or the title/body. */
+private fun matchesQuery(article: Article, query: String): Boolean =
+    query.isEmpty() ||
+        article.id.toString() == query ||
+        article.id.toString().contains(query) ||
+        article.titleUa.contains(query, ignoreCase = true) ||
+        article.textUa.contains(query, ignoreCase = true)
+
+/** A non-empty query searches globally (ignores the chapter); otherwise scope to [chapterId]. */
+private fun matchesChapter(article: Article, query: String, chapterId: Int?): Boolean =
+    query.isNotEmpty() || chapterId == null || article.chapterId == chapterId
