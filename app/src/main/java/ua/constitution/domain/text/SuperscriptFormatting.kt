@@ -13,6 +13,13 @@ fun digitToSuperscript(c: Char): Char = if (c in '0'..'9') SUPERSCRIPT_DIGITS[c 
 fun isSuperscriptEquivalent(normal: Char, superChar: Char): Boolean =
     normal in '0'..'9' && digitToSuperscript(normal) == superChar
 
+/** True when an original char equals the formatted char or is its superscript equivalent. */
+private fun charsMatch(origChar: Char, formChar: Char): Boolean =
+    origChar == formChar || isSuperscriptEquivalent(origChar, formChar)
+
+/** The separators ('.' / '-') dropped when forming the superscript ("16.1" -> "16¹"). */
+private fun isGapChar(c: Char): Boolean = c == '.' || c == '-'
+
 fun mapOriginalToFormatted(original: String, formatted: String): IntArray {
     val origToForm = IntArray(original.length + 1) { formatted.length }
     var formIdx = 0
@@ -24,10 +31,10 @@ fun mapOriginalToFormatted(original: String, formatted: String): IntArray {
         val origChar = original[origIdx]
         if (formIdx < formatted.length) {
             val formChar = formatted[formIdx]
-            if (origChar == formChar || isSuperscriptEquivalent(origChar, formChar)) {
+            if (charsMatch(origChar, formChar)) {
                 origToForm[origIdx] = formIdx
                 formIdx++
-            } else if (origChar == '.' || origChar == '-') {
+            } else if (isGapChar(origChar)) {
                 origToForm[origIdx] = formIdx
             } else {
                 origToForm[origIdx] = formIdx
@@ -52,12 +59,12 @@ fun mapFormattedToOriginal(original: String, formatted: String): IntArray {
         var assigned = false
         while (origIdx < original.length) {
             val origChar = original[origIdx]
-            if (origChar == formChar || isSuperscriptEquivalent(origChar, formChar)) {
+            if (charsMatch(origChar, formChar)) {
                 formToOrig[formIdx] = origIdx
                 origIdx++
                 assigned = true
                 break
-            } else if (origChar == '.' || origChar == '-') {
+            } else if (isGapChar(origChar)) {
                 origIdx++
             } else {
                 formToOrig[formIdx] = origIdx
