@@ -201,11 +201,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
 
     val navigationHistory = remember { mutableStateListOf<Article>() }
 
-    var bookmarkEditingArticleId by remember { mutableStateOf<Int?>(null) }
-    var bookmarkActiveTool by remember { mutableStateOf(Constants.TOOL_NONE) } 
-    var bookmarkSelectedMarkerColorHex by remember { mutableStateOf(Constants.COLOR_DEFAULT_MARKER) }
-    var bookmarkSelectedUnderlineColorHex by remember { mutableStateOf(Constants.COLOR_DEFAULT_UNDERLINE) }
-    var bookmarkPanelExpanded by remember { mutableStateOf(false) }
+    val bookmarkEditor = remember { BookmarkEditorState() }
     var activeEditingWarningMessage by remember { mutableStateOf<String?>(null) }
 
     BackHandler(enabled = navigationHistory.isNotEmpty()) {
@@ -931,139 +927,13 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                         }
 
                         DashboardTab.BOOKMARKS -> {
-                            val bookmarkedArticles = viewModel.bookmarkedArticles(bookmarksList)
-
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 20.dp)
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.saved_bookmarks_header, bookmarkedArticles.size),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Black,
-                                    color = Color(0xFF0D47A1),
-                                    modifier = Modifier.padding(vertical = 10.dp)
-                                )
-
-                                LaunchedEffect(bookmarkEditingArticleId) {
-                                    bookmarkPanelExpanded = false
-                                }
-
-                                 val bookmarksListState = rememberLazyListState()
-                                 val coroutineScope = rememberCoroutineScope()
-
-                                 LaunchedEffect(bookmarksListState.isScrollInProgress) {
-                                     if (bookmarksListState.isScrollInProgress && bookmarkPanelExpanded) {
-                                         bookmarkPanelExpanded = false
-                                     }
-                                 }
-
-                                LazyColumn(
-                                    state = bookmarksListState,
-                                    verticalArrangement = Arrangement.spacedBy(14.dp),
-                                    contentPadding = PaddingValues(top = 8.dp, bottom = 24.dp),
-                                    modifier = Modifier.fillMaxSize()
-                                ) {
-                                    if (bookmarkedArticles.isEmpty()) {
-                                        item {
-                                            Box(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(top = 60.dp),
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                Column(
-                                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                                                ) {
-                                                    Icon(
-                                                        imageVector = Icons.Default.Bookmark,
-                                                        contentDescription = null,
-                                                        tint = Color(0xFF0D47A1).copy(alpha = 0.2f),
-                                                        modifier = Modifier.size(72.dp)
-                                                    )
-                                                    Text(
-                                                        text = stringResource(R.string.no_bookmarks_msg),
-                                                        style = MaterialTheme.typography.titleMedium,
-                                                        fontWeight = FontWeight.Bold,
-                                                        color = Color(0xFF0D47A1).copy(alpha = 0.6f)
-                                                    )
-                                                    Text(
-                                                        text = stringResource(R.string.bookmarks_hint),
-                                                        style = MaterialTheme.typography.bodyMedium,
-                                                        color = Color(0xFF0D47A1).copy(alpha = 0.5f),
-                                                        textAlign = TextAlign.Center,
-                                                        modifier = Modifier.padding(horizontal = 20.dp)
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    } else {
-                                        itemsIndexed(
-                                            items = bookmarkedArticles,
-                                            key = { _, article -> article.bookmarkId }
-                                        ) { index, article ->
-                                             val bookmarkEntity = bookmarksList.find { it.articleId == article.bookmarkId }
-                                             val editsJson = bookmarkEntity?.editsJson ?: ""
-                                             val isCurrentEditable = true
-                                             val onSaveCallback: (String) -> Unit = { newJson ->
-                                                 viewModel.updateBookmarkEdits(article.bookmarkId, newJson)
-                                             }
-                                            ArticleCard(
-                                                article = article,
-                                                isBookmarked = true,
-                                                onToggleBookmark = {
-                                                    if (bookmarkEditingArticleId == article.bookmarkId) {
-                                                        bookmarkEditingArticleId = null
-                                                    }
-                                                    viewModel.toggleBookmark(article.bookmarkId)
-                                                },
-                                                onArticleClick = { target -> navigateToArticleWithOrigin(target, article) },
-                                                resolveArticleLink = viewModel::resolveLink,
-                                                initialEditsJson = editsJson,
-                                                editing = ArticleEditing(
-                                                    isEditable = isCurrentEditable,
-                                                    isCurrentlyEditing = (bookmarkEditingArticleId == article.bookmarkId),
-                                                    isEditButtonEnabled = (bookmarkEditingArticleId == null || bookmarkEditingArticleId == article.bookmarkId),
-                                                    isPanelExpanded = bookmarkPanelExpanded,
-                                                    activeTool = bookmarkActiveTool,
-                                                    selectedColorHex = if (bookmarkActiveTool == Constants.TOOL_UNDERLINE) bookmarkSelectedUnderlineColorHex else bookmarkSelectedMarkerColorHex,
-                                                    selectedMarkerColorHex = bookmarkSelectedMarkerColorHex,
-                                                    selectedUnderlineColorHex = bookmarkSelectedUnderlineColorHex,
-                                                    onSaveEdits = onSaveCallback,
-                                                    onDisabledEditClick = {
-                                                        activeEditingWarningMessage = context.getString(R.string.save_edits_error)
-                                                    },
-                                                    onPanelExpandedChange = { bookmarkPanelExpanded = it },
-                                                    onActiveToolChange = { tool ->
-                                                        bookmarkActiveTool = tool
-                                                    },
-                                                    onColorHexChange = { color ->
-                                                        if (bookmarkActiveTool == Constants.TOOL_UNDERLINE) {
-                                                            bookmarkSelectedUnderlineColorHex = color
-                                                        } else {
-                                                            bookmarkSelectedMarkerColorHex = color
-                                                        }
-                                                    },
-                                                    onToggleEditing = {
-                                                        if (bookmarkEditingArticleId == article.bookmarkId) {
-                                                            bookmarkEditingArticleId = null
-                                                        } else {
-                                                            bookmarkEditingArticleId = article.bookmarkId
-                                                            bookmarkPanelExpanded = false
-                                                            bookmarkActiveTool = Constants.TOOL_NONE
-                                                            coroutineScope.launch {
-                                                                bookmarksListState.animateScrollToItem(index)
-                                                            }
-                                                        }
-                                                    }
-                                                )
-                                            )
-                                        }
-                                    }
-                                }
-                            }
+                            BookmarksTabContent(
+                                viewModel = viewModel,
+                                bookmarksList = bookmarksList,
+                                editor = bookmarkEditor,
+                                onNavigateToArticle = navigateToArticleWithOrigin,
+                                onShowEditWarning = { activeEditingWarningMessage = it }
+                            )
                         }
                     }
                 }
@@ -1361,6 +1231,150 @@ fun ChaptersTabContent(
                             tint = Color(0xFF0D47A1)
                         )
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun BookmarksTabContent(
+    viewModel: ConstitutionViewModel,
+    bookmarksList: List<ua.constitution.data.database.BookmarkEntity>,
+    editor: BookmarkEditorState,
+    onNavigateToArticle: (Article, Article?) -> Unit,
+    onShowEditWarning: (String) -> Unit
+) {
+    val context = LocalContext.current
+    val bookmarkedArticles = viewModel.bookmarkedArticles(bookmarksList)
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 20.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.saved_bookmarks_header, bookmarkedArticles.size),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Black,
+            color = Color(0xFF0D47A1),
+            modifier = Modifier.padding(vertical = 10.dp)
+        )
+
+        LaunchedEffect(editor.editingArticleId) {
+            editor.panelExpanded = false
+        }
+
+         val bookmarksListState = rememberLazyListState()
+         val coroutineScope = rememberCoroutineScope()
+
+         LaunchedEffect(bookmarksListState.isScrollInProgress) {
+             if (bookmarksListState.isScrollInProgress && editor.panelExpanded) {
+                 editor.panelExpanded = false
+             }
+         }
+
+        LazyColumn(
+            state = bookmarksListState,
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+            contentPadding = PaddingValues(top = 8.dp, bottom = 24.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            if (bookmarkedArticles.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 60.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Bookmark,
+                                contentDescription = null,
+                                tint = Color(0xFF0D47A1).copy(alpha = 0.2f),
+                                modifier = Modifier.size(72.dp)
+                            )
+                            Text(
+                                text = stringResource(R.string.no_bookmarks_msg),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF0D47A1).copy(alpha = 0.6f)
+                            )
+                            Text(
+                                text = stringResource(R.string.bookmarks_hint),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color(0xFF0D47A1).copy(alpha = 0.5f),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(horizontal = 20.dp)
+                            )
+                        }
+                    }
+                }
+            } else {
+                itemsIndexed(
+                    items = bookmarkedArticles,
+                    key = { _, article -> article.bookmarkId }
+                ) { index, article ->
+                     val bookmarkEntity = bookmarksList.find { it.articleId == article.bookmarkId }
+                     val editsJson = bookmarkEntity?.editsJson ?: ""
+                     val isCurrentEditable = true
+                     val onSaveCallback: (String) -> Unit = { newJson ->
+                         viewModel.updateBookmarkEdits(article.bookmarkId, newJson)
+                     }
+                    ArticleCard(
+                        article = article,
+                        isBookmarked = true,
+                        onToggleBookmark = {
+                            if (editor.editingArticleId == article.bookmarkId) {
+                                editor.editingArticleId = null
+                            }
+                            viewModel.toggleBookmark(article.bookmarkId)
+                        },
+                        onArticleClick = { target -> onNavigateToArticle(target, article) },
+                        resolveArticleLink = viewModel::resolveLink,
+                        initialEditsJson = editsJson,
+                        editing = ArticleEditing(
+                            isEditable = isCurrentEditable,
+                            isCurrentlyEditing = (editor.editingArticleId == article.bookmarkId),
+                            isEditButtonEnabled = (editor.editingArticleId == null || editor.editingArticleId == article.bookmarkId),
+                            isPanelExpanded = editor.panelExpanded,
+                            activeTool = editor.activeTool,
+                            selectedColorHex = if (editor.activeTool == Constants.TOOL_UNDERLINE) editor.underlineColorHex else editor.markerColorHex,
+                            selectedMarkerColorHex = editor.markerColorHex,
+                            selectedUnderlineColorHex = editor.underlineColorHex,
+                            onSaveEdits = onSaveCallback,
+                            onDisabledEditClick = {
+                                onShowEditWarning(context.getString(R.string.save_edits_error))
+                            },
+                            onPanelExpandedChange = { editor.panelExpanded = it },
+                            onActiveToolChange = { tool ->
+                                editor.activeTool = tool
+                            },
+                            onColorHexChange = { color ->
+                                if (editor.activeTool == Constants.TOOL_UNDERLINE) {
+                                    editor.underlineColorHex = color
+                                } else {
+                                    editor.markerColorHex = color
+                                }
+                            },
+                            onToggleEditing = {
+                                if (editor.editingArticleId == article.bookmarkId) {
+                                    editor.editingArticleId = null
+                                } else {
+                                    editor.editingArticleId = article.bookmarkId
+                                    editor.panelExpanded = false
+                                    editor.activeTool = Constants.TOOL_NONE
+                                    coroutineScope.launch {
+                                        bookmarksListState.animateScrollToItem(index)
+                                    }
+                                }
+                            }
+                        )
+                    )
                 }
             }
         }
