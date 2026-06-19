@@ -335,12 +335,14 @@ fun ArticleCard(
             if (isCurrentlyEditing) {
                 GlobalFormattingPanel(
                     editingArticleId = article.bookmarkId,
-                    activeTool = activeTool,
-                    onActiveToolChange = { onActiveToolChange?.invoke(it) },
-                    selectedColorHex = selectedColorHex,
-                    onColorHexChange = { onColorHexChange?.invoke(it) },
-                    isPanelExpanded = isPanelExpanded,
-                    onPanelExpandedChange = { onPanelExpandedChange?.invoke(it) },
+                    controls = FormattingPanelControls(
+                        activeTool = activeTool,
+                        onActiveToolChange = { onActiveToolChange?.invoke(it) },
+                        selectedColorHex = selectedColorHex,
+                        onColorHexChange = { onColorHexChange?.invoke(it) },
+                        isPanelExpanded = isPanelExpanded,
+                        onPanelExpandedChange = { onPanelExpandedChange?.invoke(it) }
+                    ),
                     onClearAllEdits = {
                         localEdits = emptyMap()
                         lastSavedJson = ""

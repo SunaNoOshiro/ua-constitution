@@ -1086,17 +1086,18 @@ internal fun SelectionToolbarPopup(
 @Composable
 fun GlobalFormattingPanel(
     editingArticleId: Int?,
-    activeTool: String,
-    onActiveToolChange: (String) -> Unit,
-    selectedColorHex: String,
-    onColorHexChange: (String) -> Unit,
-    isPanelExpanded: Boolean,
-    onPanelExpandedChange: (Boolean) -> Unit,
+    controls: FormattingPanelControls,
     onClearAllEdits: () -> Unit,
     hasAnyEdits: Boolean,
     onDoneEditing: () -> Unit,
     articleTitle: String?
 ) {
+    val activeTool = controls.activeTool
+    val onActiveToolChange = controls.onActiveToolChange
+    val selectedColorHex = controls.selectedColorHex
+    val onColorHexChange = controls.onColorHexChange
+    val isPanelExpanded = controls.isPanelExpanded
+    val onPanelExpandedChange = controls.onPanelExpandedChange
     val density = androidx.compose.ui.platform.LocalDensity.current
     var lastMarkerColor by remember { mutableStateOf(Constants.COLOR_DEFAULT_MARKER) }
     var lastUnderlineColor by remember { mutableStateOf(Constants.COLOR_DEFAULT_UNDERLINE) }
