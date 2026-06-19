@@ -608,142 +608,26 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                             )
                         }
                         DashboardTab.CHAPTERS -> {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 20.dp)
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.select_chapter_header),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Black,
-                                    color = Color(0xFF0D47A1),
-                                    modifier = Modifier.padding(vertical = 10.dp)
-                                )
-
-                                LazyColumn(
-                                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                                    contentPadding = PaddingValues(top = 8.dp, bottom = 20.dp),
-                                    modifier = Modifier.fillMaxSize()
-                                ) {
-                                    items(viewModel.chapters) { chapter ->
-                                        val chapterArticles = remember(chapter.id) {
-                                            viewModel.articlesForChapter(chapter.id)
-                                        }
-                                        val preambleStr = stringResource(R.string.preamble)
-                                        val rangeText = if (chapterArticles.isNotEmpty()) {
-                                            val firstId = formatArticleId(chapterArticles.first().id, chapter.id)
-                                            val lastId = formatArticleId(chapterArticles.last().id, chapter.id)
-                                            when (chapterRangeKind(chapter.id, firstId == lastId)) {
-                                                ChapterRangeKind.PREAMBLE -> preambleStr
-                                                ChapterRangeKind.POINT_SINGLE -> stringResource(R.string.point_range_single, firstId)
-                                                ChapterRangeKind.POINT_MULTI -> stringResource(R.string.point_range_multi, firstId, lastId)
-                                                ChapterRangeKind.ARTICLE_SINGLE -> stringResource(R.string.article_range_single, firstId)
-                                                ChapterRangeKind.ARTICLE_MULTI -> stringResource(R.string.article_range_multi, firstId, lastId)
-                                            }
-                                        } else {
-                                            ""
-                                        }
-
-                                        Card(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .testTag("chapter_card_${chapter.id}")
-                                                .clickable {
-                                                    val isNewChapter = chapter.id != currentSelectedChapterId
-                                                    currentSelectedChapterId = chapter.id
-                                                    activeTab = DashboardTab.ARTICLES
-                                                    if (isNewChapter) {
-                                                        clickedArticleIndex = null
-                                                        coroutineScope.launch {
-                                                            articlesLazyListState.scrollToItem(0)
-                                                        }
-                                                    }
-                                                }
-                                                .shadow(2.dp, RoundedCornerShape(14.dp)),
-                                            shape = RoundedCornerShape(14.dp),
-                                            colors = CardDefaults.cardColors(containerColor = Color.White),
-                                            border = BorderStroke(1.5.dp, Color(0xFF0D47A1))
-                                        ) {
-                                            Row(
-                                                modifier = Modifier.padding(16.dp),
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .size(36.dp)
-                                                        .clip(CircleShape)
-                                                        .background(Color(0xFF0D47A1)),
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    Text(
-                                                        text = "${chapter.id}",
-                                                        style = MaterialTheme.typography.bodyMedium,
-                                                        fontWeight = FontWeight.Black,
-                                                        color = Color.White
-                                                    )
-                                                }
-
-                                                Spacer(modifier = Modifier.width(14.dp))
-
-                                                Column(modifier = Modifier.weight(1f)) {
-                                                    Row(
-                                                        verticalAlignment = Alignment.CenterVertically,
-                                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                                    ) {
-                                                        Text(
-                                                            text = "${stringResource(R.string.chapter_singular)} ${chapter.id}",
-                                                            style = MaterialTheme.typography.labelSmall,
-                                                            fontWeight = FontWeight.Black,
-                                                            color = Color(0xFF0D47A1)
-                                                        )
-                                                        if (rangeText.isNotEmpty()) {
-                                                            Text(
-                                                                text = "($rangeText)",
-                                                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.5.sp),
-                                                                fontWeight = FontWeight.Black,
-                                                                color = Color(0xFF0D47A1).copy(alpha = 0.6f)
-                                                            )
-                                                        }
-                                                    }
-                                                    Text(
-                                                        text = chapter.titleUa,
-                                                        style = MaterialTheme.typography.bodyMedium,
-                                                        fontWeight = FontWeight.Bold,
-                                                        color = Color(0xFF0D47A1)
-                                                    )
-                                                }
-
-                                                if (chapter.sourceUrl.isNotEmpty()) {
-                                                    IconButton(
-                                                        onClick = {
-                                                            try {
-                                                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(chapter.sourceUrl))
-                                                                context.startActivity(intent)
-                                                            } catch (e: Exception) {}
-                                                        },
-                                                        modifier = Modifier.size(36.dp)
-                                                    ) {
-                                                        Icon(
-                                                            imageVector = Icons.Default.OpenInNew,
-                                                            contentDescription = stringResource(R.string.read_chapter_source),
-                                                            tint = Color(0xFF0D47A1).copy(alpha = 0.7f),
-                                                            modifier = Modifier.size(18.dp)
-                                                         )
-                                                    }
-                                                    Spacer(modifier = Modifier.width(4.dp))
-                                                }
-
-                                                Icon(
-                                                    imageVector = Icons.Default.ArrowForward,
-                                                    contentDescription = stringResource(R.string.open_chapter_articles),
-                                                    tint = Color(0xFF0D47A1)
-                                                )
-                                            }
+                            ChaptersTabContent(
+                                chapters = viewModel.chapters,
+                                articlesForChapter = viewModel::articlesForChapter,
+                                onSelectChapter = { selectedId ->
+                                    val isNewChapter = selectedId != currentSelectedChapterId
+                                    currentSelectedChapterId = selectedId
+                                    activeTab = DashboardTab.ARTICLES
+                                    if (isNewChapter) {
+                                        clickedArticleIndex = null
+                                        coroutineScope.launch {
+                                            articlesLazyListState.scrollToItem(0)
                                         }
                                     }
+                                },
+                                onOpenSourceUrl = { url ->
+                                    try {
+                                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                                    } catch (e: Exception) {}
                                 }
-                            }
+                            )
                         }
 
                         DashboardTab.ARTICLES -> {
@@ -1349,3 +1233,134 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
 }
 
 // Gorgeous always-expanded article card with interactive title and integrated bookmarks
+
+
+@Composable
+fun ChaptersTabContent(
+    chapters: List<Chapter>,
+    articlesForChapter: (Int) -> List<Article>,
+    onSelectChapter: (Int) -> Unit,
+    onOpenSourceUrl: (String) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 20.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.select_chapter_header),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Black,
+            color = Color(0xFF0D47A1),
+            modifier = Modifier.padding(vertical = 10.dp)
+        )
+
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            contentPadding = PaddingValues(top = 8.dp, bottom = 20.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(chapters) { chapter ->
+                val chapterArticles = remember(chapter.id) {
+                    articlesForChapter(chapter.id)
+                }
+                val preambleStr = stringResource(R.string.preamble)
+                val rangeText = if (chapterArticles.isNotEmpty()) {
+                    val firstId = formatArticleId(chapterArticles.first().id, chapter.id)
+                    val lastId = formatArticleId(chapterArticles.last().id, chapter.id)
+                    when (chapterRangeKind(chapter.id, firstId == lastId)) {
+                        ChapterRangeKind.PREAMBLE -> preambleStr
+                        ChapterRangeKind.POINT_SINGLE -> stringResource(R.string.point_range_single, firstId)
+                        ChapterRangeKind.POINT_MULTI -> stringResource(R.string.point_range_multi, firstId, lastId)
+                        ChapterRangeKind.ARTICLE_SINGLE -> stringResource(R.string.article_range_single, firstId)
+                        ChapterRangeKind.ARTICLE_MULTI -> stringResource(R.string.article_range_multi, firstId, lastId)
+                    }
+                } else {
+                    ""
+                }
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("chapter_card_${chapter.id}")
+                        .clickable { onSelectChapter(chapter.id) }
+                        .shadow(2.dp, RoundedCornerShape(14.dp)),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    border = BorderStroke(1.5.dp, Color(0xFF0D47A1))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFF0D47A1)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "${chapter.id}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Black,
+                                color = Color.White
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(14.dp))
+
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = "${stringResource(R.string.chapter_singular)} ${chapter.id}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color(0xFF0D47A1)
+                                )
+                                if (rangeText.isNotEmpty()) {
+                                    Text(
+                                        text = "($rangeText)",
+                                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.5.sp),
+                                        fontWeight = FontWeight.Black,
+                                        color = Color(0xFF0D47A1).copy(alpha = 0.6f)
+                                    )
+                                }
+                            }
+                            Text(
+                                text = chapter.titleUa,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF0D47A1)
+                            )
+                        }
+
+                        if (chapter.sourceUrl.isNotEmpty()) {
+                            IconButton(
+                                onClick = { onOpenSourceUrl(chapter.sourceUrl) },
+                                modifier = Modifier.size(36.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.OpenInNew,
+                                    contentDescription = stringResource(R.string.read_chapter_source),
+                                    tint = Color(0xFF0D47A1).copy(alpha = 0.7f),
+                                    modifier = Modifier.size(18.dp)
+                                 )
+                            }
+                            Spacer(modifier = Modifier.width(4.dp))
+                        }
+
+                        Icon(
+                            imageVector = Icons.Default.ArrowForward,
+                            contentDescription = stringResource(R.string.open_chapter_articles),
+                            tint = Color(0xFF0D47A1)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
