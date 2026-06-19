@@ -856,7 +856,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                                     ) {
                                                         ArticleIdText(
                                                              id = article.id,
-                                                             fontSize = if (article.id > 1000 || (article.chapterId == 15 && article.id == 161)) 13.sp else 14.sp,
+                                                             fontSize = if (ArticleNumberFormatter.isFractional(article.id, article.chapterId)) 13.sp else 14.sp,
                                                              fontWeight = if (isActive) FontWeight.ExtraBold else FontWeight.Black,
                                                              color = Color(0xFF0D47A1),
                                                              chapterId = article.chapterId
