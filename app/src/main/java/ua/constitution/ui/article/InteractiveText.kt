@@ -737,6 +737,62 @@ fun SegmentedText(
 }
 
 /**
+ * One color-picker sub-row of the selection toolbar (a back arrow + divider + tappable swatches).
+ * Shared verbatim by the MARKER and UNDERLINE pickers, which differ only in their swatch list,
+ * selected color, default-parse color, swatch testTag and pick handler. The [swatchTestTag] is kept
+ * identical to the inlined originals so SelectionToolbarPopupTest's pins still resolve.
+ */
+@Composable
+private fun ColorPickerRow(
+    colors: List<String>,
+    selectedColorHex: String,
+    defaultColor: Color,
+    swatchTestTag: String,
+    onBack: () -> Unit,
+    onPick: (String) -> Unit,
+) {
+    Row(
+        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        IconButton(
+            onClick = onBack,
+            modifier = Modifier.size(32.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = stringResource(R.string.btn_back),
+                tint = Color.White,
+                modifier = Modifier.size(16.dp)
+            )
+        }
+        Box(
+            modifier = Modifier
+                .width(1.dp)
+                .height(16.dp)
+                .background(SlateText) // slate-600
+        )
+        colors.forEach { colorHex ->
+            val colorVal = safeParseColor(colorHex, defaultColor)
+            Box(
+                modifier = Modifier
+                    .size(20.dp)
+                    .clip(CircleShape)
+                    .background(colorVal)
+                    .border(
+                        width = if (selectedColorHex == colorHex) 2.dp else 1.dp,
+                        color = if (selectedColorHex == colorHex) Color.White else Color.Gray.copy(alpha = 0.4f),
+                        shape = CircleShape
+                    )
+                    .testTag(swatchTestTag)
+                    .clickable { onPick(colorHex) }
+            )
+        }
+    }
+}
+
+/**
  * The floating selection toolbar (copy / select-all / marker / underline / eraser, with color
  * pickers). A "dumb" presentational composable: all state-mutating actions are supplied as lambdas
  * by the caller (SegmentedTextWithEdits), so this can be rendered and tested in isolation. Only the
@@ -776,91 +832,29 @@ internal fun SelectionToolbarPopup(
             modifier = Modifier.padding(2.dp)
         ) {
             if (showedColorPickerMode == Constants.TOOL_MARKER) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    IconButton(
-                        onClick = { showedColorPickerMode = null },
-                        modifier = Modifier.size(32.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = stringResource(R.string.btn_back),
-                            tint = Color.White,
-                            modifier = Modifier.size(16.dp)
-                        )
+                ColorPickerRow(
+                    colors = markerColors,
+                    selectedColorHex = lastMarkerColor,
+                    defaultColor = Color.Yellow,
+                    swatchTestTag = "toolbar_marker_swatch",
+                    onBack = { showedColorPickerMode = null },
+                    onPick = {
+                        onApplyMarker(it)
+                        showedColorPickerMode = null
                     }
-                    Box(
-                        modifier = Modifier
-                            .width(1.dp)
-                            .height(16.dp)
-                            .background(SlateText) // slate-600
-                    )
-                    markerColors.forEach { colorHex ->
-                        val colorVal = safeParseColor(colorHex, Color.Yellow)
-                        Box(
-                            modifier = Modifier
-                                .size(20.dp)
-                                .clip(CircleShape)
-                                .background(colorVal)
-                                .border(
-                                    width = if (lastMarkerColor == colorHex) 2.dp else 1.dp,
-                                    color = if (lastMarkerColor == colorHex) Color.White else Color.Gray.copy(alpha = 0.4f),
-                                    shape = CircleShape
-                                )
-                                .testTag("toolbar_marker_swatch")
-                                .clickable {
-                                    onApplyMarker(colorHex)
-                                    showedColorPickerMode = null
-                                }
-                        )
-                    }
-                }
+                )
             } else if (showedColorPickerMode == "UNDERLINE") {
-                Row(
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    IconButton(
-                        onClick = { showedColorPickerMode = null },
-                        modifier = Modifier.size(32.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = stringResource(R.string.btn_back),
-                            tint = Color.White,
-                            modifier = Modifier.size(16.dp)
-                        )
+                ColorPickerRow(
+                    colors = underlineColors,
+                    selectedColorHex = lastUnderlineColor,
+                    defaultColor = Color.Red,
+                    swatchTestTag = "toolbar_underline_swatch",
+                    onBack = { showedColorPickerMode = null },
+                    onPick = {
+                        onApplyUnderline(it)
+                        showedColorPickerMode = null
                     }
-                    Box(
-                        modifier = Modifier
-                            .width(1.dp)
-                            .height(16.dp)
-                            .background(SlateText) // slate-600
-                    )
-                    underlineColors.forEach { colorHex ->
-                        val colorVal = safeParseColor(colorHex, Color.Red)
-                        Box(
-                            modifier = Modifier
-                                .size(20.dp)
-                                .clip(CircleShape)
-                                .background(colorVal)
-                                .border(
-                                    width = if (lastUnderlineColor == colorHex) 2.dp else 1.dp,
-                                    color = if (lastUnderlineColor == colorHex) Color.White else Color.Gray.copy(alpha = 0.4f),
-                                    shape = CircleShape
-                                )
-                                .testTag("toolbar_underline_swatch")
-                                .clickable {
-                                    onApplyUnderline(colorHex)
-                                    showedColorPickerMode = null
-                                }
-                        )
-                    }
-                }
+                )
             } else {
                 Row(
                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
@@ -1026,6 +1020,58 @@ internal fun SelectionToolbarPopup(
     }
 }
 
+/**
+ * One tool button in the [GlobalFormattingPanel] row (select / marker / underline / eraser). Shared
+ * verbatim by those four buttons, which differ only in icon, accent colour, active state, the small
+ * bottom indicator colour, testTag and click action. The clear-all button is intentionally NOT this
+ * (it is enabled-gated and not a tool toggle).
+ */
+@Composable
+private fun RowScope.ToolToggleButton(
+    testTag: String,
+    icon: ImageVector,
+    contentDescription: String,
+    accent: Color,
+    isActive: Boolean,
+    bottomIndicatorColor: Color,
+    onClick: () -> Unit,
+) {
+    Surface(
+        onClick = onClick,
+        modifier = Modifier
+            .weight(1f)
+            .height(54.dp)
+            .testTag(testTag),
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(
+            width = if (isActive) 2.dp else 1.dp,
+            color = if (isActive) accent else SlateBorder
+        ),
+        color = if (isActive) accent.copy(alpha = 0.08f) else Color.White
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = contentDescription,
+                tint = if (isActive) accent else SlateText,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Box(
+                modifier = Modifier
+                    .width(24.dp)
+                    .height(4.dp)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(bottomIndicatorColor)
+            )
+        }
+    }
+}
+
 @Composable
 fun GlobalFormattingPanel(
     editingArticleId: Int?,
@@ -1076,42 +1122,15 @@ fun GlobalFormattingPanel(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // --- Button 0: SELECT / CURSOR ---
-            Surface(
-                onClick = {
-                    onActiveToolChange(Constants.TOOL_NONE)
-                },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(54.dp)
-                    .testTag("tool_button_none"),
-                shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(
-                    width = if (activeTool == Constants.TOOL_NONE) 2.dp else 1.dp,
-                    color = if (activeTool == Constants.TOOL_NONE) SovereignBlue else SlateBorder
-                ),
-                color = if (activeTool == Constants.TOOL_NONE) SovereignBlue.copy(alpha = 0.08f) else Color.White
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.TouchApp,
-                        contentDescription = stringResource(R.string.tool_selection),
-                        tint = if (activeTool == Constants.TOOL_NONE) SovereignBlue else SlateText,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Box(
-                        modifier = Modifier
-                            .width(24.dp)
-                            .height(4.dp)
-                            .clip(RoundedCornerShape(2.dp))
-                            .background(Color.Transparent)
-                    )
-                }
-            }
+            ToolToggleButton(
+                testTag = "tool_button_none",
+                icon = Icons.Default.TouchApp,
+                contentDescription = stringResource(R.string.tool_selection),
+                accent = SovereignBlue,
+                isActive = activeTool == Constants.TOOL_NONE,
+                bottomIndicatorColor = Color.Transparent,
+                onClick = { onActiveToolChange(Constants.TOOL_NONE) }
+            )
 
             // Divider 0-1
             Box(
@@ -1122,46 +1141,21 @@ fun GlobalFormattingPanel(
             )
 
             // --- Button 1: MARKER ---
-            Surface(
+            ToolToggleButton(
+                testTag = "tool_button_marker",
+                icon = Icons.Default.Brush,
+                contentDescription = stringResource(R.string.tool_marker),
+                accent = SovereignBlue,
+                isActive = activeTool == Constants.TOOL_MARKER,
+                bottomIndicatorColor = safeParseColor(lastMarkerColor, Color.Yellow),
                 onClick = {
                     if (activeTool == Constants.TOOL_MARKER) {
                         onActiveToolChange(Constants.TOOL_NONE)
                     } else {
                         onActiveToolChange(Constants.TOOL_MARKER)
                     }
-                },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(54.dp)
-                    .testTag("tool_button_marker"),
-                shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(
-                    width = if (activeTool == Constants.TOOL_MARKER) 2.dp else 1.dp,
-                    color = if (activeTool == Constants.TOOL_MARKER) SovereignBlue else SlateBorder
-                ),
-                color = if (activeTool == Constants.TOOL_MARKER) SovereignBlue.copy(alpha = 0.08f) else Color.White
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Brush,
-                        contentDescription = stringResource(R.string.tool_marker),
-                        tint = if (activeTool == Constants.TOOL_MARKER) SovereignBlue else SlateText,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Box(
-                        modifier = Modifier
-                            .width(24.dp)
-                            .height(4.dp)
-                            .clip(RoundedCornerShape(2.dp))
-                            .background(safeParseColor(lastMarkerColor, Color.Yellow))
-                    )
                 }
-            }
+            )
 
             // Divider 1-2
             Box(
@@ -1172,46 +1166,21 @@ fun GlobalFormattingPanel(
             )
 
             // --- Button 2: UNDERLINE (Line) ---
-            Surface(
+            ToolToggleButton(
+                testTag = "tool_button_underline",
+                icon = Icons.Default.FormatUnderlined,
+                contentDescription = stringResource(R.string.tool_underline),
+                accent = SovereignBlue,
+                isActive = activeTool == Constants.TOOL_UNDERLINE,
+                bottomIndicatorColor = safeParseColor(lastUnderlineColor, Color.Red),
                 onClick = {
                     if (activeTool == Constants.TOOL_UNDERLINE) {
                         onActiveToolChange(Constants.TOOL_NONE)
                     } else {
                         onActiveToolChange(Constants.TOOL_UNDERLINE)
                     }
-                },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(54.dp)
-                    .testTag("tool_button_underline"),
-                shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(
-                    width = if (activeTool == Constants.TOOL_UNDERLINE) 2.dp else 1.dp,
-                    color = if (activeTool == Constants.TOOL_UNDERLINE) SovereignBlue else SlateBorder
-                ),
-                color = if (activeTool == Constants.TOOL_UNDERLINE) SovereignBlue.copy(alpha = 0.08f) else Color.White
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.FormatUnderlined,
-                        contentDescription = stringResource(R.string.tool_underline),
-                        tint = if (activeTool == Constants.TOOL_UNDERLINE) SovereignBlue else SlateText,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Box(
-                        modifier = Modifier
-                            .width(24.dp)
-                            .height(4.dp)
-                            .clip(RoundedCornerShape(2.dp))
-                            .background(safeParseColor(lastUnderlineColor, Color.Red))
-                    )
                 }
-            }
+            )
 
             // Divider 2-3
             Box(
@@ -1222,46 +1191,21 @@ fun GlobalFormattingPanel(
             )
 
             // --- Button 3: ERASER (Гумка) ---
-            Surface(
+            ToolToggleButton(
+                testTag = "tool_button_eraser",
+                icon = eraserIcon,
+                contentDescription = stringResource(R.string.tool_eraser),
+                accent = ErrorRed,
+                isActive = activeTool == Constants.TOOL_ERASER,
+                bottomIndicatorColor = Color.Transparent,
                 onClick = {
                     if (activeTool == Constants.TOOL_ERASER) {
                         onActiveToolChange(Constants.TOOL_NONE)
                     } else {
                         onActiveToolChange(Constants.TOOL_ERASER)
                     }
-                },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(54.dp)
-                    .testTag("tool_button_eraser"),
-                shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(
-                    width = if (activeTool == Constants.TOOL_ERASER) 2.dp else 1.dp,
-                    color = if (activeTool == Constants.TOOL_ERASER) ErrorRed else SlateBorder
-                ),
-                color = if (activeTool == Constants.TOOL_ERASER) ErrorRed.copy(alpha = 0.08f) else Color.White
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = eraserIcon,
-                        contentDescription = stringResource(R.string.tool_eraser),
-                        tint = if (activeTool == Constants.TOOL_ERASER) ErrorRed else SlateText,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Box(
-                        modifier = Modifier
-                            .width(24.dp)
-                            .height(4.dp)
-                            .clip(RoundedCornerShape(2.dp))
-                            .background(Color.Transparent)
-                    )
                 }
-            }
+            )
 
             // Divider 3-4
             Box(
