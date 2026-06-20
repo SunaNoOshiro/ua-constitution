@@ -745,9 +745,10 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .clickable(enabled = chapterArticles.size >= 5) { 
-                                                    isQuickLinksCollapsed = !isQuickLinksCollapsed 
+                                                .clickable(enabled = chapterArticles.size >= 5) {
+                                                    isQuickLinksCollapsed = !isQuickLinksCollapsed
                                                 }
+                                                .testTag("quick_links_toggle")
                                                 .padding(vertical = 4.dp),
                                             verticalAlignment = Alignment.CenterVertically,
                                             horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -840,6 +841,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                                             .clip(CircleShape)
                                                             .background(bgColor)
                                                             .border(borderStroke, CircleShape)
+                                                            .testTag("quick_link_chip_$index")
                                                             .clickable {
                                                                 ignoreScrollActiveIndexSetting = true
                                                                 clickedArticleIndex = index
