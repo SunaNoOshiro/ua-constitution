@@ -98,7 +98,7 @@ import androidx.lifecycle.ViewModelProvider
 import ua.constitution.data.model.Article
 import ua.constitution.data.model.Chapter
 import ua.constitution.data.repository.ConstitutionRepository
-import ua.constitution.ui.theme.MyApplicationTheme
+import ua.constitution.ui.theme.*
 import ua.constitution.ui.viewmodel.ConstitutionViewModel
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -220,11 +220,11 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
         Scaffold(
             modifier = Modifier
                 .fillMaxSize(),
-            containerColor = Color(0xFFFFFDE7), // Radiant high-fidelity soft yellow canvas
+            containerColor = AppCanvasYellow, // Radiant high-fidelity soft yellow canvas
         bottomBar = {
             NavigationBar(
-                containerColor = Color(0xFFFFD500), // Dynamic flag-colored yellow
-                contentColor = Color(0xFF0D47A1),   // Sovereign Ukrainian corporate blue
+                containerColor = SunflowerYellow, // Dynamic flag-colored yellow
+                contentColor = SovereignBlue,   // Sovereign Ukrainian corporate blue
                 tonalElevation = 8.dp,
                 modifier = Modifier
                     .shadow(16.dp, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
@@ -238,10 +238,10 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                         activeTab = DashboardTab.CHAPTERS
                         isSearchActive = false
                     },
-                    label = { Text(stringResource(R.string.tab_chapters), fontWeight = FontWeight.Bold, color = Color(0xFF0D47A1), fontSize = 10.sp) },
-                    icon = { Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.tab_chapters), tint = Color(0xFF0D47A1), modifier = Modifier.size(20.dp)) },
+                    label = { Text(stringResource(R.string.tab_chapters), fontWeight = FontWeight.Bold, color = SovereignBlue, fontSize = 10.sp) },
+                    icon = { Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.tab_chapters), tint = SovereignBlue, modifier = Modifier.size(20.dp)) },
                     colors = NavigationBarItemDefaults.colors(
-                        indicatorColor = Color(0xFFFFF9C4)
+                        indicatorColor = NationalYellowBg
                     )
                 )
 
@@ -259,10 +259,10 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                             isSearchActive = false
                         }
                     },
-                    label = { Text(stringResource(R.string.tab_articles), fontWeight = FontWeight.Bold, color = Color(0xFF0D47A1), fontSize = 10.sp) },
-                    icon = { Icon(Icons.Default.List, contentDescription = stringResource(R.string.tab_articles), tint = Color(0xFF0D47A1), modifier = Modifier.size(20.dp)) },
+                    label = { Text(stringResource(R.string.tab_articles), fontWeight = FontWeight.Bold, color = SovereignBlue, fontSize = 10.sp) },
+                    icon = { Icon(Icons.Default.List, contentDescription = stringResource(R.string.tab_articles), tint = SovereignBlue, modifier = Modifier.size(20.dp)) },
                     colors = NavigationBarItemDefaults.colors(
-                        indicatorColor = Color(0xFFFFF9C4)
+                        indicatorColor = NationalYellowBg
                     )
                 )
 
@@ -284,13 +284,13 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                 .background(
                                     Brush.radialGradient(
                                         colors = if (homeSelected) {
-                                            listOf(Color(0xFF1E88E5), Color(0xFF0D47A1))
+                                            listOf(BrightBlue, SovereignBlue)
                                         } else {
-                                            listOf(Color(0xFF1E88E5).copy(alpha = 0.85f), Color(0xFF0D47A1).copy(alpha = 0.82f))
+                                            listOf(BrightBlue.copy(alpha = 0.85f), SovereignBlue.copy(alpha = 0.82f))
                                         }
                                     )
                                 )
-                                .border(1.5.dp, Color(0xFFFFD500), CircleShape),
+                                .border(1.5.dp, SunflowerYellow, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             UkrainianCoatOfArms(
@@ -312,10 +312,10 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                     onClick = { 
                         isSearchActive = !isSearchActive 
                     },
-                    label = { Text(stringResource(R.string.tab_search), fontWeight = FontWeight.Bold, color = Color(0xFF0D47A1), fontSize = 10.sp) },
-                    icon = { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.tab_search), tint = Color(0xFF0D47A1), modifier = Modifier.size(20.dp)) },
+                    label = { Text(stringResource(R.string.tab_search), fontWeight = FontWeight.Bold, color = SovereignBlue, fontSize = 10.sp) },
+                    icon = { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.tab_search), tint = SovereignBlue, modifier = Modifier.size(20.dp)) },
                     colors = NavigationBarItemDefaults.colors(
-                        indicatorColor = Color(0xFFFFF9C4)
+                        indicatorColor = NationalYellowBg
                     )
                 )
 
@@ -327,17 +327,17 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                         activeTab = DashboardTab.BOOKMARKS
                         isSearchActive = false
                     },
-                    label = { Text(stringResource(R.string.tab_bookmarks), fontWeight = FontWeight.Bold, color = Color(0xFF0D47A1), fontSize = 10.sp) },
+                    label = { Text(stringResource(R.string.tab_bookmarks), fontWeight = FontWeight.Bold, color = SovereignBlue, fontSize = 10.sp) },
                     icon = { 
                         Icon(
                             imageVector = if (activeTab == DashboardTab.BOOKMARKS && !isSearchActive) Icons.Default.Bookmark else Icons.Default.BookmarkBorder, 
                             contentDescription = stringResource(R.string.tab_bookmarks), 
-                            tint = Color(0xFF0D47A1),
+                            tint = SovereignBlue,
                             modifier = Modifier.size(20.dp)
                         ) 
                     },
                     colors = NavigationBarItemDefaults.colors(
-                        indicatorColor = Color(0xFFFFF9C4)
+                        indicatorColor = NationalYellowBg
                     )
                 )
             }
@@ -352,7 +352,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFFFFD500)) // Solid flag-colored yellow
+                    .background(SunflowerYellow) // Solid flag-colored yellow
                     .statusBarsPadding()
                     .padding(top = 0.dp, bottom = 2.dp, start = 20.dp, end = 20.dp)
             ) {
@@ -370,12 +370,12 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                             .background(
                                 Brush.radialGradient(
                                     colors = listOf(
-                                        Color(0xFF1E88E5), // Bright center blue
-                                        Color(0xFF0D47A1)  // Regal sovereign blue
+                                        BrightBlue, // Bright center blue
+                                        SovereignBlue  // Regal sovereign blue
                                     )
                                 )
                             )
-                            .border(1.5.dp, Color(0xFFFFD500), CircleShape),
+                            .border(1.5.dp, SunflowerYellow, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         UkrainianCoatOfArms(
@@ -393,14 +393,14 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                             fontSize = 22.sp,
                             letterSpacing = 1.2.sp,
                             fontWeight = FontWeight.Black,
-                            color = Color(0xFF0D47A1)
+                            color = SovereignBlue
                         )
                         val context = LocalContext.current
                         Text(
                             text = stringResource(R.string.official_source),
                             style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.5.sp),
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF0D47A1).copy(alpha = 0.75f),
+                            color = SovereignBlue.copy(alpha = 0.75f),
                             modifier = Modifier
                                 .clickable {
                                     try {
@@ -415,11 +415,11 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
 
             if (viewModel.initializationError.isNotEmpty() || viewModel.articlesEmpty) {
                 Surface(
-                    color = Color(0xFFF8D7DA),
-                    contentColor = Color(0xFF721C24),
+                    color = ErrorBg,
+                    contentColor = ErrorText,
                     modifier = Modifier.fillMaxWidth().padding(12.dp),
                     shape = RoundedCornerShape(8.dp),
-                    border = BorderStroke(1.dp, Color(0xFFF5C6CB))
+                    border = BorderStroke(1.dp, ErrorBorder)
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(
@@ -458,7 +458,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                         text = stringResource(R.string.quick_search_header),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Black,
-                        color = Color(0xFF0D47A1),
+                        color = SovereignBlue,
                         modifier = Modifier.padding(bottom = 6.dp)
                     )
 
@@ -472,7 +472,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                 overflow = TextOverflow.Ellipsis
                             ) 
                         },
-                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.tab_search), tint = Color(0xFF0D47A1)) },
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.tab_search), tint = SovereignBlue) },
                         trailingIcon = {
                             IconButton(
                                 onClick = { 
@@ -483,7 +483,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
                                     contentDescription = stringResource(R.string.search_clear_desc),
-                                    tint = Color(0xFF0D47A1)
+                                    tint = SovereignBlue
                                 )
                             }
                         },
@@ -494,12 +494,12 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                             .testTag("search_field"),
                         shape = RoundedCornerShape(16.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF0D47A1),
-                            unfocusedBorderColor = Color(0xFF0D47A1).copy(alpha = 0.5f),
+                            focusedBorderColor = SovereignBlue,
+                            unfocusedBorderColor = SovereignBlue.copy(alpha = 0.5f),
                             focusedContainerColor = Color.White,
                             unfocusedContainerColor = Color.White,
-                            focusedTextColor = Color(0xFF0D47A1),
-                            unfocusedTextColor = Color(0xFF0D47A1)
+                            focusedTextColor = SovereignBlue,
+                            unfocusedTextColor = SovereignBlue
                         )
                     )
                 }
@@ -532,7 +532,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                         Text(
                                             text = if (searchQuery.isBlank()) stringResource(R.string.search_prompt_input) else stringResource(R.string.search_no_results),
                                             style = MaterialTheme.typography.bodyMedium,
-                                            color = Color(0xFF0D47A1).copy(alpha = 0.7f),
+                                            color = SovereignBlue.copy(alpha = 0.7f),
                                             textAlign = TextAlign.Center
                                         )
                                     }
@@ -618,7 +618,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(if (fullscreenSymbol == FullscreenSymbol.COAT_OF_ARMS) Color(0xFF005BBB) else Color.Black)
+                    .background(if (fullscreenSymbol == FullscreenSymbol.COAT_OF_ARMS) CoatOfArmsBlue else Color.Black)
                     .clickable {
                         if (!isRotated) {
                             isRotated = true
@@ -638,13 +638,13 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .weight(1f)
-                                        .background(Color(0xFF0057B7)) // Sovereign blue
+                                        .background(FlagBlue) // Sovereign blue
                                 )
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .weight(1f)
-                                        .background(Color(0xFFFFD700)) // Golden yellow
+                                        .background(FlagGold) // Golden yellow
                                 )
                             }
                         } else {
@@ -654,13 +654,13 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                     modifier = Modifier
                                         .fillMaxHeight()
                                         .weight(1f)
-                                        .background(Color(0xFFFFD700)) // Golden yellow on left
+                                        .background(FlagGold) // Golden yellow on left
                                 )
                                 Box(
                                     modifier = Modifier
                                         .fillMaxHeight()
                                         .weight(1f)
-                                        .background(Color(0xFF0057B7)) // Sovereign blue on right
+                                        .background(FlagBlue) // Sovereign blue on right
                                 )
                             }
                         }
@@ -726,10 +726,10 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
             ) {
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = Color(0xFF1E293B).copy(alpha = 0.95f),
+                    color = SlateDark.copy(alpha = 0.95f),
                     tonalElevation = 8.dp,
                     shadowElevation = 8.dp,
-                    border = BorderStroke(1.dp, Color(0xFF475569)),
+                    border = BorderStroke(1.dp, SlateText),
                     modifier = Modifier
                         .fillMaxWidth()
                         .animateContentSize()
@@ -742,7 +742,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                         Icon(
                             imageVector = Icons.Default.Info,
                             contentDescription = null,
-                            tint = Color(0xFFFFD500),
+                            tint = SunflowerYellow,
                             modifier = Modifier.size(20.dp)
                         )
                         Text(
@@ -796,7 +796,7 @@ fun ChaptersTabContent(
             text = stringResource(R.string.select_chapter_header),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Black,
-            color = Color(0xFF0D47A1),
+            color = SovereignBlue,
             modifier = Modifier.padding(vertical = 10.dp)
         )
 
@@ -832,7 +832,7 @@ fun ChaptersTabContent(
                         .shadow(2.dp, RoundedCornerShape(14.dp)),
                     shape = RoundedCornerShape(14.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
-                    border = BorderStroke(1.5.dp, Color(0xFF0D47A1))
+                    border = BorderStroke(1.5.dp, SovereignBlue)
                 ) {
                     Row(
                         modifier = Modifier.padding(16.dp),
@@ -842,7 +842,7 @@ fun ChaptersTabContent(
                             modifier = Modifier
                                 .size(36.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF0D47A1)),
+                                .background(SovereignBlue),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
@@ -864,14 +864,14 @@ fun ChaptersTabContent(
                                     text = "${stringResource(R.string.chapter_singular)} ${chapter.id}",
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Black,
-                                    color = Color(0xFF0D47A1)
+                                    color = SovereignBlue
                                 )
                                 if (rangeText.isNotEmpty()) {
                                     Text(
                                         text = "($rangeText)",
                                         style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.5.sp),
                                         fontWeight = FontWeight.Black,
-                                        color = Color(0xFF0D47A1).copy(alpha = 0.6f)
+                                        color = SovereignBlue.copy(alpha = 0.6f)
                                     )
                                 }
                             }
@@ -879,7 +879,7 @@ fun ChaptersTabContent(
                                 text = chapter.titleUa,
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0D47A1)
+                                color = SovereignBlue
                             )
                         }
 
@@ -891,7 +891,7 @@ fun ChaptersTabContent(
                                 Icon(
                                     imageVector = Icons.Default.OpenInNew,
                                     contentDescription = stringResource(R.string.read_chapter_source),
-                                    tint = Color(0xFF0D47A1).copy(alpha = 0.7f),
+                                    tint = SovereignBlue.copy(alpha = 0.7f),
                                     modifier = Modifier.size(18.dp)
                                  )
                             }
@@ -901,7 +901,7 @@ fun ChaptersTabContent(
                         Icon(
                             imageVector = Icons.Default.ArrowForward,
                             contentDescription = stringResource(R.string.open_chapter_articles),
-                            tint = Color(0xFF0D47A1)
+                            tint = SovereignBlue
                         )
                     }
                 }
@@ -930,7 +930,7 @@ fun BookmarksTabContent(
             text = stringResource(R.string.saved_bookmarks_header, bookmarkedArticles.size),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Black,
-            color = Color(0xFF0D47A1),
+            color = SovereignBlue,
             modifier = Modifier.padding(vertical = 10.dp)
         )
 
@@ -968,19 +968,19 @@ fun BookmarksTabContent(
                             Icon(
                                 imageVector = Icons.Default.Bookmark,
                                 contentDescription = null,
-                                tint = Color(0xFF0D47A1).copy(alpha = 0.2f),
+                                tint = SovereignBlue.copy(alpha = 0.2f),
                                 modifier = Modifier.size(72.dp)
                             )
                             Text(
                                 text = stringResource(R.string.no_bookmarks_msg),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0D47A1).copy(alpha = 0.6f)
+                                color = SovereignBlue.copy(alpha = 0.6f)
                             )
                             Text(
                                 text = stringResource(R.string.bookmarks_hint),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = Color(0xFF0D47A1).copy(alpha = 0.5f),
+                                color = SovereignBlue.copy(alpha = 0.5f),
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.padding(horizontal = 20.dp)
                             )

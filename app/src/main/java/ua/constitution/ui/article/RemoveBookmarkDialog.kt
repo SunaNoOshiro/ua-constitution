@@ -1,5 +1,7 @@
 package ua.constitution
 
+import ua.constitution.ui.theme.*
+
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,7 +26,7 @@ fun RemoveBookmarkDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
             TextButton(onClick = onConfirm) {
                 Text(
                     text = stringResource(R.string.dialog_remove_bookmark_confirm),
-                    color = Color(0xFFD32F2F),
+                    color = ErrorRedStrong,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -33,7 +35,7 @@ fun RemoveBookmarkDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
             TextButton(onClick = onDismiss) {
                 Text(
                     text = stringResource(R.string.dialog_remove_bookmark_cancel),
-                    color = Color(0xFF0D47A1),
+                    color = SovereignBlue,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -41,7 +43,7 @@ fun RemoveBookmarkDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
         title = {
             Text(
                 text = stringResource(R.string.dialog_remove_bookmark_title),
-                color = Color(0xFF0D47A1),
+                color = SovereignBlue,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleLarge
             )
@@ -49,11 +51,11 @@ fun RemoveBookmarkDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
         text = {
             Text(
                 text = stringResource(R.string.dialog_remove_bookmark_message),
-                color = Color(0xFF0D47A1).copy(alpha = 0.8f),
+                color = SovereignBlue.copy(alpha = 0.8f),
                 style = MaterialTheme.typography.bodyMedium
             )
         },
-        containerColor = Color(0xFFFFFDE7),
+        containerColor = AppCanvasYellow,
         tonalElevation = 6.dp,
         properties = DialogProperties(usePlatformDefaultWidth = true)
     )

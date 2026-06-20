@@ -1,5 +1,7 @@
 package ua.constitution
 
+import ua.constitution.ui.theme.*
+
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.*
@@ -107,8 +109,8 @@ fun ArticlesTabContent(
                         }
                     },
                     shape = RoundedCornerShape(12.dp),
-                    color = Color(0xFFF1F5F9),
-                    border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                    color = SlateBg,
+                    border = BorderStroke(1.dp, SlateBorder),
                     modifier = Modifier.testTag("back_to_previous_article_button")
                 ) {
                     Row(
@@ -119,14 +121,14 @@ fun ArticlesTabContent(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = getBackNavigationText(lastArticle),
-                            tint = Color(0xFF0D47A1),
+                            tint = SovereignBlue,
                             modifier = Modifier.size(16.dp)
                         )
                         Text(
                             text = getBackNavigationText(lastArticle),
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF0D47A1)
+                            color = SovereignBlue
                         )
                     }
                 }
@@ -139,7 +141,7 @@ fun ArticlesTabContent(
                 .padding(top = 8.dp, bottom = 0.dp)
                 .shadow(4.dp, RoundedCornerShape(16.dp)),
             shape = RoundedCornerShape(16.dp),
-            color = Color(0xFF0D47A1),
+            color = SovereignBlue,
             contentColor = Color.White
         ) {
             Column(
@@ -161,13 +163,13 @@ fun ArticlesTabContent(
                         modifier = Modifier
                             .size(28.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFFFFD500)),
+                            .background(SunflowerYellow),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = "${selectedChapter.id}",
                             fontWeight = FontWeight.Black,
-                            color = Color(0xFF0D47A1),
+                            color = SovereignBlue,
                             fontSize = 12.sp
                         )
                     }
@@ -176,7 +178,7 @@ fun ArticlesTabContent(
                             text = "${stringResource(R.string.chapter_singular)} ${selectedChapter.id}",
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Black,
-                            color = Color(0xFFFFD500)
+                            color = SunflowerYellow
                         )
                         Text(
                             text = selectedChapter.titleUa,
@@ -197,7 +199,7 @@ fun ArticlesTabContent(
                             Icon(
                                 imageVector = Icons.Default.OpenInNew,
                                 contentDescription = stringResource(R.string.read_chapter_source),
-                                tint = Color(0xFFFFD500),
+                                tint = SunflowerYellow,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -206,7 +208,7 @@ fun ArticlesTabContent(
                         Icon(
                             imageVector = if (isQuickLinksCollapsed) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
                             contentDescription = if (isQuickLinksCollapsed) stringResource(R.string.expand_quick_links) else stringResource(R.string.collapse_quick_links),
-                            tint = Color(0xFFFFD500),
+                            tint = SunflowerYellow,
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -219,7 +221,7 @@ fun ArticlesTabContent(
                 ) {
                     Column {
                     HorizontalDivider(
-                        color = Color(0xFFFFD500).copy(alpha = 0.25f),
+                        color = SunflowerYellow.copy(alpha = 0.25f),
                         thickness = 1.dp
                     )
 
@@ -232,11 +234,11 @@ fun ArticlesTabContent(
                     ) {
                         chapterArticles.forEachIndexed { index, article ->
                             val isActive = index == activeArticleIndex
-                            val bgColor = if (isActive) Color(0xFFFFD500) else Color.White
+                            val bgColor = if (isActive) SunflowerYellow else Color.White
                             val borderStroke = if (isActive) {
                                 BorderStroke(2.5.dp, Color.White)
                             } else {
-                                BorderStroke(1.5.dp, Color(0xFFFFD500))
+                                BorderStroke(1.5.dp, SunflowerYellow)
                             }
 
                             Box(
@@ -256,7 +258,7 @@ fun ArticlesTabContent(
                                      id = article.id,
                                      fontSize = if (ArticleNumberFormatter.isFractional(article.id, article.chapterId)) 13.sp else 14.sp,
                                      fontWeight = if (isActive) FontWeight.ExtraBold else FontWeight.Black,
-                                     color = Color(0xFF0D47A1),
+                                     color = SovereignBlue,
                                      chapterId = article.chapterId
                                  )
                             }
@@ -287,7 +289,7 @@ fun ArticlesTabContent(
                             Text(
                                 text = selectedChapter.info,
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = Color(0xFF0F172A),
+                                color = RichNavyText,
                                 lineHeight = 22.sp,
                                 fontWeight = FontWeight.Medium
                             )
@@ -304,7 +306,7 @@ fun ArticlesTabContent(
                             ) {
                                 Text(
                                     text = stringResource(R.string.empty_chapter_msg),
-                                    color = Color(0xFF0D47A1)
+                                    color = SovereignBlue
                                 )
                             }
                         }

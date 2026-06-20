@@ -98,7 +98,7 @@ import androidx.lifecycle.ViewModelProvider
 import ua.constitution.data.model.Article
 import ua.constitution.data.model.Chapter
 import ua.constitution.data.repository.ConstitutionRepository
-import ua.constitution.ui.theme.MyApplicationTheme
+import ua.constitution.ui.theme.*
 import ua.constitution.ui.viewmodel.ConstitutionViewModel
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -205,7 +205,7 @@ fun AudioWaveformVisualizer(
             }
             
             val isPlayed = barStates[index]
-            val barColor = if (isPlayed) Color(0xFFFFD500) else Color(0xFFFFD500).copy(alpha = 0.35f)
+            val barColor = if (isPlayed) SunflowerYellow else SunflowerYellow.copy(alpha = 0.35f)
 
             Box(
                 modifier = Modifier
@@ -414,7 +414,7 @@ fun NationalSymbolsCard(onOpenFullscreenSymbol: (FullscreenSymbol) -> Unit) {
             .shadow(4.dp, RoundedCornerShape(20.dp)),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(2.dp, Color(0xFF0D47A1))
+        border = BorderStroke(2.dp, SovereignBlue)
     ) {
         Column(
             modifier = Modifier.padding(18.dp),
@@ -425,7 +425,7 @@ fun NationalSymbolsCard(onOpenFullscreenSymbol: (FullscreenSymbol) -> Unit) {
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Black,
                 fontSize = 17.sp,
-                color = Color(0xFF0D47A1),
+                color = SovereignBlue,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
@@ -448,13 +448,13 @@ fun NationalSymbolsCard(onOpenFullscreenSymbol: (FullscreenSymbol) -> Unit) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f)
-                            .background(Color(0xFF0057B7)) // Sovereign blue
+                            .background(FlagBlue) // Sovereign blue
                     )
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f)
-                            .background(Color(0xFFFFD700)) // Golden yellow
+                            .background(FlagGold) // Golden yellow
                     )
                 }
 
@@ -475,7 +475,7 @@ fun NationalSymbolsCard(onOpenFullscreenSymbol: (FullscreenSymbol) -> Unit) {
                 text = stringResource(R.string.flag_and_coat_desc),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Black,
-                color = Color(0xFF0D47A1)
+                color = SovereignBlue
             )
         }
     }
@@ -495,8 +495,8 @@ fun AnthemCard(
             .fillMaxWidth()
             .shadow(4.dp, RoundedCornerShape(20.dp)),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF0D47A1)),
-        border = BorderStroke(1.5.dp, Color(0xFFFFD500))
+        colors = CardDefaults.cardColors(containerColor = SovereignBlue),
+        border = BorderStroke(1.5.dp, SunflowerYellow)
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 18.dp),
@@ -510,7 +510,7 @@ fun AnthemCard(
                 Icon(
                     imageVector = Icons.Default.MusicNote,
                     contentDescription = null,
-                    tint = Color(0xFFFFD500),
+                    tint = SunflowerYellow,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -519,7 +519,7 @@ fun AnthemCard(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Black,
                     fontSize = 17.sp,
-                    color = Color(0xFFFFD500)
+                    color = SunflowerYellow
                 )
             }
 
@@ -575,8 +575,8 @@ fun AnthemCard(
                     .widthIn(max = 290.dp)
                     .fillMaxWidth(0.9f)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFF092C66))
-                    .border(1.dp, Color(0xFFFFD500).copy(alpha = 0.3f), RoundedCornerShape(16.dp))
+                    .background(DeepBlueVariant)
+                    .border(1.dp, SunflowerYellow.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
                     .padding(horizontal = 10.dp, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -587,12 +587,12 @@ fun AnthemCard(
                         .size(34.dp)
                         .shadow(2.dp, CircleShape)
                         .clip(CircleShape)
-                        .background(Color(0xFFFFD500))
+                        .background(SunflowerYellow)
                         .testTag("play_button_unified")
                 ) {
                     if (isBuffering) {
                         CircularProgressIndicator(
-                            color = Color(0xFF0D47A1),
+                            color = SovereignBlue,
                             strokeWidth = 2.dp,
                             modifier = Modifier.size(16.dp)
                         )
@@ -600,7 +600,7 @@ fun AnthemCard(
                         Icon(
                             imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                             contentDescription = if (isPlaying) stringResource(R.string.btn_stop) else stringResource(R.string.btn_play),
-                            tint = Color(0xFF0D47A1),
+                            tint = SovereignBlue,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -643,7 +643,7 @@ fun ArticleOfTheDayCard(
             text = stringResource(R.string.article_of_the_day),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Black,
-            color = Color(0xFF0D47A1),
+            color = SovereignBlue,
             modifier = Modifier.padding(vertical = 10.dp)
         )
 

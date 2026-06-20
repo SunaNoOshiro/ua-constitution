@@ -98,7 +98,7 @@ import androidx.lifecycle.ViewModelProvider
 import ua.constitution.data.model.Article
 import ua.constitution.data.model.Chapter
 import ua.constitution.data.repository.ConstitutionRepository
-import ua.constitution.ui.theme.MyApplicationTheme
+import ua.constitution.ui.theme.*
 import ua.constitution.ui.viewmodel.ConstitutionViewModel
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -307,7 +307,7 @@ fun SegmentedTextWithEdits(
                     pushStringAnnotation(tag = "URL", annotation = "${segment.url}|${segment.text}")
                     withStyle(
                         style = SpanStyle(
-                            color = Color(0xFF0D47A1),
+                            color = SovereignBlue,
                             fontWeight = FontWeight.Bold,
                             textDecoration = TextDecoration.Underline
                         )
@@ -748,7 +748,7 @@ fun SegmentedText(
                     pushStringAnnotation(tag = "URL", annotation = "${segment.url}|${segment.text}")
                     withStyle(
                         style = SpanStyle(
-                            color = Color(0xFF0D47A1),
+                            color = SovereignBlue,
                             fontWeight = FontWeight.Bold,
                             textDecoration = TextDecoration.Underline
                         )
@@ -827,9 +827,9 @@ internal fun SelectionToolbarPopup(
     ) {
         Surface(
             shape = RoundedCornerShape(24.dp),
-            color = Color(0xFF1E293B), // slate-800
+            color = SlateDark, // slate-800
             shadowElevation = 8.dp,
-            border = BorderStroke(1.dp, Color(0xFF334155)), // slate-700
+            border = BorderStroke(1.dp, SlateDarker), // slate-700
             modifier = Modifier.padding(2.dp)
         ) {
             if (showedColorPickerMode == Constants.TOOL_MARKER) {
@@ -853,7 +853,7 @@ internal fun SelectionToolbarPopup(
                         modifier = Modifier
                             .width(1.dp)
                             .height(16.dp)
-                            .background(Color(0xFF475569)) // slate-600
+                            .background(SlateText) // slate-600
                     )
                     markerColors.forEach { colorHex ->
                         val colorVal = safeParseColor(colorHex, Color.Yellow)
@@ -896,7 +896,7 @@ internal fun SelectionToolbarPopup(
                         modifier = Modifier
                             .width(1.dp)
                             .height(16.dp)
-                            .background(Color(0xFF475569)) // slate-600
+                            .background(SlateText) // slate-600
                     )
                     underlineColors.forEach { colorHex ->
                         val colorVal = safeParseColor(colorHex, Color.Red)
@@ -957,7 +957,7 @@ internal fun SelectionToolbarPopup(
                             modifier = Modifier
                                 .width(1.dp)
                                 .height(16.dp)
-                                .background(Color(0xFF475569)) // slate-600
+                                .background(SlateText) // slate-600
                         )
 
                         // --- MARKER GROUP ---
@@ -1009,7 +1009,7 @@ internal fun SelectionToolbarPopup(
                             modifier = Modifier
                                 .width(1.dp)
                                 .height(16.dp)
-                                .background(Color(0xFF475569)) // slate-600
+                                .background(SlateText) // slate-600
                         )
 
                         // --- UNDERLINE (LINE) GROUP ---
@@ -1062,12 +1062,12 @@ internal fun SelectionToolbarPopup(
                                 modifier = Modifier
                                     .width(1.dp)
                                     .height(16.dp)
-                                    .background(Color(0xFF475569)) // slate-600
+                                    .background(SlateText) // slate-600
                             )
 
                             TextButtonWithIcon(
                                 icon = eraserIcon,
-                                iconTint = Color(0xFFEF4444), // red-500
+                                iconTint = ErrorRed, // red-500
                                 text = stringResource(R.string.tool_eraser),
                                 onClick = onApplyEraser,
                                 iconSize = 15.dp,
@@ -1123,7 +1123,7 @@ fun GlobalFormattingPanel(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         HorizontalDivider(
-            color = Color(0xFFE2E8F0),
+            color = SlateBorder,
             thickness = 1.2.dp,
             modifier = Modifier.padding(vertical = 4.dp)
         )
@@ -1144,9 +1144,9 @@ fun GlobalFormattingPanel(
                 shape = RoundedCornerShape(12.dp),
                 border = BorderStroke(
                     width = if (activeTool == Constants.TOOL_NONE) 2.dp else 1.dp,
-                    color = if (activeTool == Constants.TOOL_NONE) Color(0xFF0D47A1) else Color(0xFFE2E8F0)
+                    color = if (activeTool == Constants.TOOL_NONE) SovereignBlue else SlateBorder
                 ),
-                color = if (activeTool == Constants.TOOL_NONE) Color(0xFF0D47A1).copy(alpha = 0.08f) else Color.White
+                color = if (activeTool == Constants.TOOL_NONE) SovereignBlue.copy(alpha = 0.08f) else Color.White
             ) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -1156,7 +1156,7 @@ fun GlobalFormattingPanel(
                     Icon(
                         imageVector = Icons.Default.TouchApp,
                         contentDescription = stringResource(R.string.tool_selection),
-                        tint = if (activeTool == Constants.TOOL_NONE) Color(0xFF0D47A1) else Color(0xFF475569),
+                        tint = if (activeTool == Constants.TOOL_NONE) SovereignBlue else SlateText,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
@@ -1175,7 +1175,7 @@ fun GlobalFormattingPanel(
                 modifier = Modifier
                     .width(1.dp)
                     .height(32.dp)
-                    .background(Color(0xFFE2E8F0))
+                    .background(SlateBorder)
             )
 
             // --- Button 1: MARKER ---
@@ -1194,9 +1194,9 @@ fun GlobalFormattingPanel(
                 shape = RoundedCornerShape(12.dp),
                 border = BorderStroke(
                     width = if (activeTool == Constants.TOOL_MARKER) 2.dp else 1.dp,
-                    color = if (activeTool == Constants.TOOL_MARKER) Color(0xFF0D47A1) else Color(0xFFE2E8F0)
+                    color = if (activeTool == Constants.TOOL_MARKER) SovereignBlue else SlateBorder
                 ),
-                color = if (activeTool == Constants.TOOL_MARKER) Color(0xFF0D47A1).copy(alpha = 0.08f) else Color.White
+                color = if (activeTool == Constants.TOOL_MARKER) SovereignBlue.copy(alpha = 0.08f) else Color.White
             ) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -1206,7 +1206,7 @@ fun GlobalFormattingPanel(
                     Icon(
                         imageVector = Icons.Default.Brush,
                         contentDescription = stringResource(R.string.tool_marker),
-                        tint = if (activeTool == Constants.TOOL_MARKER) Color(0xFF0D47A1) else Color(0xFF475569),
+                        tint = if (activeTool == Constants.TOOL_MARKER) SovereignBlue else SlateText,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
@@ -1225,7 +1225,7 @@ fun GlobalFormattingPanel(
                 modifier = Modifier
                     .width(1.dp)
                     .height(32.dp)
-                    .background(Color(0xFFE2E8F0))
+                    .background(SlateBorder)
             )
 
             // --- Button 2: UNDERLINE (Line) ---
@@ -1244,9 +1244,9 @@ fun GlobalFormattingPanel(
                 shape = RoundedCornerShape(12.dp),
                 border = BorderStroke(
                     width = if (activeTool == Constants.TOOL_UNDERLINE) 2.dp else 1.dp,
-                    color = if (activeTool == Constants.TOOL_UNDERLINE) Color(0xFF0D47A1) else Color(0xFFE2E8F0)
+                    color = if (activeTool == Constants.TOOL_UNDERLINE) SovereignBlue else SlateBorder
                 ),
-                color = if (activeTool == Constants.TOOL_UNDERLINE) Color(0xFF0D47A1).copy(alpha = 0.08f) else Color.White
+                color = if (activeTool == Constants.TOOL_UNDERLINE) SovereignBlue.copy(alpha = 0.08f) else Color.White
             ) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -1256,7 +1256,7 @@ fun GlobalFormattingPanel(
                     Icon(
                         imageVector = Icons.Default.FormatUnderlined,
                         contentDescription = stringResource(R.string.tool_underline),
-                        tint = if (activeTool == Constants.TOOL_UNDERLINE) Color(0xFF0D47A1) else Color(0xFF475569),
+                        tint = if (activeTool == Constants.TOOL_UNDERLINE) SovereignBlue else SlateText,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
@@ -1275,7 +1275,7 @@ fun GlobalFormattingPanel(
                 modifier = Modifier
                     .width(1.dp)
                     .height(32.dp)
-                    .background(Color(0xFFE2E8F0))
+                    .background(SlateBorder)
             )
 
             // --- Button 3: ERASER (Гумка) ---
@@ -1294,9 +1294,9 @@ fun GlobalFormattingPanel(
                 shape = RoundedCornerShape(12.dp),
                 border = BorderStroke(
                     width = if (activeTool == Constants.TOOL_ERASER) 2.dp else 1.dp,
-                    color = if (activeTool == Constants.TOOL_ERASER) Color(0xFFEF4444) else Color(0xFFE2E8F0)
+                    color = if (activeTool == Constants.TOOL_ERASER) ErrorRed else SlateBorder
                 ),
-                color = if (activeTool == Constants.TOOL_ERASER) Color(0xFFEF4444).copy(alpha = 0.08f) else Color.White
+                color = if (activeTool == Constants.TOOL_ERASER) ErrorRed.copy(alpha = 0.08f) else Color.White
             ) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -1306,7 +1306,7 @@ fun GlobalFormattingPanel(
                     Icon(
                         imageVector = eraserIcon,
                         contentDescription = stringResource(R.string.tool_eraser),
-                        tint = if (activeTool == Constants.TOOL_ERASER) Color(0xFFEF4444) else Color(0xFF475569),
+                        tint = if (activeTool == Constants.TOOL_ERASER) ErrorRed else SlateText,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
@@ -1325,7 +1325,7 @@ fun GlobalFormattingPanel(
                 modifier = Modifier
                     .width(1.dp)
                     .height(32.dp)
-                    .background(Color(0xFFE2E8F0))
+                    .background(SlateBorder)
             )
 
             // --- Button 4: CLEAR ALL (Очистити все) ---
@@ -1342,9 +1342,9 @@ fun GlobalFormattingPanel(
                 shape = RoundedCornerShape(12.dp),
                 border = BorderStroke(
                     width = 1.0.dp,
-                    color = if (hasAnyEdits) Color(0xFFE2E8F0) else Color(0xFFE2E8F0).copy(alpha = 0.5f)
+                    color = if (hasAnyEdits) SlateBorder else SlateBorder.copy(alpha = 0.5f)
                 ),
-                color = if (hasAnyEdits) Color.White else Color(0xFFF8FAFC).copy(alpha = 0.5f),
+                color = if (hasAnyEdits) Color.White else SlateBgLight.copy(alpha = 0.5f),
                 enabled = hasAnyEdits
             ) {
                 Column(
@@ -1355,7 +1355,7 @@ fun GlobalFormattingPanel(
                     Icon(
                         imageVector = Icons.Default.FormatColorReset,
                         contentDescription = stringResource(R.string.tool_clear_all),
-                        tint = if (hasAnyEdits) Color(0xFFEF4444) else Color(0xFF94A3B8),
+                        tint = if (hasAnyEdits) ErrorRed else SlateMuted,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
@@ -1380,7 +1380,7 @@ fun GlobalFormattingPanel(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFFF8FAFC), RoundedCornerShape(12.dp))
+                    .background(SlateBgLight, RoundedCornerShape(12.dp))
                     .padding(vertical = 10.dp, horizontal = 12.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
@@ -1396,7 +1396,7 @@ fun GlobalFormattingPanel(
                             .background(colorVal)
                             .border(
                                 width = if (isSelected) 3.dp else 1.dp,
-                                color = if (isSelected) Color(0xFF0D47A1) else Color(0xFFCBD5E1),
+                                color = if (isSelected) SovereignBlue else SlateDivider,
                                 shape = CircleShape
                             )
                             .clickable {
@@ -1408,7 +1408,7 @@ fun GlobalFormattingPanel(
                             Icon(
                                 imageVector = Icons.Default.Check,
                                 contentDescription = stringResource(R.string.state_selected),
-                                tint = if (activeTool == "MARKER") Color(0xFF1E293B) else Color.White,
+                                tint = if (activeTool == "MARKER") SlateDark else Color.White,
                                 modifier = Modifier.size(16.dp)
                             )
                         }
@@ -1418,7 +1418,7 @@ fun GlobalFormattingPanel(
         }
 
         HorizontalDivider(
-            color = Color(0xFFE2E8F0),
+            color = SlateBorder,
             thickness = 1.2.dp,
             modifier = Modifier.padding(vertical = 4.dp)
         )

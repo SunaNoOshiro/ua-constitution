@@ -1,5 +1,7 @@
 package ua.constitution
 
+import ua.constitution.ui.theme.*
+
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -15,7 +17,7 @@ import androidx.compose.ui.unit.sp
  */
 data class SegmentTextStyle(
     val style: TextStyle,
-    val color: Color = Color(0xFF0F172A),
+    val color: Color = RichNavyText,
     val lineHeight: TextUnit = 24.sp,
     val fontWeight: FontWeight = FontWeight.Medium,
     val fontStyle: FontStyle? = null,

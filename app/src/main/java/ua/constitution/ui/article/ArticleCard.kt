@@ -98,7 +98,7 @@ import androidx.lifecycle.ViewModelProvider
 import ua.constitution.data.model.Article
 import ua.constitution.data.model.Chapter
 import ua.constitution.data.repository.ConstitutionRepository
-import ua.constitution.ui.theme.MyApplicationTheme
+import ua.constitution.ui.theme.*
 import ua.constitution.ui.viewmodel.ConstitutionViewModel
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.graphics.graphicsLayer
@@ -212,7 +212,7 @@ fun ArticleCard(
         colors = CardDefaults.cardColors(containerColor = Color.White),
         border = BorderStroke(
             width = 2.dp,
-            color = Color(0xFF0D47A1)
+            color = SovereignBlue
         )
     ) {
         Column(
@@ -227,7 +227,7 @@ fun ArticleCard(
                     text = articleNumber,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Black,
-                    color = Color(0xFF0D47A1),
+                    color = SovereignBlue,
                     modifier = Modifier.weight(1f)
                 )
 
@@ -243,7 +243,7 @@ fun ArticleCard(
                     Icon(
                         imageVector = Icons.Default.OpenInNew,
                         contentDescription = stringResource(R.string.read_source_btn),
-                        tint = Color(0xFF0D47A1).copy(alpha = 0.85f),
+                        tint = SovereignBlue.copy(alpha = 0.85f),
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -267,7 +267,7 @@ fun ArticleCard(
                     Icon(
                         imageVector = Icons.Default.ContentCopy,
                         contentDescription = stringResource(R.string.copy_article),
-                        tint = Color(0xFF0D47A1).copy(alpha = 0.85f),
+                        tint = SovereignBlue.copy(alpha = 0.85f),
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -287,7 +287,7 @@ fun ArticleCard(
                          Icon(
                              imageVector = if (isCurrentlyEditing) Icons.Default.Check else Icons.Default.Edit,
                              contentDescription = if (isCurrentlyEditing) stringResource(R.string.close_editing) else stringResource(R.string.edit_highlights),
-                             tint = if (isCurrentlyEditing) Color(0xFF2E7D32) else if (isEditButtonEnabled) Color(0xFF0D47A1) else Color(0xFF94A3B8),
+                             tint = if (isCurrentlyEditing) SuccessGreen else if (isEditButtonEnabled) SovereignBlue else SlateMuted,
                              modifier = Modifier.size(20.dp)
                          )
                     }
@@ -309,7 +309,7 @@ fun ArticleCard(
                     Icon(
                         imageVector = if (isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
                         contentDescription = stringResource(R.string.save_bookmark),
-                        tint = if (isBookmarked) Color(0xFF0D47A1) else Color(0xFF0D47A1).copy(alpha = 0.4f),
+                        tint = if (isBookmarked) SovereignBlue else SovereignBlue.copy(alpha = 0.4f),
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -324,7 +324,7 @@ fun ArticleCard(
                         text = articleName,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Black,
-                        color = Color(0xFF0D47A1),
+                        color = SovereignBlue,
                         lineHeight = 22.sp
                     )
                 }
@@ -541,8 +541,8 @@ fun NoteCard(note: Note, resolveArticleLink: (String) -> Article?, modifier: Mod
             .fillMaxWidth()
             .padding(vertical = 4.dp),
         shape = RoundedCornerShape(8.dp),
-        color = Color(0xFFF1F5F9),
-        border = BorderStroke(0.5.dp, Color(0xFFCBD5E1))
+        color = SlateBg,
+        border = BorderStroke(0.5.dp, SlateDivider)
     ) {
         Column(
             modifier = Modifier.padding(10.dp),
@@ -552,7 +552,7 @@ fun NoteCard(note: Note, resolveArticleLink: (String) -> Article?, modifier: Mod
                 segments = note.content,
                 textStyle = SegmentTextStyle(
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFF475569),
+                    color = SlateText,
                     lineHeight = 18.sp,
                     fontWeight = FontWeight.Medium,
                     fontStyle = FontStyle.Italic
