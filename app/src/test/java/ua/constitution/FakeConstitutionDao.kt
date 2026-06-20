@@ -2,7 +2,6 @@ package ua.constitution
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.map
 import ua.constitution.data.database.BookmarkEntity
 import ua.constitution.data.database.ConstitutionDao
 
@@ -26,9 +25,6 @@ class FakeConstitutionDao : ConstitutionDao {
     }
 
     override fun getAllBookmarks(): Flow<List<BookmarkEntity>> = bookmarks
-
-    override fun getBookmarkByArticle(articleId: Int): Flow<BookmarkEntity?> =
-        bookmarks.map { list -> list.find { it.articleId == articleId } }
 
     override suspend fun insertBookmark(bookmark: BookmarkEntity) {
         // REPLACE on conflict: drop any existing row for this articleId, then add the new one.

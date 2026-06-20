@@ -4,7 +4,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -79,13 +78,6 @@ class ConstitutionRepositoryTest {
         repository.addBookmark(1)
         repository.updateBookmarkEdits(1, "{malformed")
         assertEquals("{malformed", fakeDao.bookmarks.value.first { it.articleId == 1 }.editsJson)
-    }
-
-    @Test
-    fun `getBookmarkByArticle reflects presence and absence`() = runTest {
-        assertNull(repository.getBookmarkByArticle(1).first())
-        repository.addBookmark(1)
-        assertEquals(1, repository.getBookmarkByArticle(1).first()?.articleId)
     }
 
     @Test

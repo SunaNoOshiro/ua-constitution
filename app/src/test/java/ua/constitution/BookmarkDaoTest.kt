@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -83,7 +82,7 @@ class BookmarkDaoTest {
     fun `updateBookmarkNotes updates only the notes of an existing row`() = runBlocking {
         dao.insertBookmark(BookmarkEntity(articleId = 1, notes = "", editsJson = "keep"))
         dao.updateBookmarkNotes(1, "updated")
-        val entity = dao.getBookmarkByArticle(1).first()
+        val entity = dao.getAllBookmarks().first().find { it.articleId == 1 }
         assertEquals("updated", entity?.notes)
         assertEquals("keep", entity?.editsJson)
     }
@@ -98,15 +97,8 @@ class BookmarkDaoTest {
     fun `updateBookmarkEdits updates only the editsJson of an existing row`() = runBlocking {
         dao.insertBookmark(BookmarkEntity(articleId = 1, notes = "keep"))
         dao.updateBookmarkEdits(1, "{}")
-        val entity = dao.getBookmarkByArticle(1).first()
+        val entity = dao.getAllBookmarks().first().find { it.articleId == 1 }
         assertEquals("{}", entity?.editsJson)
         assertEquals("keep", entity?.notes)
-    }
-
-    @Test
-    fun `getBookmarkByArticle returns null when absent and the entity when present`() = runBlocking {
-        assertNull(dao.getBookmarkByArticle(1).first())
-        dao.insertBookmark(BookmarkEntity(articleId = 1))
-        assertEquals(1, dao.getBookmarkByArticle(1).first()?.articleId)
     }
 }

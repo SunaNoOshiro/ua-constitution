@@ -11,9 +11,6 @@ interface ConstitutionDao {
     @Query("SELECT * FROM " + Constants.TABLE_BOOKMARKS + " ORDER BY bookmarkedAt DESC")
     fun getAllBookmarks(): Flow<List<BookmarkEntity>>
 
-    @Query("SELECT * FROM " + Constants.TABLE_BOOKMARKS + " WHERE articleId = :articleId LIMIT 1")
-    fun getBookmarkByArticle(articleId: Int): Flow<BookmarkEntity?>
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBookmark(bookmark: BookmarkEntity)
 

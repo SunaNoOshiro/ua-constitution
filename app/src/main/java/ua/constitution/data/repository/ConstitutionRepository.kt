@@ -8,9 +8,6 @@ class ConstitutionRepository(private val dao: ConstitutionDao) : BookmarkReposit
 
     override val allBookmarks: Flow<List<BookmarkEntity>> = dao.getAllBookmarks()
 
-    override fun getBookmarkByArticle(articleId: Int): Flow<BookmarkEntity?> =
-        dao.getBookmarkByArticle(articleId)
-
     override suspend fun addBookmark(articleId: Int, notes: String) {
         dao.insertBookmark(BookmarkEntity(articleId = articleId, notes = notes))
     }

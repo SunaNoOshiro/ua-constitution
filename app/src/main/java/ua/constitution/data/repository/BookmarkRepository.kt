@@ -9,7 +9,6 @@ import ua.constitution.data.database.BookmarkEntity
  */
 interface BookmarkRepository {
     val allBookmarks: Flow<List<BookmarkEntity>>
-    fun getBookmarkByArticle(articleId: Int): Flow<BookmarkEntity?>
     suspend fun addBookmark(articleId: Int, notes: String = "")
     suspend fun removeBookmark(articleId: Int)
     suspend fun updateBookmarkNotes(articleId: Int, notes: String)
