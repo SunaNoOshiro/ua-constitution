@@ -75,10 +75,7 @@ object RangeStyler {
         var lastIdx = -1
         for (i in text.indices) {
             if (!flags[i]) continue
-            if (lastIdx != -1 && lastIdx < i - 1 &&
-                colors[lastIdx].lowercase() == colors[i].lowercase() &&
-                isOnlyGapChars(text, lastIdx + 1, i)
-            ) {
+            if (canBridgeGap(lastIdx, i, colors, text)) {
                 for (j in (lastIdx + 1) until i) {
                     flags[j] = true
                     colors[j] = colors[lastIdx]
@@ -87,6 +84,12 @@ object RangeStyler {
             lastIdx = i
         }
     }
+
+    /** True when the same-colored run at [lastIdx] can extend across a pure-gap stretch up to [i]. */
+    private fun canBridgeGap(lastIdx: Int, i: Int, colors: Array<String>, text: String): Boolean =
+        lastIdx != -1 && lastIdx < i - 1 &&
+            colors[lastIdx].lowercase() == colors[i].lowercase() &&
+            isOnlyGapChars(text, lastIdx + 1, i)
 
     private fun isOnlyGapChars(text: String, from: Int, to: Int): Boolean {
         for (j in from until to) {

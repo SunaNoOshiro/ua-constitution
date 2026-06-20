@@ -55,29 +55,29 @@ fun mapFormattedToOriginal(original: String, formatted: String): IntArray {
             formToOrig[formIdx] = original.length
             break
         }
-        val formChar = formatted[formIdx]
-        var assigned = false
-        while (origIdx < original.length) {
-            val origChar = original[origIdx]
-            if (charsMatch(origChar, formChar)) {
-                formToOrig[formIdx] = origIdx
-                origIdx++
-                assigned = true
-                break
-            } else if (isGapChar(origChar)) {
-                origIdx++
-            } else {
-                formToOrig[formIdx] = origIdx
-                origIdx++
-                assigned = true
-                break
-            }
-        }
-        if (!assigned) {
-            formToOrig[formIdx] = original.length
-        }
+        val (assignedIdx, nextOrigIdx) = resolveOriginalIndex(original, origIdx, formatted[formIdx])
+        origIdx = nextOrigIdx
+        formToOrig[formIdx] = assignedIdx ?: original.length
     }
     return formToOrig
+}
+
+/**
+ * Advances past gap characters from [startOrigIdx] to the original-string index that maps to
+ * [formChar] (a match, or the first non-gap char), returning that index plus the next scan position.
+ * Returns a null index when the original is exhausted without an assignment. Extracted verbatim from
+ * the former inline while-loop in [mapFormattedToOriginal] (charsMatch OR not-a-gap both assign).
+ */
+private fun resolveOriginalIndex(original: String, startOrigIdx: Int, formChar: Char): Pair<Int?, Int> {
+    var origIdx = startOrigIdx
+    while (origIdx < original.length) {
+        val origChar = original[origIdx]
+        if (charsMatch(origChar, formChar) || !isGapChar(origChar)) {
+            return origIdx to (origIdx + 1)
+        }
+        origIdx++
+    }
+    return null to origIdx
 }
 
 fun formatStringToSuperscript(input: String): String {
