@@ -3,6 +3,7 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>CognitiveComplexMethod:ArticleCard.kt$@Composable fun ArticleCard( article: Article, isBookmarked: Boolean, onToggleBookmark: () -&gt; Unit, resolveArticleLink: (String) -&gt; Article?, modifier: Modifier = Modifier, onArticleClick: ((Article) -&gt; Unit)? = null, initialEditsJson: String = "", editing: ArticleEditing = ArticleEditing() )</ID>
+    <ID>CognitiveComplexMethod:ArticlesTabContent.kt$@Composable fun ArticlesTabContent( viewModel: ConstitutionViewModel, navState: DashboardNavState, bookmarksList: List&lt;BookmarkEntity&gt;, onNavigateToArticle: (Article, Article?) -&gt; Unit, onNavigateToArticlesTab: () -&gt; Unit, )</ID>
     <ID>CognitiveComplexMethod:HomeScreen.kt$@Composable fun AnthemCard( isPlaying: Boolean, isBuffering: Boolean, playerPosition: Int, playerDuration: Int, onTogglePlay: () -&gt; Unit, onSeek: (Float) -&gt; Unit )</ID>
     <ID>CognitiveComplexMethod:HomeScreen.kt$@Composable fun HomeTabContent( viewModel: ConstitutionViewModel, bookmarksList: List&lt;ua.constitution.data.database.BookmarkEntity&gt;, onNavigateToArticle: (Article, Article?) -&gt; Unit, onOpenFullscreenSymbol: (FullscreenSymbol) -&gt; Unit )</ID>
     <ID>CognitiveComplexMethod:InteractiveText.kt$@Composable fun GlobalFormattingPanel( editingArticleId: Int?, controls: FormattingPanelControls, onClearAllEdits: () -&gt; Unit, hasAnyEdits: Boolean, onDoneEditing: () -&gt; Unit, articleTitle: String? )</ID>
@@ -13,6 +14,7 @@
     <ID>CognitiveComplexMethod:MainAppDashboard.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MainAppDashboard(viewModel: ConstitutionViewModel)</ID>
     <ID>CognitiveComplexMethod:SegmentMerging.kt$fun mergeAdjacentLinkSegments(segments: List&lt;ContentSegment&gt;): List&lt;ContentSegment&gt;</ID>
     <ID>CyclomaticComplexMethod:ArticleCard.kt$@Composable fun ArticleCard( article: Article, isBookmarked: Boolean, onToggleBookmark: () -&gt; Unit, resolveArticleLink: (String) -&gt; Article?, modifier: Modifier = Modifier, onArticleClick: ((Article) -&gt; Unit)? = null, initialEditsJson: String = "", editing: ArticleEditing = ArticleEditing() )</ID>
+    <ID>CyclomaticComplexMethod:ArticlesTabContent.kt$@Composable fun ArticlesTabContent( viewModel: ConstitutionViewModel, navState: DashboardNavState, bookmarksList: List&lt;BookmarkEntity&gt;, onNavigateToArticle: (Article, Article?) -&gt; Unit, onNavigateToArticlesTab: () -&gt; Unit, )</ID>
     <ID>CyclomaticComplexMethod:BookmarkEditsParser.kt$BookmarkEditsParser$fun parse(jsonStr: String?): Map&lt;Int, List&lt;StyledRange&gt;&gt;</ID>
     <ID>CyclomaticComplexMethod:HomeScreen.kt$@Composable fun HomeTabContent( viewModel: ConstitutionViewModel, bookmarksList: List&lt;ua.constitution.data.database.BookmarkEntity&gt;, onNavigateToArticle: (Article, Article?) -&gt; Unit, onOpenFullscreenSymbol: (FullscreenSymbol) -&gt; Unit )</ID>
     <ID>CyclomaticComplexMethod:InteractiveText.kt$@Composable fun GlobalFormattingPanel( editingArticleId: Int?, controls: FormattingPanelControls, onClearAllEdits: () -&gt; Unit, hasAnyEdits: Boolean, onDoneEditing: () -&gt; Unit, articleTitle: String? )</ID>
@@ -24,6 +26,7 @@
     <ID>CyclomaticComplexMethod:RangeStyler.kt$RangeStyler$private fun fillColorGaps(flags: BooleanArray, colors: Array&lt;String&gt;, text: String)</ID>
     <ID>CyclomaticComplexMethod:SuperscriptFormatting.kt$fun mapFormattedToOriginal(original: String, formatted: String): IntArray</ID>
     <ID>LongMethod:ArticleCard.kt$@Composable fun ArticleCard( article: Article, isBookmarked: Boolean, onToggleBookmark: () -&gt; Unit, resolveArticleLink: (String) -&gt; Article?, modifier: Modifier = Modifier, onArticleClick: ((Article) -&gt; Unit)? = null, initialEditsJson: String = "", editing: ArticleEditing = ArticleEditing() )</ID>
+    <ID>LongMethod:ArticlesTabContent.kt$@Composable fun ArticlesTabContent( viewModel: ConstitutionViewModel, navState: DashboardNavState, bookmarksList: List&lt;BookmarkEntity&gt;, onNavigateToArticle: (Article, Article?) -&gt; Unit, onNavigateToArticlesTab: () -&gt; Unit, )</ID>
     <ID>LongMethod:HomeScreen.kt$@Composable fun AnthemCard( isPlaying: Boolean, isBuffering: Boolean, playerPosition: Int, playerDuration: Int, onTogglePlay: () -&gt; Unit, onSeek: (Float) -&gt; Unit )</ID>
     <ID>LongMethod:HomeScreen.kt$@Composable fun HomeTabContent( viewModel: ConstitutionViewModel, bookmarksList: List&lt;ua.constitution.data.database.BookmarkEntity&gt;, onNavigateToArticle: (Article, Article?) -&gt; Unit, onOpenFullscreenSymbol: (FullscreenSymbol) -&gt; Unit )</ID>
     <ID>LongMethod:HomeScreen.kt$@Composable fun NationalSymbolsCard(onOpenFullscreenSymbol: (FullscreenSymbol) -&gt; Unit)</ID>
