@@ -144,7 +144,6 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
     val context = LocalContext.current
     var activeTab by remember { mutableStateOf(DashboardTab.HOME) } // Default to Home (Державні символи)
     var isSearchActive by remember { mutableStateOf(false) } // Controls immediate search bar drop
-    var currentSelectedChapterId by remember { mutableStateOf(1) } // Default to Chapter 1
 
     var fullscreenSymbol by remember { mutableStateOf(FullscreenSymbol.NONE) }
     var isRotated by remember { mutableStateOf(false) }
@@ -195,58 +194,27 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
 
     val articlesLazyListState = rememberLazyListState()
     val homeScrollState = rememberScrollState()
-    var clickedArticleIndex by remember { mutableStateOf<Int?>(null) }
-    var ignoreScrollActiveIndexSetting by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
-    val navigationHistory = remember { mutableStateListOf<Article>() }
+    val navState = remember(articlesLazyListState, coroutineScope) {
+        DashboardNavState(articlesLazyListState, coroutineScope, viewModel::articlesForChapter)
+    }
 
     val bookmarkEditor = remember { BookmarkEditorState() }
     var activeEditingWarningMessage by remember { mutableStateOf<String?>(null) }
 
-    BackHandler(enabled = navigationHistory.isNotEmpty()) {
-        val targetArticle = navigationHistory.removeLastOrNull()
+    BackHandler(enabled = navState.navigationHistory.isNotEmpty()) {
+        val targetArticle = navState.popBack()
         if (targetArticle != null) {
-            currentSelectedChapterId = targetArticle.chapterId
             activeTab = DashboardTab.ARTICLES
-            coroutineScope.launch {
-                val chapterArticles = viewModel.articlesForChapter(targetArticle.chapterId)
-                val index = chapterArticles.indexOfFirst { it.bookmarkId == targetArticle.bookmarkId }
-                if (index >= 0) {
-                    ignoreScrollActiveIndexSetting = true
-                    clickedArticleIndex = index
-                    articlesLazyListState.animateScrollToItem(index)
-                }
-            }
+            navState.popToArticle(targetArticle)
         }
     }
 
     val navigateToArticleWithOrigin: (Article, Article?) -> Unit = { targetArticle, originArticle ->
-        val currentArticle = originArticle ?: run {
-            if (activeTab == DashboardTab.ARTICLES) {
-                val chapterArticles = viewModel.articlesForChapter(currentSelectedChapterId)
-                val activeArticleIndexVal = articlesLazyListState.firstVisibleItemIndex
-                chapterArticles.getOrNull(activeArticleIndexVal)
-            } else {
-                null
-            }
-        }
-        if (currentArticle != null && currentArticle.bookmarkId != targetArticle.bookmarkId) {
-            if (navigationHistory.isEmpty() || navigationHistory.last().bookmarkId != currentArticle.bookmarkId) {
-                navigationHistory.add(currentArticle)
-            }
-        }
-        currentSelectedChapterId = targetArticle.chapterId
+        navState.pushOrigin(originArticle, targetArticle, activeTab == DashboardTab.ARTICLES)
         activeTab = DashboardTab.ARTICLES
-        coroutineScope.launch {
-            val chapterArticles = viewModel.articlesForChapter(targetArticle.chapterId)
-            val index = chapterArticles.indexOfFirst { it.bookmarkId == targetArticle.bookmarkId }
-            if (index >= 0) {
-                ignoreScrollActiveIndexSetting = true
-                clickedArticleIndex = index
-                articlesLazyListState.animateScrollToItem(index)
-            }
-        }
+        navState.popToArticle(targetArticle)
     }
 
     val navigateToArticle: (Article) -> Unit = { targetArticle ->
@@ -271,7 +239,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                 NavigationBarItem(
                     selected = activeTab == DashboardTab.CHAPTERS && !isSearchActive,
                     onClick = { 
-                        navigationHistory.clear()
+                        navState.navigationHistory.clear()
                         activeTab = DashboardTab.CHAPTERS
                         isSearchActive = false
                     },
@@ -291,7 +259,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                 articlesLazyListState.animateScrollToItem(0)
                             }
                         } else {
-                            navigationHistory.clear()
+                            navState.navigationHistory.clear()
                             activeTab = DashboardTab.ARTICLES
                             isSearchActive = false
                         }
@@ -308,7 +276,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                 NavigationBarItem(
                     selected = homeSelected,
                     onClick = { 
-                        navigationHistory.clear()
+                        navState.navigationHistory.clear()
                         activeTab = DashboardTab.HOME
                         isSearchActive = false
                     },
@@ -360,7 +328,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                 NavigationBarItem(
                     selected = activeTab == DashboardTab.BOOKMARKS && !isSearchActive,
                     onClick = { 
-                        navigationHistory.clear()
+                        navState.navigationHistory.clear()
                         activeTab = DashboardTab.BOOKMARKS
                         isSearchActive = false
                     },
@@ -608,11 +576,11 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                 chapters = viewModel.chapters,
                                 articlesForChapter = viewModel::articlesForChapter,
                                 onSelectChapter = { selectedId ->
-                                    val isNewChapter = selectedId != currentSelectedChapterId
-                                    currentSelectedChapterId = selectedId
+                                    val isNewChapter = selectedId != navState.currentSelectedChapterId
+                                    navState.currentSelectedChapterId = selectedId
                                     activeTab = DashboardTab.ARTICLES
                                     if (isNewChapter) {
-                                        clickedArticleIndex = null
+                                        navState.clickedArticleIndex = null
                                         coroutineScope.launch {
                                             articlesLazyListState.scrollToItem(0)
                                         }
@@ -627,40 +595,32 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                         }
 
                         DashboardTab.ARTICLES -> {
-                            val selectedChapter = viewModel.chapters.find { it.id == currentSelectedChapterId }
+                            val selectedChapter = viewModel.chapters.find { it.id == navState.currentSelectedChapterId }
                                 ?: viewModel.chapters.first()
-                            val chapterArticles = viewModel.articlesForChapter(currentSelectedChapterId)
+                            val chapterArticles = viewModel.articlesForChapter(navState.currentSelectedChapterId)
 
                             val context = LocalContext.current
                             val activeArticleIndex by remember {
                                 derivedStateOf {
-                                    clickedArticleIndex ?: articlesLazyListState.firstVisibleItemIndex
+                                    navState.clickedArticleIndex ?: navState.articlesListState.firstVisibleItemIndex
                                 }
                             }
 
-                            LaunchedEffect(currentSelectedChapterId, activeArticleIndex) {
-                                val currentArticle = chapterArticles.getOrNull(activeArticleIndex)
-                                if (currentArticle != null && navigationHistory.isNotEmpty()) {
-                                    val indexInHistory = navigationHistory.indexOfFirst { it.bookmarkId == currentArticle.bookmarkId }
-                                    if (indexInHistory >= 0) {
-                                        while (navigationHistory.size > indexInHistory) {
-                                            navigationHistory.removeLastOrNull()
-                                        }
-                                    }
-                                }
+                            LaunchedEffect(navState.currentSelectedChapterId, activeArticleIndex) {
+                                navState.trimHistoryAt(chapterArticles.getOrNull(activeArticleIndex))
                             }
 
-                            var isQuickLinksCollapsed by remember(currentSelectedChapterId) { mutableStateOf(true) }
+                            var isQuickLinksCollapsed by remember(navState.currentSelectedChapterId) { mutableStateOf(true) }
                             var lastScrollStartTime by remember { mutableStateOf(0L) }
 
-                            LaunchedEffect(articlesLazyListState.isScrollInProgress) {
-                                if (articlesLazyListState.isScrollInProgress) {
-                                    if (!ignoreScrollActiveIndexSetting) {
-                                        clickedArticleIndex = null
+                            LaunchedEffect(navState.articlesListState.isScrollInProgress) {
+                                if (navState.articlesListState.isScrollInProgress) {
+                                    if (!navState.ignoreScrollActiveIndexSetting) {
+                                        navState.clickedArticleIndex = null
                                     }
                                     lastScrollStartTime = System.currentTimeMillis()
                                 } else {
-                                    ignoreScrollActiveIndexSetting = false
+                                    navState.ignoreScrollActiveIndexSetting = false
                                 }
                             }
 
@@ -676,7 +636,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                     .fillMaxSize()
                                     .padding(horizontal = 20.dp)
                             ) {
-                                if (navigationHistory.isNotEmpty()) {
+                                if (navState.navigationHistory.isNotEmpty()) {
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
@@ -684,22 +644,13 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.Start
                                     ) {
-                                        val lastArticle = navigationHistory.last()
+                                        val lastArticle = navState.navigationHistory.last()
                                         Surface(
                                             onClick = {
-                                                val targetArticle = navigationHistory.removeLastOrNull()
+                                                val targetArticle = navState.popBack()
                                                 if (targetArticle != null) {
-                                                    currentSelectedChapterId = targetArticle.chapterId
                                                     activeTab = DashboardTab.ARTICLES
-                                                    coroutineScope.launch {
-                                                        val chapterArticles = viewModel.articlesForChapter(targetArticle.chapterId)
-                                                        val index = chapterArticles.indexOfFirst { it.bookmarkId == targetArticle.bookmarkId }
-                                                        if (index >= 0) {
-                                                            ignoreScrollActiveIndexSetting = true
-                                                            clickedArticleIndex = index
-                                                            articlesLazyListState.animateScrollToItem(index)
-                                                        }
-                                                    }
+                                                    navState.popToArticle(targetArticle)
                                                 }
                                             },
                                             shape = RoundedCornerShape(12.dp),
@@ -843,11 +794,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                                             .border(borderStroke, CircleShape)
                                                             .testTag("quick_link_chip_$index")
                                                             .clickable {
-                                                                ignoreScrollActiveIndexSetting = true
-                                                                clickedArticleIndex = index
-                                                                coroutineScope.launch {
-                                                                    articlesLazyListState.animateScrollToItem(index)
-                                                                }
+                                                                navState.jumpToArticleIndex(index)
                                                                 isQuickLinksCollapsed = true
                                                             },
                                                         contentAlignment = Alignment.Center
@@ -868,7 +815,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                 }
 
                                 LazyColumn(
-                                    state = articlesLazyListState,
+                                    state = navState.articlesListState,
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .padding(top = 10.dp),
