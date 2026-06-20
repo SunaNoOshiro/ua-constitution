@@ -1,0 +1,42 @@
+# Focused detekt configuration for the SOLID/complexity refactor.
+# Intentionally narrow: we only measure the metrics the refactor targets
+# (cyclomatic complexity, parameter count, nesting, method length) so the
+# before/after report is signal, not style noise. buildUponDefaultConfig is
+# left false in the Gradle block so ONLY these rules run.
+
+build:
+  maxIssues: 0             # fail on any finding NOT in config/detekt/baseline.xml (regression gate)
+  excludeCorrectable: false
+
+config:
+  validation: true
+  warningsAsErrors: false
+
+complexity:
+  active: true
+  CyclomaticComplexMethod:
+    active: true
+    threshold: 9          # flag functions with CC > 8 (the task target is <= 8)
+    ignoreSingleWhenExpression: false
+    ignoreSimpleWhenEntries: false
+    ignoreNestingFunctions: false
+  CognitiveComplexMethod:
+    active: true
+    threshold: 15
+  LongParameterList:
+    active: true
+    functionThreshold: 9  # flag functions with > 8 params
+    constructorThreshold: 9
+    ignoreDefaultParameters: false
+    ignoreDataClasses: true
+  LongMethod:
+    active: true
+    threshold: 60
+  NestedBlockDepth:
+    active: true
+    threshold: 5
+  TooManyFunctions:
+    active: false         # not a refactor target; would be noise
+  LargeClass:
+    active: true
+    threshold: 600

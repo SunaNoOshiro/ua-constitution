@@ -7,6 +7,18 @@ plugins {
   alias(libs.plugins.google.devtools.ksp)
   alias(libs.plugins.roborazzi)
   alias(libs.plugins.secrets)
+  alias(libs.plugins.detekt)
+}
+
+// Dev-only static analysis. Narrow, complexity-focused config (see config/detekt/detekt.yml)
+// so the report measures exactly the refactor targets: cyclomatic complexity (<= 8),
+// parameter count (<= 8), nesting and method length. A baseline records the accepted
+// pre-existing findings (the irreducible declarative @Composable shells) so the build stays green.
+detekt {
+  buildUponDefaultConfig = false
+  config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
+  baseline = file("$rootDir/config/detekt/baseline.xml")
+  parallel = true
 }
 
 android {
