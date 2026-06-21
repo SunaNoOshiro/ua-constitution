@@ -37,7 +37,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -114,12 +113,6 @@ fun SegmentedTextWithEdits(
     editing: SegmentEditing = SegmentEditing()
 ) {
     val context = LocalContext.current
-    // Unpack the grouped text-style object into the names the body already uses (display-only).
-    val style = textStyle.style
-    val color = textStyle.color
-    val lineHeight = textStyle.lineHeight
-    val fontWeight = textStyle.fontWeight
-    val fontStyle = textStyle.fontStyle
     // Unpack the grouped editing object into the names the body already uses.
     val onUpdateRanges = editing.onUpdateRanges
     val selectedMarkerColorHex = editing.selectedMarkerColorHex
@@ -316,13 +309,7 @@ fun SegmentedTextWithEdits(
                     },
                     readOnly = true,
                     cursorBrush = androidx.compose.ui.graphics.SolidColor(Color.Transparent),
-                    textStyle = style.copy(
-                        color = color,
-                        lineHeight = lineHeight,
-                        fontWeight = fontWeight,
-                        fontStyle = fontStyle ?: style.fontStyle,
-                        textAlign = TextAlign.Start
-                    ),
+                    textStyle = textStyle.toTextStyle(),
                     onTextLayout = { textLayoutResult = it },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -414,13 +401,7 @@ fun SegmentedTextWithEdits(
     } else {
         androidx.compose.material3.Text(
             text = annotatedString,
-            style = style.copy(
-                color = color,
-                lineHeight = lineHeight,
-                fontWeight = fontWeight,
-                fontStyle = fontStyle ?: style.fontStyle,
-                textAlign = TextAlign.Start
-            ),
+            style = textStyle.toTextStyle(),
             onTextLayout = { textLayoutResult = it },
             modifier = modifier
                 .drawWithContent(drawStyledOverlay)
@@ -594,12 +575,6 @@ fun SegmentedText(
     resolveArticleLink: ((String) -> Article?)? = null
 ) {
     val context = LocalContext.current
-    // Unpack the grouped text-style object into the names the body already uses (display-only).
-    val style = textStyle.style
-    val color = textStyle.color
-    val lineHeight = textStyle.lineHeight
-    val fontWeight = textStyle.fontWeight
-    val fontStyle = textStyle.fontStyle
 
     // Merge adjacent link segments that share the same URL to prevent split link issues (e.g., 149-1)
     val mergedSegments = remember(segments) { mergeAdjacentLinkSegments(segments) }
@@ -628,13 +603,7 @@ fun SegmentedText(
 
     androidx.compose.foundation.text.ClickableText(
         text = annotatedString,
-        style = style.copy(
-            color = color,
-            lineHeight = lineHeight,
-            fontWeight = fontWeight,
-            fontStyle = fontStyle ?: style.fontStyle,
-            textAlign = TextAlign.Start
-        ),
+        style = textStyle.toTextStyle(),
         modifier = modifier,
         onClick = { offset ->
             annotatedString.getStringAnnotations(tag = Constants.ANNOTATION_TAG_URL, start = offset, end = offset)

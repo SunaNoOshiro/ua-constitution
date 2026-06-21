@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 
@@ -22,3 +23,17 @@ data class SegmentTextStyle(
     val fontWeight: FontWeight = FontWeight.Medium,
     val fontStyle: FontStyle? = null,
 )
+
+/**
+ * The effective [TextStyle] for rendering: the base [SegmentTextStyle.style] with the grouped
+ * overrides applied and Start alignment. The reader composables built this identically inline in
+ * three places (editable BasicTextField, read-only Text, read-only ClickableText).
+ */
+fun SegmentTextStyle.toTextStyle(): TextStyle =
+    style.copy(
+        color = color,
+        lineHeight = lineHeight,
+        fontWeight = fontWeight,
+        fontStyle = fontStyle ?: style.fontStyle,
+        textAlign = TextAlign.Start,
+    )
