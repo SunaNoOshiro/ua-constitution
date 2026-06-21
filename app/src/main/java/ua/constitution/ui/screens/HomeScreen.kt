@@ -147,6 +147,26 @@ fun UkrainianCoatOfArms(
     )
 }
 
+/**
+ * The Ukrainian state flag as two equal stripes. Vertical (default) is blue-over-gold; [horizontal]
+ * is the 90°-rotated form, gold-left / blue-right. Shared by the Home national-symbols preview and
+ * the fullscreen flag view, which were two separate inline Column/Row implementations.
+ */
+@Composable
+fun UkrainianFlag(modifier: Modifier = Modifier, horizontal: Boolean = false) {
+    if (horizontal) {
+        Row(modifier = modifier) {
+            Box(modifier = Modifier.fillMaxHeight().weight(1f).background(FlagGold))
+            Box(modifier = Modifier.fillMaxHeight().weight(1f).background(FlagBlue))
+        }
+    } else {
+        Column(modifier = modifier) {
+            Box(modifier = Modifier.fillMaxWidth().weight(1f).background(FlagBlue))
+            Box(modifier = Modifier.fillMaxWidth().weight(1f).background(FlagGold))
+        }
+    }
+}
+
 @Composable
 fun AudioWaveformVisualizer(
     isPlaying: Boolean,
@@ -341,26 +361,13 @@ fun NationalSymbolsCard(onOpenFullscreenSymbol: (FullscreenSymbol) -> Unit) {
                 horizontalArrangement = Arrangement.Center
             ) {
                 // 1. National Flag
-                Column(
+                UkrainianFlag(
                     modifier = Modifier
                         .size(width = 130.dp, height = 86.dp)
                         .shadow(4.dp, RoundedCornerShape(12.dp))
                         .clip(RoundedCornerShape(12.dp))
                         .clickable { onOpenFullscreenSymbol(FullscreenSymbol.FLAG) }
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .background(FlagBlue) // Sovereign blue
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .background(FlagGold) // Golden yellow
-                    )
-                }
+                )
 
                 Spacer(modifier = Modifier.width(28.dp))
 

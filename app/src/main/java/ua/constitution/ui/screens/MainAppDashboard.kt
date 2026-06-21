@@ -623,42 +623,8 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                 contentAlignment = Alignment.Center
             ) {
                 if (fullscreenSymbol == FullscreenSymbol.FLAG) {
-                    Box(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        if (!isRotated) {
-                            Column(modifier = Modifier.fillMaxSize()) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .weight(1f)
-                                        .background(FlagBlue) // Sovereign blue
-                                )
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .weight(1f)
-                                        .background(FlagGold) // Golden yellow
-                                )
-                            }
-                        } else {
-                            // Rotated 90°: Yellow on Left, Blue on Right
-                            Row(modifier = Modifier.fillMaxSize()) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxHeight()
-                                        .weight(1f)
-                                        .background(FlagGold) // Golden yellow on left
-                                )
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxHeight()
-                                        .weight(1f)
-                                        .background(FlagBlue) // Sovereign blue on right
-                                )
-                            }
-                        }
-                    }
+                    // Rotated 90° shows the gold-left / blue-right form.
+                    UkrainianFlag(modifier = Modifier.fillMaxSize(), horizontal = isRotated)
                 } else if (fullscreenSymbol == FullscreenSymbol.COAT_OF_ARMS) {
                     BoxWithConstraints(
                         modifier = Modifier.fillMaxSize(),
