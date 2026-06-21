@@ -29,9 +29,6 @@ class ConstitutionViewModel(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
-    private val _selectedChapterId = MutableStateFlow<Int?>(null)
-    val selectedChapterId: StateFlow<Int?> = _selectedChapterId.asStateFlow()
-
     // --- Bookmarks ---
     val bookmarks: StateFlow<List<BookmarkEntity>> = repository.allBookmarks
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -41,15 +38,12 @@ class ConstitutionViewModel(
         _searchQuery.value = query
     }
 
-    fun selectChapter(chapterId: Int?) {
-        _selectedChapterId.value = if (_selectedChapterId.value == chapterId) null else chapterId
-    }
-
-    // Reactive list of Articles matching search query
+    // Reactive list of Articles matching the search query. Search is always global (the per-chapter
+    // scope of searchArticles is exercised by ArticleSearchTest, but the UI never scoped it — the
+    // former selectChapter/_selectedChapterId plumbing was dead, so the chapterId is always null).
     val filteredArticles: StateFlow<List<Article>> = _searchQuery
-        .combine(_selectedChapterId) { query, chapterId ->
-            searchArticles(contentSource.articles, query, chapterId)
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), contentSource.articles)
+        .map { query -> searchArticles(contentSource.articles, query, null) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), contentSource.articles)
 
     // --- Content read accessors -----------------------------------------------------------------
     // Plain getters/functions (deliberately NOT StateFlows/derivedStateOf) so composables read

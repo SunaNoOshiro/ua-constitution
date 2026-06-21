@@ -11,7 +11,6 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -74,21 +73,9 @@ class ConstitutionViewModelTest {
         assertEquals(4, viewModel.filteredArticles.value.size)
     }
 
-    @Test
-    fun `empty query with a selected chapter returns only that chapter`() = runTest(testDispatcher) {
-        backgroundScope.launch { viewModel.filteredArticles.collect() }
-        viewModel.selectChapter(1)
-        assertEquals(listOf(1, 2), viewModel.filteredArticles.value.map { it.id })
-    }
-
-    @Test
-    fun `CHARACTERIZATION a non-empty query performs a global search and ignores the chapter filter`() = runTest(testDispatcher) {
-        backgroundScope.launch { viewModel.filteredArticles.collect() }
-        viewModel.selectChapter(2)        // would normally restrict to chapter 2
-        viewModel.setSearchQuery("1")     // matches article 1 (chapter 1) by id and title
-        val ids = viewModel.filteredArticles.value.map { it.id }
-        assertTrue("global search should surface article 1 from chapter 1", ids.contains(1))
-    }
+    // (Chapter-scoped search and the "non-empty query ignores chapter scope" quirk are covered at
+    //  the domain level by ArticleSearchTest; the ViewModel no longer carries the chapter-select
+    //  plumbing, so those ViewModel-level tests were removed with it.)
 
     @Test
     fun `CHARACTERIZATION id match is exact OR substring so '2' matches both 2 and 20`() = runTest(testDispatcher) {
@@ -126,23 +113,6 @@ class ConstitutionViewModelTest {
         backgroundScope.launch { viewModel.filteredArticles.collect() }
         viewModel.setSearchQuery("zzzzz")
         assertTrue(viewModel.filteredArticles.value.isEmpty())
-    }
-
-    // --- chapter / article selection ------------------------------------------------------------
-
-    @Test
-    fun `CHARACTERIZATION selecting the same chapter twice toggles it back off`() {
-        viewModel.selectChapter(1)
-        assertEquals(1, viewModel.selectedChapterId.value)
-        viewModel.selectChapter(1)
-        assertNull(viewModel.selectedChapterId.value)
-    }
-
-    @Test
-    fun `selecting a different chapter replaces the current one`() {
-        viewModel.selectChapter(1)
-        viewModel.selectChapter(2)
-        assertEquals(2, viewModel.selectedChapterId.value)
     }
 
     // --- bookmarking ----------------------------------------------------------------------------
