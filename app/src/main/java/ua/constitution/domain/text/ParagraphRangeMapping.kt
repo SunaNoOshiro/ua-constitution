@@ -2,6 +2,7 @@ package ua.constitution.domain.text
 
 import ua.constitution.data.model.ContentSegment
 import ua.constitution.data.model.Paragraph
+import ua.constitution.utils.Constants
 
 /**
  * Pure coordinate math mapping per-paragraph [StyledRange]s to/from a single "combined" text
@@ -20,7 +21,7 @@ object ParagraphRangeMapping {
         paragraphs.forEachIndexed { index, paragraph ->
             result.addAll(paragraph.content)
             if (index < paragraphs.lastIndex) {
-                result.add(ContentSegment(type = "text", value = "\n\n"))
+                result.add(ContentSegment(type = Constants.TYPE_TEXT, value = "\n\n"))
             }
         }
         return result

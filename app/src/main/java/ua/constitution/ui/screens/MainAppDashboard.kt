@@ -314,7 +314,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                             color = SovereignBlue.copy(alpha = 0.75f),
                             modifier = Modifier
                                 .clickable {
-                                    openExternalUrl(context, "https://zakon.rada.gov.ua/laws/show/254%D0%BA/96-%D0%B2%D1%80")
+                                    openExternalUrl(context, Constants.DEFAULT_RADA_URL)
                                 }
                         )
                     }

@@ -108,7 +108,7 @@ fun SegmentedTextWithEdits(
     val mergedSegments = remember(segments) { mergeAdjacentLinkSegments(segments) }
 
     val originalText = remember(mergedSegments) {
-        mergedSegments.joinToString("") { if (it.type == "link") it.text else it.value }
+        mergedSegments.joinToString("") { if (it.type == Constants.TYPE_LINK) it.text else it.value }
     }
 
     val formattedText = remember(originalText) {
@@ -174,7 +174,7 @@ fun SegmentedTextWithEdits(
         buildAnnotatedString {
             var originalOffset = 0
             mergedSegments.forEach { segment ->
-                val segLen = (if (segment.type == "link") segment.text else segment.value).length
+                val segLen = (if (segment.type == Constants.TYPE_LINK) segment.text else segment.value).length
                 val startOrig = originalOffset
                 val endOrig = originalOffset + segLen
                 
@@ -183,8 +183,8 @@ fun SegmentedTextWithEdits(
                 
                 val textToAppend = formattedText.substring(startForm, endForm)
                 
-                if (segment.type == "link") {
-                    pushStringAnnotation(tag = "URL", annotation = "${segment.url}|${segment.text}")
+                if (segment.type == Constants.TYPE_LINK) {
+                    pushStringAnnotation(tag = Constants.ANNOTATION_TAG_URL, annotation = "${segment.url}|${segment.text}")
                     withStyle(
                         style = SpanStyle(
                             color = SovereignBlue,
@@ -416,7 +416,7 @@ fun SegmentedTextWithEdits(
                                 textLayoutResult?.let { layoutResult ->
                                     val position = layoutResult.getOffsetForPosition(offset)
                                     if (position in 0..annotatedString.length) {
-                                        annotatedString.getStringAnnotations(tag = "URL", start = position, end = position)
+                                        annotatedString.getStringAnnotations(tag = Constants.ANNOTATION_TAG_URL, start = position, end = position)
                                             .firstOrNull()?.let { annotation ->
                                                 try {
                                                     handleLinkAnnotationTap(
@@ -476,21 +476,21 @@ fun SegmentedTextWithEdits(
             textFieldValue = textFieldValue.copy(selection = androidx.compose.ui.text.TextRange.Zero)
             menuRect = null
             menuCallbacks = null
-            applyStyleToRange(mappedStart, mappedEnd, "MARKER", colorHex)
+            applyStyleToRange(mappedStart, mappedEnd, Constants.TOOL_MARKER, colorHex)
             onSelectedMarkerColorChange?.invoke(colorHex)
         }
         val applyUnderline: (String) -> Unit = { colorHex ->
             textFieldValue = textFieldValue.copy(selection = androidx.compose.ui.text.TextRange.Zero)
             menuRect = null
             menuCallbacks = null
-            applyStyleToRange(mappedStart, mappedEnd, "UNDERLINE", colorHex)
+            applyStyleToRange(mappedStart, mappedEnd, Constants.TOOL_UNDERLINE, colorHex)
             onSelectedUnderlineColorChange?.invoke(colorHex)
         }
         val applyEraser: () -> Unit = {
             textFieldValue = textFieldValue.copy(selection = androidx.compose.ui.text.TextRange.Zero)
             menuRect = null
             menuCallbacks = null
-            applyStyleToRange(mappedStart, mappedEnd, "ERASER", "#FFFFFF")
+            applyStyleToRange(mappedStart, mappedEnd, Constants.TOOL_ERASER, "#FFFFFF")
         }
         val performCopy: () -> Unit = {
             if (fullArticleTextToCopy != null && selStart == 0 && selEnd == textFieldValue.text.length) {
@@ -610,8 +610,8 @@ fun SegmentedText(
     val annotatedString = remember(mergedSegments) {
         buildAnnotatedString {
             mergedSegments.forEach { segment ->
-                if (segment.type == "link") {
-                    pushStringAnnotation(tag = "URL", annotation = "${segment.url}|${segment.text}")
+                if (segment.type == Constants.TYPE_LINK) {
+                    pushStringAnnotation(tag = Constants.ANNOTATION_TAG_URL, annotation = "${segment.url}|${segment.text}")
                     withStyle(
                         style = SpanStyle(
                             color = SovereignBlue,
@@ -640,7 +640,7 @@ fun SegmentedText(
         ),
         modifier = modifier,
         onClick = { offset ->
-            annotatedString.getStringAnnotations(tag = "URL", start = offset, end = offset)
+            annotatedString.getStringAnnotations(tag = Constants.ANNOTATION_TAG_URL, start = offset, end = offset)
                 .firstOrNull()?.let { annotation ->
                     try {
                         handleLinkAnnotationTap(
@@ -766,7 +766,7 @@ internal fun SelectionToolbarPopup(
                         showedColorPickerMode = null
                     }
                 )
-            } else if (showedColorPickerMode == "UNDERLINE") {
+            } else if (showedColorPickerMode == Constants.TOOL_UNDERLINE) {
                 ColorPickerRow(
                     colors = underlineColors,
                     selectedColorHex = lastUnderlineColor,
@@ -832,7 +832,7 @@ internal fun SelectionToolbarPopup(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(6.dp))
                                         .testTag("toolbar_marker_picker")
-                                        .clickable { showedColorPickerMode = "MARKER" }
+                                        .clickable { showedColorPickerMode = Constants.TOOL_MARKER }
                                         .padding(horizontal = 4.dp, vertical = 4.dp)
                                 ) {
                                     Box(
@@ -884,7 +884,7 @@ internal fun SelectionToolbarPopup(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(6.dp))
                                         .testTag("toolbar_underline_picker")
-                                        .clickable { showedColorPickerMode = "UNDERLINE" }
+                                        .clickable { showedColorPickerMode = Constants.TOOL_UNDERLINE }
                                         .padding(horizontal = 4.dp, vertical = 4.dp)
                                 ) {
                                     Box(
@@ -1181,9 +1181,9 @@ fun GlobalFormattingPanel(
         }
 
         // --- Active Color Palette ---
-        if (activeTool == "MARKER" || activeTool == "UNDERLINE") {
-            val activeColors = if (activeTool == "MARKER") markerColors else underlineColors
-            val currentColor = if (activeTool == "MARKER") lastMarkerColor else lastUnderlineColor
+        if (activeTool == Constants.TOOL_MARKER || activeTool == Constants.TOOL_UNDERLINE) {
+            val activeColors = if (activeTool == Constants.TOOL_MARKER) markerColors else underlineColors
+            val currentColor = if (activeTool == Constants.TOOL_MARKER) lastMarkerColor else lastUnderlineColor
 
             Spacer(modifier = Modifier.height(2.dp))
 
@@ -1218,7 +1218,7 @@ fun GlobalFormattingPanel(
                             Icon(
                                 imageVector = Icons.Default.Check,
                                 contentDescription = stringResource(R.string.state_selected),
-                                tint = if (activeTool == "MARKER") SlateDark else Color.White,
+                                tint = if (activeTool == Constants.TOOL_MARKER) SlateDark else Color.White,
                                 modifier = Modifier.size(16.dp)
                             )
                         }

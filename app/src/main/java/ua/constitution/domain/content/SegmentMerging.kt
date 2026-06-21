@@ -1,6 +1,7 @@
 package ua.constitution.domain.content
 
 import ua.constitution.data.model.ContentSegment
+import ua.constitution.utils.Constants
 
 /**
  * Merges consecutive "link" segments that share the same URL into a single segment (concatenating
@@ -14,7 +15,7 @@ fun mergeAdjacentLinkSegments(segments: List<ContentSegment>): List<ContentSegme
     val result = mutableListOf<ContentSegment>()
     var currentLink: ContentSegment? = null
     for (segment in segments) {
-        if (segment.type == "link") {
+        if (segment.type == Constants.TYPE_LINK) {
             if (currentLink != null && currentLink.url == segment.url) {
                 currentLink = currentLink.copy(text = currentLink.text + segment.text)
             } else {

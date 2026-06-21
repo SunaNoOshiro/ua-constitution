@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ua.constitution.data.model.Paragraph
 import ua.constitution.data.model.Article
+import ua.constitution.utils.Constants
 import ua.constitution.ui.theme.*
 import ua.constitution.ui.viewmodel.ConstitutionViewModel
 import ua.constitution.audio.computeWaveformBarStates
@@ -186,7 +187,7 @@ fun HomeTabContent(
         val calendar = Calendar.getInstance()
         val dayOfYear = calendar.get(Calendar.DAY_OF_YEAR)
         viewModel.articleOfDay(dayOfYear)
-            ?: Article(1, 1, "${context.getString(R.string.article_label)} 1", listOf(Paragraph(listOf(ua.constitution.data.model.ContentSegment("text", value = context.getString(R.string.article_1_fallback_content))), emptyList())))
+            ?: Article(1, 1, "${context.getString(R.string.article_label)} 1", listOf(Paragraph(listOf(ua.constitution.data.model.ContentSegment(Constants.TYPE_TEXT, value = context.getString(R.string.article_1_fallback_content))), emptyList())))
     }
     val isTodayBookmarked = bookmarksList.any { it.articleId == todayArticle.bookmarkId }
 
