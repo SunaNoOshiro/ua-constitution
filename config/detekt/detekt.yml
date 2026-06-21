@@ -40,3 +40,8 @@ complexity:
   LargeClass:
     active: true
     threshold: 600
+
+style:
+  active: true
+  UnusedImports:
+    active: true          # keep import headers clean (esp. the large UI files)

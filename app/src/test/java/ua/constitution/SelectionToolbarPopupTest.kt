@@ -3,7 +3,6 @@ package ua.constitution
 import android.content.Context
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
