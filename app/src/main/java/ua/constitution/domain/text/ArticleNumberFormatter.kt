@@ -22,6 +22,19 @@ object ArticleNumberFormatter {
     }
 
     /**
+     * The value an article number sorts by. A fractional article sorts at base.suffix
+     * (16¹ -> 16.1, 129¹ -> 129.1); everything else at its integer id. The fractional split is taken
+     * from [isFractional]/[fractionalParts], so the "chapterId 15 + id 161 = 16¹" disambiguation
+     * lives in ONE place (shared with [format]). This corrects the former inline `if (id > 1000)`
+     * sort, which left 16¹ (encoded 161, <= 1000) at 161.0 — after article 160 — instead of 16.1.
+     */
+    fun sortKey(id: Int, chapterId: Int): Double {
+        if (!isFractional(id, chapterId)) return id.toDouble()
+        val (base, suffix) = fractionalParts(id, chapterId)
+        return base.toDouble() + suffix.toDouble() / 10.0
+    }
+
+    /**
      * [format], but returns [preambleLabel] for the preamble (id == 0). Lets the UI keep resolving
      * the localized preamble string while the id == 0 branch becomes pure and unit-testable.
      */

@@ -8,6 +8,7 @@ import ua.constitution.data.model.ContentSegment
 import ua.constitution.data.model.Link
 import ua.constitution.data.model.Note
 import ua.constitution.data.model.Paragraph
+import ua.constitution.domain.text.ArticleNumberFormatter
 import ua.constitution.utils.Constants
 
 /** The parsed constitution: ordered articles and chapters. */
@@ -36,7 +37,7 @@ class ConstitutionJsonDeserializer(private val context: Context) {
             chapters.add(parseChapter(chObj))
         }
 
-        articles.sortBy { articleSortKey(it.id) }
+        articles.sortBy { ArticleNumberFormatter.sortKey(it.id, it.chapterId) }
 
         return ParsedConstitution(articles, chapters)
     }
