@@ -122,6 +122,7 @@ import ua.constitution.ui.model.DashboardTab
 import ua.constitution.ui.model.FullscreenSymbol
 import ua.constitution.domain.title.parseArticleTitle
 import ua.constitution.domain.bookmark.BookmarkEditsParser
+import ua.constitution.domain.bookmark.reconcileEditsOnInput
 import ua.constitution.domain.text.ArticleNumberFormatter
 import ua.constitution.domain.text.BackNavigationTarget
 import ua.constitution.domain.text.backNavigationTarget
@@ -180,17 +181,8 @@ fun ArticleCard(
     }
     
     LaunchedEffect(initialEditsJson, isEditable) {
-        if (isEditable) {
-            if (lastSavedJson.isNotEmpty() && initialEditsJson == lastSavedJson) {
-                lastSavedJson = ""
-            } else {
-                localEdits = BookmarkEditsParser.parse(initialEditsJson)
-                lastSavedJson = ""
-            }
-        } else {
-            localEdits = emptyMap()
-            lastSavedJson = ""
-        }
+        reconcileEditsOnInput(initialEditsJson, isEditable, lastSavedJson)?.let { localEdits = it }
+        lastSavedJson = ""
     }
 
     if (showRemoveConfirmDialog) {
