@@ -27,7 +27,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -41,11 +40,11 @@ import ua.constitution.data.model.Article
 import ua.constitution.data.model.Chapter
 import ua.constitution.ui.theme.*
 import ua.constitution.ui.viewmodel.ConstitutionViewModel
-import androidx.compose.ui.graphics.graphicsLayer
 import ua.constitution.ui.model.DashboardTab
 import ua.constitution.ui.model.FullscreenSymbol
 import ua.constitution.domain.content.ChapterRangeKind
 import ua.constitution.domain.content.chapterRangeKind
+import ua.constitution.ui.ImmersiveFullscreenEffect
 import ua.constitution.ui.openExternalUrl
 import ua.constitution.ui.isBookmarked
 import ua.constitution.ui.editsJsonFor
@@ -58,45 +57,9 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
     var isSearchActive by remember { mutableStateOf(false) } // Controls immediate search bar drop
 
     var fullscreenSymbol by remember { mutableStateOf(FullscreenSymbol.NONE) }
-    var isRotated by remember { mutableStateOf(false) }
-    var showBadge by remember { mutableStateOf(true) }
 
-    LaunchedEffect(fullscreenSymbol) {
-        isRotated = false
-        
-        // Find hosting activity to toggle immersive system bar states
-        var currentContext = context
-        var activity: android.app.Activity? = null
-        while (currentContext is android.content.ContextWrapper) {
-            if (currentContext is android.app.Activity) {
-                activity = currentContext
-                break
-            }
-            currentContext = currentContext.baseContext
-        }
-        
-        activity?.window?.let { win ->
-            val controller = androidx.core.view.WindowCompat.getInsetsController(win, win.decorView)
-            if (fullscreenSymbol != FullscreenSymbol.NONE) {
-                // Completely hide status and navigation bars via both flag and insets controller
-                win.addFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN)
-                controller.hide(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-                controller.systemBarsBehavior = androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            } else {
-                // Restore system bars and flags
-                win.clearFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN)
-                controller.show(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-                win.statusBarColor = android.graphics.Color.TRANSPARENT
-                controller.isAppearanceLightStatusBars = true
-            }
-        }
-
-        if (fullscreenSymbol != FullscreenSymbol.NONE) {
-            showBadge = true
-            kotlinx.coroutines.delay(2000L)
-            showBadge = false
-        }
-    }
+    // Immersive (system-bars-hidden) window mode while a symbol is shown full-screen.
+    ImmersiveFullscreenEffect(active = fullscreenSymbol != FullscreenSymbol.NONE)
 
     val searchQuery by viewModel.searchQuery.collectAsState()
     val filteredArticles by viewModel.filteredArticles.collectAsState()
@@ -189,30 +152,16 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                         isSearchActive = false
                     },
                     icon = {
-                        Box(
-                            modifier = Modifier
-                                .size(44.dp)
-                                .shadow(if (homeSelected) 6.dp else 2.dp, CircleShape)
-                                .clip(CircleShape)
-                                .background(
-                                    Brush.radialGradient(
-                                        colors = if (homeSelected) {
-                                            listOf(BrightBlue, SovereignBlue)
-                                        } else {
-                                            listOf(BrightBlue.copy(alpha = 0.85f), SovereignBlue.copy(alpha = 0.82f))
-                                        }
-                                    )
-                                )
-                                .border(1.5.dp, SunflowerYellow, CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            UkrainianCoatOfArms(
-                                useIsolated = true,
-                                modifier = Modifier
-                                    .size(28.dp)
-                                    .padding(1.dp)
-                            )
-                        }
+                        CoatOfArmsBadge(
+                            badgeSize = 44.dp,
+                            shadowElevation = if (homeSelected) 6.dp else 2.dp,
+                            gradientColors = if (homeSelected) {
+                                listOf(BrightBlue, SovereignBlue)
+                            } else {
+                                listOf(BrightBlue.copy(alpha = 0.85f), SovereignBlue.copy(alpha = 0.82f))
+                            },
+                            coatSize = 28.dp
+                        )
                     },
                     colors = NavigationBarItemDefaults.colors(
                         indicatorColor = Color.Transparent // Clean circular feel
@@ -275,29 +224,12 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                     horizontalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     // Coat of arms (Герб України) inside a beautiful circular badge to prevent shadow bleed-through
-                    Box(
-                        modifier = Modifier
-                            .size(46.dp)
-                            .shadow(3.dp, CircleShape)
-                            .clip(CircleShape)
-                            .background(
-                                Brush.radialGradient(
-                                    colors = listOf(
-                                        BrightBlue, // Bright center blue
-                                        SovereignBlue  // Regal sovereign blue
-                                    )
-                                )
-                            )
-                            .border(1.5.dp, SunflowerYellow, CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        UkrainianCoatOfArms(
-                            useIsolated = true,
-                            modifier = Modifier
-                                .size(30.dp)
-                                .padding(1.dp)
-                        )
-                    }
+                    CoatOfArmsBadge(
+                        badgeSize = 46.dp,
+                        shadowElevation = 3.dp,
+                        gradientColors = listOf(BrightBlue, SovereignBlue),
+                        coatSize = 30.dp
+                    )
 
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
@@ -421,48 +353,13 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                     .fillMaxWidth()
             ) {
                 if (isSearchActive) {
-                    // Universal in-place search results list 
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 20.dp)
-                    ) {
-                        LazyColumn(
-                            verticalArrangement = Arrangement.spacedBy(14.dp),
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            if (filteredArticles.isEmpty()) {
-                                item {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(top = 40.dp),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = if (searchQuery.isBlank()) stringResource(R.string.search_prompt_input) else stringResource(R.string.search_no_results),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = SovereignBlue.copy(alpha = 0.7f),
-                                            textAlign = TextAlign.Center
-                                        )
-                                    }
-                                }
-                            } else {
-                                items(filteredArticles) { article ->
-                                    val isBookmarked = bookmarksList.isBookmarked(article)
-                                    val editsJson = bookmarksList.editsJsonFor(article)
-                                    ArticleCard(
-                                        article = article,
-                                        isBookmarked = isBookmarked,
-                                        initialEditsJson = editsJson,
-                                        onToggleBookmark = { viewModel.toggleBookmark(article.bookmarkId) },
-                                        onArticleClick = { target -> navigateToArticleWithOrigin(target, article) },
-                                        resolveArticleLink = viewModel::resolveLink
-                                    )
-                                }
-                            }
-                        }
-                    }
+                    SearchResultsContent(
+                        viewModel = viewModel,
+                        filteredArticles = filteredArticles,
+                        searchQuery = searchQuery,
+                        bookmarksList = bookmarksList,
+                        onNavigateToArticle = navigateToArticleWithOrigin
+                    )
                 } else {
                     // Normal app tabs (Chapters, Articles list, or Bookmarks)
                     when (activeTab) {
@@ -523,129 +420,14 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
     }
 
         if (fullscreenSymbol != FullscreenSymbol.NONE) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(if (fullscreenSymbol == FullscreenSymbol.COAT_OF_ARMS) CoatOfArmsBlue else Color.Black)
-                    .clickable {
-                        if (!isRotated) {
-                            isRotated = true
-                        } else {
-                            fullscreenSymbol = FullscreenSymbol.NONE
-                        }
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                if (fullscreenSymbol == FullscreenSymbol.FLAG) {
-                    // Rotated 90° shows the gold-left / blue-right form.
-                    UkrainianFlag(modifier = Modifier.fillMaxSize(), horizontal = isRotated)
-                } else if (fullscreenSymbol == FullscreenSymbol.COAT_OF_ARMS) {
-                    BoxWithConstraints(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        val tryzubRatio = 165f / 230.5f
-                        val sizeFraction = if (isRotated) {
-                            val targetHeight = maxWidth * 0.85f
-                            minOf(targetHeight, maxHeight * 0.85f / tryzubRatio)
-                        } else {
-                            val targetHeight = maxHeight * 0.7f
-                            val targetWidth = maxWidth * 0.85f
-                            minOf(targetHeight, targetWidth / tryzubRatio)
-                        }
-
-                        Box(
-                            modifier = Modifier
-                                .size(sizeFraction)
-                                .graphicsLayer {
-                                    rotationZ = if (isRotated) 90f else 0f
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            UkrainianCoatOfArms(
-                                modifier = Modifier
-                                    .size(width = sizeFraction * tryzubRatio, height = sizeFraction)
-                            )
-                        }
-                    }
-                }
-
-                // Floating instruction badge at the bottom
-                if (showBadge) {
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(bottom = 50.dp)
-                            .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(20.dp))
-                            .padding(horizontal = 20.dp, vertical = 10.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.symbol_view_hint),
-                            color = Color.White,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-            }
+            FullscreenSymbolOverlay(
+                symbol = fullscreenSymbol,
+                onDismiss = { fullscreenSymbol = FullscreenSymbol.NONE }
+            )
         }
 
-        // Floating custom banner/toast overlay
         activeEditingWarningMessage?.let { msg ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(start = 24.dp, end = 24.dp, bottom = 96.dp), // floats above bottom navigation bar
-                contentAlignment = Alignment.BottomCenter
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = SlateDark.copy(alpha = 0.95f),
-                    tonalElevation = 8.dp,
-                    shadowElevation = 8.dp,
-                    border = BorderStroke(1.dp, SlateText),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .animateContentSize()
-                ) {
-                    Row(
-                        modifier = Modifier.padding(14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Info,
-                            contentDescription = null,
-                            tint = SunflowerYellow,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Text(
-                            text = msg,
-                            color = Color.White,
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.weight(1f)
-                        )
-                        IconButton(
-                            onClick = { activeEditingWarningMessage = null },
-                            modifier = Modifier.size(24.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = stringResource(R.string.close_text),
-                                tint = Color.White.copy(alpha = 0.6f),
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                    }
-                }
-            }
-            LaunchedEffect(msg) {
-                kotlinx.coroutines.delay(4000L)
-                if (activeEditingWarningMessage == msg) {
-                    activeEditingWarningMessage = null
-                }
-            }
+            EditingWarningToast(message = msg, onDismiss = { activeEditingWarningMessage = null })
         }
     }
 
