@@ -1,10 +1,6 @@
 package ua.constitution
 
 import ua.constitution.utils.Constants
-import android.content.Context
-import android.content.ClipboardManager
-import android.content.ClipData
-import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
@@ -18,7 +14,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -47,6 +42,7 @@ import ua.constitution.domain.text.formatArticleForCopy
 import ua.constitution.domain.text.StyledRange
 import ua.constitution.domain.text.ParagraphRangeMapping
 import ua.constitution.ui.openExternalUrl
+import ua.constitution.ui.copyToClipboardWithToast
 
 @Composable
 fun ArticleCard(
@@ -149,15 +145,11 @@ fun ArticleCard(
 
                 IconButton(
                     onClick = {
-                        try {
-                            val textToCopy = formatArticleForCopy(articleNumber, articleName, article.paragraphs.map { it.text })
-                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                            val clip = ClipData.newPlainText(context.getString(R.string.tab_articles), textToCopy)
-                            clipboard.setPrimaryClip(clip)
-                            Toast.makeText(context, context.getString(R.string.toast_article_copied), Toast.LENGTH_SHORT).show()
-                        } catch (e: Exception) {
-                            Toast.makeText(context, context.getString(R.string.toast_copy_error, e.message ?: ""), Toast.LENGTH_SHORT).show()
-                        }
+                        copyToClipboardWithToast(
+                            context,
+                            context.getString(R.string.tab_articles),
+                            formatArticleForCopy(articleNumber, articleName, article.paragraphs.map { it.text })
+                        )
                     },
                     modifier = Modifier.size(36.dp).testTag("copy_article_button")
                 ) {

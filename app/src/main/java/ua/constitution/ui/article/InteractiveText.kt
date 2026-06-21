@@ -5,9 +5,6 @@ import ua.constitution.utils.Constants
 import ua.constitution.utils.LogMessages
 import android.net.Uri
 import android.content.Context
-import android.content.ClipboardManager
-import android.content.ClipData
-import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
@@ -75,7 +72,36 @@ import ua.constitution.domain.content.mergeAdjacentLinkSegments
 import ua.constitution.domain.link.handleLinkAnnotationTap
 import ua.constitution.ui.createEraserIcon
 import ua.constitution.ui.safeParseColor
+import ua.constitution.ui.copyToClipboardWithToast
 import ua.constitution.ui.selectionToolbarOffset
+
+/**
+ * Handles a tapped URL annotation in a reader: resolves an internal article cross-reference via
+ * [resolveArticleLink]/[onArticleClick], otherwise launches the external URL; failures are logged
+ * under [logTag]. Shared by the three reader tap sites (BasicTextField edit-mode, BasicTextField
+ * read-only, and the read-only ClickableText), which were byte-identical apart from the log tag.
+ * Deliberately NOT routed through ui.openExternalUrl — that helper is silent, this one logs.
+ */
+private fun openAnnotatedLink(
+    item: String,
+    context: Context,
+    resolveArticleLink: ((String) -> Article?)?,
+    onArticleClick: ((Article) -> Unit)?,
+    logTag: String,
+) {
+    try {
+        handleLinkAnnotationTap(
+            item,
+            Constants.DEFAULT_RADA_URL,
+            resolveArticleLink,
+            onArticleClick,
+        ) { finalUrl ->
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(finalUrl)))
+        }
+    } catch (e: Exception) {
+        android.util.Log.e(logTag, LogMessages.openUrlFailed(item, e.message), e)
+    }
+}
 
 @Composable
 fun SegmentedTextWithEdits(
@@ -284,18 +310,7 @@ fun SegmentedTextWithEdits(
                             val clickedOffset = newValue.selection.start
                             annotatedString.getStringAnnotations(tag = Constants.ANNOTATION_TAG_URL, start = clickedOffset, end = clickedOffset)
                                 .firstOrNull()?.let { annotation ->
-                                    try {
-                                        handleLinkAnnotationTap(
-                                            annotation.item,
-                                            Constants.DEFAULT_RADA_URL,
-                                            resolveArticleLink,
-                                            onArticleClick,
-                                        ) { finalUrl ->
-                                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(finalUrl)))
-                                        }
-                                    } catch (e: Exception) {
-                                        android.util.Log.e(LogMessages.TAG_SEGMENTED_TEXT_EDITS, LogMessages.openUrlFailed(annotation.item, e.message), e)
-                                    }
+                                    openAnnotatedLink(annotation.item, context, resolveArticleLink, onArticleClick, LogMessages.TAG_SEGMENTED_TEXT_EDITS)
                                 }
                         }
                     },
@@ -418,18 +433,7 @@ fun SegmentedTextWithEdits(
                                     if (position in 0..annotatedString.length) {
                                         annotatedString.getStringAnnotations(tag = Constants.ANNOTATION_TAG_URL, start = position, end = position)
                                             .firstOrNull()?.let { annotation ->
-                                                try {
-                                                    handleLinkAnnotationTap(
-                                                        annotation.item,
-                                                        Constants.DEFAULT_RADA_URL,
-                                                        resolveArticleLink,
-                                                        onArticleClick,
-                                                    ) { finalUrl ->
-                                                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(finalUrl)))
-                                                    }
-                                                } catch (e: Exception) {
-                                                    android.util.Log.e(LogMessages.TAG_SEGMENTED_TEXT_EDITS, LogMessages.openUrlFailed(annotation.item, e.message), e)
-                                                }
+                                                openAnnotatedLink(annotation.item, context, resolveArticleLink, onArticleClick, LogMessages.TAG_SEGMENTED_TEXT_EDITS)
                                             }
                                     }
                                 }
@@ -494,14 +498,7 @@ fun SegmentedTextWithEdits(
         }
         val performCopy: () -> Unit = {
             if (fullArticleTextToCopy != null && selStart == 0 && selEnd == textFieldValue.text.length) {
-                try {
-                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    val clip = ClipData.newPlainText(context.getString(R.string.article_label), fullArticleTextToCopy)
-                    clipboard.setPrimaryClip(clip)
-                    Toast.makeText(context, context.getString(R.string.toast_article_copied), Toast.LENGTH_SHORT).show()
-                } catch (e: Exception) {
-                    Toast.makeText(context, context.getString(R.string.toast_copy_error, e.message ?: ""), Toast.LENGTH_SHORT).show()
-                }
+                copyToClipboardWithToast(context, context.getString(R.string.article_label), fullArticleTextToCopy)
             } else {
                 menuCallbacks?.onCopy?.invoke()
             }
@@ -642,18 +639,7 @@ fun SegmentedText(
         onClick = { offset ->
             annotatedString.getStringAnnotations(tag = Constants.ANNOTATION_TAG_URL, start = offset, end = offset)
                 .firstOrNull()?.let { annotation ->
-                    try {
-                        handleLinkAnnotationTap(
-                            annotation.item,
-                            Constants.DEFAULT_RADA_URL,
-                            resolveArticleLink,
-                            onArticleClick,
-                        ) { finalUrl ->
-                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(finalUrl)))
-                        }
-                    } catch (e: Exception) {
-                        android.util.Log.e(LogMessages.TAG_SEGMENTED_TEXT, LogMessages.openUrlFailed(annotation.item, e.message), e)
-                    }
+                    openAnnotatedLink(annotation.item, context, resolveArticleLink, onArticleClick, LogMessages.TAG_SEGMENTED_TEXT)
                 }
         }
     )
