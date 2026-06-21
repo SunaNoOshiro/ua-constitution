@@ -1,5 +1,6 @@
-package ua.constitution
+package ua.constitution.ui.article
 
+import ua.constitution.R
 import ua.constitution.ui.theme.*
 
 import androidx.compose.material3.AlertDialog

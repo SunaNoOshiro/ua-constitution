@@ -1,5 +1,6 @@
-package ua.constitution
+package ua.constitution.ui.article
 
+import ua.constitution.R
 import ua.constitution.utils.Constants
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*

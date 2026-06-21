@@ -1,4 +1,4 @@
-package ua.constitution
+package ua.constitution.ui.screens
 
 import android.media.MediaPlayer
 import androidx.compose.runtime.Composable
@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import ua.constitution.R
 import ua.constitution.utils.LogMessages
 
 /**

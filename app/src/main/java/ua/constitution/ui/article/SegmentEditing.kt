@@ -1,4 +1,4 @@
-package ua.constitution
+package ua.constitution.ui.article
 import ua.constitution.ui.theme.HighlightPalette
 
 import ua.constitution.domain.text.StyledRange

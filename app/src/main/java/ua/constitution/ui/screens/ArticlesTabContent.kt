@@ -1,4 +1,4 @@
-package ua.constitution
+package ua.constitution.ui.screens
 
 import ua.constitution.ui.theme.*
 
@@ -26,9 +26,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ua.constitution.R
 import ua.constitution.data.database.BookmarkEntity
 import ua.constitution.data.model.Article
 import ua.constitution.domain.text.ArticleNumberFormatter
+import ua.constitution.ui.article.ArticleCard
+import ua.constitution.ui.article.ArticleIdText
+import ua.constitution.ui.article.NoteCard
+import ua.constitution.ui.article.getBackNavigationText
 import ua.constitution.ui.openExternalUrl
 import ua.constitution.ui.isBookmarked
 import ua.constitution.ui.editsJsonFor

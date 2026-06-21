@@ -14,6 +14,9 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import ua.constitution.ui.article.ArticleIdText
+import ua.constitution.ui.article.formatArticleId
+import ua.constitution.ui.article.getBackNavigationText
 
 /**
  * Characterizes the @Composable article-id formatters (formatArticleId, getBackNavigationText,

@@ -1,6 +1,7 @@
-package ua.constitution
+package ua.constitution.ui.article
 
 import android.content.Intent
+import ua.constitution.R
 import ua.constitution.utils.Constants
 import ua.constitution.utils.LogMessages
 import android.net.Uri

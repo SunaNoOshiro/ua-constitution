@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import ua.constitution.data.database.DatabaseProvider
 import ua.constitution.data.source.ConstitutionLoader
 import ua.constitution.data.repository.ConstitutionRepository
+import ua.constitution.ui.screens.MainAppDashboard
 import ua.constitution.ui.theme.MyApplicationTheme
 import ua.constitution.ui.viewmodel.ConstitutionViewModel
 import ua.constitution.ui.viewmodel.ConstitutionViewModelFactory

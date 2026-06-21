@@ -1,4 +1,4 @@
-package ua.constitution
+package ua.constitution.ui.screens
 
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.getValue

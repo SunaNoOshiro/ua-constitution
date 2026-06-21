@@ -1,4 +1,6 @@
 package ua.constitution
+import ua.constitution.ui.article.FormattingPanelControls
+import ua.constitution.ui.article.GlobalFormattingPanel
 import ua.constitution.ui.theme.HighlightPalette
 
 import androidx.compose.ui.test.junit4.createComposeRule

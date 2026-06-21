@@ -1,4 +1,4 @@
-package ua.constitution
+package ua.constitution.ui.screens
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
@@ -28,8 +28,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ua.constitution.R
 import ua.constitution.data.database.BookmarkEntity
 import ua.constitution.data.model.Article
+import ua.constitution.ui.article.ArticleCard
 import ua.constitution.ui.editsJsonFor
 import ua.constitution.ui.isBookmarked
 import ua.constitution.ui.model.FullscreenSymbol

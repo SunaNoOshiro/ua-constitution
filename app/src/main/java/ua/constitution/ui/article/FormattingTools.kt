@@ -1,4 +1,4 @@
-package ua.constitution
+package ua.constitution.ui.article
 
 import androidx.compose.ui.graphics.vector.ImageVector
 

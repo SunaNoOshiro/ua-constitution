@@ -1,5 +1,6 @@
-package ua.constitution
+package ua.constitution.ui.screens
 
+import ua.constitution.R
 import ua.constitution.utils.Constants
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
@@ -39,6 +40,9 @@ import androidx.compose.ui.unit.sp
 import ua.constitution.data.model.Article
 import ua.constitution.data.model.Chapter
 import ua.constitution.ui.theme.*
+import ua.constitution.ui.article.ArticleCard
+import ua.constitution.ui.article.ArticleEditing
+import ua.constitution.ui.article.formatArticleId
 import ua.constitution.ui.viewmodel.ConstitutionViewModel
 import ua.constitution.ui.model.DashboardTab
 import ua.constitution.ui.model.FullscreenSymbol

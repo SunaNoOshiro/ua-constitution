@@ -1,4 +1,4 @@
-package ua.constitution
+package ua.constitution.ui.article
 
 /**
  * The interactive controls of the global formatting panel: the active highlight tool, the selected

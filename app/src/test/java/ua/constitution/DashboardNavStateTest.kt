@@ -12,6 +12,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import ua.constitution.data.model.Article
+import ua.constitution.ui.screens.DashboardNavState
 
 /**
  * Pins the cross-article back-stack logic that used to be inlined in MainAppDashboard's closures and

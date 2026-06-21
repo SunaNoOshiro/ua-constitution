@@ -1,4 +1,4 @@
-package ua.constitution
+package ua.constitution.ui.article
 
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.TextLayoutResult

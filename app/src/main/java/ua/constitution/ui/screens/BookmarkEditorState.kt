@@ -1,4 +1,4 @@
-package ua.constitution
+package ua.constitution.ui.screens
 import ua.constitution.ui.theme.HighlightPalette
 
 import androidx.compose.runtime.getValue
