@@ -1,7 +1,6 @@
 package ua.constitution
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import ua.constitution.data.model.Article
@@ -47,31 +46,6 @@ class ConstitutionContentTest {
         assertEquals(listOf(1, 2), c.getArticlesForChapter(1).map { it.id })
         assertEquals(listOf(20), c.getArticlesForChapter(2).map { it.id })
         assertTrue(c.getArticlesForChapter(99).isEmpty())
-    }
-
-    @Test
-    fun `getArticleById returns the matching article`() {
-        val c = content(listOf(articleOf(id = 0, chapterId = 0), articleOf(id = 20, chapterId = 2)))
-        assertEquals(20, c.getArticleById(20)?.id)
-    }
-
-    @Test
-    fun `CHARACTERIZATION getArticleById returns the first article when the id is unknown`() {
-        // Production fallback is `?: articles.firstOrNull()`: an unknown id silently returns the
-        // first article (here the preamble) rather than null.
-        val c = content(listOf(articleOf(id = 0, chapterId = 0), articleOf(id = 20, chapterId = 2)))
-        assertEquals(0, c.getArticleById(99999)?.id)
-    }
-
-    @Test
-    fun `getArticleById on an empty data set returns null`() {
-        assertNull(content(emptyList()).getArticleById(1))
-    }
-
-    @Test
-    fun `getRandomArticle on a single-article set returns that article`() {
-        val only = articleOf(id = 42, chapterId = 3)
-        assertEquals(only, content(listOf(only)).getRandomArticle())
     }
 
     @Test

@@ -145,15 +145,6 @@ class ConstitutionViewModelTest {
         assertEquals(2, viewModel.selectedChapterId.value)
     }
 
-    @Test
-    fun `selectArticle then clearSelectedArticle updates the selection`() {
-        val article = articleOf(id = 1, chapterId = 1)
-        viewModel.selectArticle(article)
-        assertEquals(article, viewModel.selectedArticle.value)
-        viewModel.clearSelectedArticle()
-        assertNull(viewModel.selectedArticle.value)
-    }
-
     // --- bookmarking ----------------------------------------------------------------------------
 
     @Test

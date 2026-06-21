@@ -8,12 +8,9 @@ import ua.constitution.domain.content.ConstitutionContentSource
 import ua.constitution.domain.content.IntegrityStatus
 
 /**
- * Reusable in-memory content source for tests.
- *
- * Implements the same segregated read interfaces as the production [ua.constitution.data.model.ConstitutionData]
- * object, and mirrors its lookup quirks in ONE place (notably [getArticleById] falling back to the
- * first article for an unknown id). Lets ViewModel/screen tests inject content without booting the
- * process-wide ConstitutionData global or resetting it via reflection.
+ * Reusable in-memory content source for tests. Implements the same segregated read interfaces as the
+ * production [ua.constitution.data.model.ConstitutionContent], letting ViewModel/screen tests inject
+ * content directly.
  */
 class FakeContentSource(
     override val articles: List<Article> = emptyList(),
@@ -26,10 +23,4 @@ class FakeContentSource(
 
     override fun getArticlesForChapter(chapterId: Int): List<Article> =
         articles.filter { it.chapterId == chapterId }
-
-    // Mirrors ConstitutionData.getArticleById: an unknown id falls back to the first article.
-    override fun getArticleById(id: Int): Article? =
-        articles.find { it.id == id } ?: articles.firstOrNull()
-
-    override fun getRandomArticle(): Article = articles.random()
 }

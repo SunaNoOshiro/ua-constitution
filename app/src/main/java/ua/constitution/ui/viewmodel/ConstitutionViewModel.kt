@@ -32,21 +32,9 @@ class ConstitutionViewModel(
     private val _selectedChapterId = MutableStateFlow<Int?>(null)
     val selectedChapterId: StateFlow<Int?> = _selectedChapterId.asStateFlow()
 
-    private val _selectedArticle = MutableStateFlow<Article?>(null)
-    val selectedArticle: StateFlow<Article?> = _selectedArticle.asStateFlow()
-
     // --- Bookmarks ---
     val bookmarks: StateFlow<List<BookmarkEntity>> = repository.allBookmarks
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    // --- Selection and Utility ---
-    fun selectArticle(article: Article) {
-        _selectedArticle.value = article
-    }
-
-    fun clearSelectedArticle() {
-        _selectedArticle.value = null
-    }
 
     // --- Search functionality ---
     fun setSearchQuery(query: String) {
@@ -73,11 +61,6 @@ class ConstitutionViewModel(
 
     fun articlesForChapter(chapterId: Int): List<Article> =
         articleLookup.getArticlesForChapter(chapterId)
-
-    /** The article a bookmark refers to (by its derived bookmarkId), or null. Mirrors the former
-     *  inline `articles.find { it.bookmarkId == ... }` that the bookmarks screen ran on the global. */
-    fun articleByBookmarkId(bookmarkId: Int?): Article? =
-        contentSource.articles.find { it.bookmarkId == bookmarkId }
 
     /** Articles that are currently bookmarked, in article order. Delegates to the pure
      *  [selectArticlesByBookmarkIds]. */

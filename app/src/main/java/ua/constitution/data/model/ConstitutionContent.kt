@@ -29,9 +29,4 @@ class ConstitutionContent(
 
     override fun getArticlesForChapter(chapterId: Int): List<Article> =
         articles.filter { it.chapterId == chapterId }
-
-    override fun getArticleById(id: Int): Article? =
-        articles.find { it.id == id } ?: articles.firstOrNull()
-
-    override fun getRandomArticle(): Article = articles.random()
 }

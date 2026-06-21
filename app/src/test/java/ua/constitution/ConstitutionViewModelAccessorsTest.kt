@@ -69,13 +69,6 @@ class ConstitutionViewModelAccessorsTest {
     }
 
     @Test
-    fun `articleByBookmarkId finds the matching article and is null otherwise`() {
-        val a20 = content.articles.first { it.id == 20 }
-        assertEquals(a20, viewModel.articleByBookmarkId(a20.bookmarkId))
-        assertNull(viewModel.articleByBookmarkId(-1))
-    }
-
-    @Test
     fun `bookmarkedArticles returns bookmarked articles in article order`() {
         val a1 = content.articles.first { it.id == 1 }
         val a20 = content.articles.first { it.id == 20 }
