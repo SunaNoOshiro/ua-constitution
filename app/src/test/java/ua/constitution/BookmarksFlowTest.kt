@@ -19,7 +19,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import ua.constitution.data.database.ConstitutionDatabase
+import ua.constitution.data.database.DatabaseProvider
 
 /**
  * Characterizes the dashboard BOOKMARKS tab BEFORE it is extracted into its own composable:
@@ -53,7 +53,7 @@ class BookmarksFlowTest {
     }
 
     private fun clearBookmarks() = runBlocking {
-        val dao = ConstitutionDatabase.getDatabase(ApplicationProvider.getApplicationContext<Context>()).constitutionDao()
+        val dao = DatabaseProvider.getDatabase(ApplicationProvider.getApplicationContext<Context>()).constitutionDao()
         dao.getAllBookmarks().first().forEach { dao.deleteBookmarkByArticleId(it.articleId) }
     }
 

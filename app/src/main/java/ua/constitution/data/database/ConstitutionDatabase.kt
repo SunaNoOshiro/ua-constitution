@@ -1,11 +1,11 @@
 package ua.constitution.data.database
 
-import android.content.Context
 import androidx.room.Database
-import androidx.room.Room
 import androidx.room.RoomDatabase
-import ua.constitution.utils.Constants
 
+/**
+ * The Room schema only. Building and caching the singleton instance lives in [DatabaseProvider].
+ */
 @Database(
     entities = [
         BookmarkEntity::class
@@ -16,23 +16,4 @@ import ua.constitution.utils.Constants
 abstract class ConstitutionDatabase : RoomDatabase() {
 
     abstract fun constitutionDao(): ConstitutionDao
-
-    companion object {
-        @Volatile
-        private var INSTANCE: ConstitutionDatabase? = null
-
-        fun getDatabase(context: Context): ConstitutionDatabase {
-            return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    ConstitutionDatabase::class.java,
-                    Constants.DATABASE_NAME
-                )
-                .fallbackToDestructiveMigration()
-                .build()
-                INSTANCE = instance
-                instance
-            }
-        }
-    }
 }

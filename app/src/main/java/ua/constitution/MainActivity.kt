@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.ViewModelProvider
-import ua.constitution.data.database.ConstitutionDatabase
+import ua.constitution.data.database.DatabaseProvider
 import ua.constitution.data.source.ConstitutionLoader
 import ua.constitution.data.repository.ConstitutionRepository
 import ua.constitution.ui.theme.MyApplicationTheme
@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
             )
         )
 
-        val database = ConstitutionDatabase.getDatabase(this)
+        val database = DatabaseProvider.getDatabase(this)
         val repository = ConstitutionRepository(database.constitutionDao())
 
         // Load official formatted articles from JSON assets into an immutable content store.
