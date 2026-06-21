@@ -1,6 +1,8 @@
 # ua-constitution
 
-A modern web app for reading, searching, and navigating the Constitution of Ukraine in a clean and user-friendly interface.
+A modern Android app for reading, searching, and navigating the Constitution of Ukraine in a clean and user-friendly interface.
+
+Built with Kotlin, Jetpack Compose, and Room (single `:app` module, `minSdk 24`). See [CLAUDE.md](CLAUDE.md) for architecture and contributor conventions.
 
 ## Why
 
@@ -21,7 +23,7 @@ This project aims to provide a better reading experience for citizens, students,
 
 ## Data Source
 
-The project use a reliable source for the official text of the Constitution of Ukraine:
+The project uses a reliable source for the official text of the Constitution of Ukraine:
 
 https://zakon.rada.gov.ua/laws/show/en/254%D0%BA/96-%D0%B2%D1%80
 
