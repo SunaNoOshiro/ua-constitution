@@ -78,7 +78,6 @@ secrets {
 // This makes it easy to add them back in the future if needed.
 dependencies {
   implementation(platform(libs.androidx.compose.bom))
-  implementation(platform(libs.firebase.bom))
   // implementation(libs.accompanist.permissions)
   implementation(libs.androidx.activity.compose)
   // implementation(libs.androidx.camera.camera2)
@@ -99,16 +98,10 @@ dependencies {
   // implementation(libs.androidx.navigation.compose)
   implementation(libs.androidx.room.ktx)
   implementation(libs.androidx.room.runtime)
-  implementation(libs.coil.compose)
-  implementation(libs.converter.moshi)
   // implementation(libs.firebase.ai)
   implementation(libs.kotlinx.coroutines.android)
   implementation(libs.kotlinx.coroutines.core)
-  implementation(libs.logging.interceptor)
-  implementation(libs.moshi.kotlin)
-  implementation(libs.okhttp)
   // implementation(libs.play.services.location)
-  implementation(libs.retrofit)
   testImplementation(libs.androidx.compose.ui.test.junit4)
   testImplementation(libs.androidx.core)
   testImplementation(libs.androidx.junit)
@@ -126,9 +119,12 @@ dependencies {
   debugImplementation(libs.androidx.compose.ui.test.manifest)
   debugImplementation(libs.androidx.compose.ui.tooling)
   "ksp"(libs.androidx.room.compiler)
-  "ksp"(libs.moshi.kotlin.codegen)
 }
 
+// Opt-in utility to refresh the committed anthem.ogg from Wikimedia. Intentionally NOT
+// wired into preBuild, so normal builds never depend on the network. The .ogg is checked
+// into res/raw; run this manually only when the asset needs updating:
+//   ./gradlew :app:downloadAnthem
 tasks.register("downloadAnthem") {
     val destDir = file("src/main/res/raw")
     val destFile = file("src/main/res/raw/anthem.ogg")
@@ -154,71 +150,6 @@ tasks.register("downloadAnthem") {
     }
 }
 
-tasks.register("copyConstitutionJson") {
-    val srcFile = file("src/main/assets/constitution_ua.json")
-    val destDir = file("src/main/res/raw")
-    val destFile = file("src/main/res/raw/constitution_ua.json")
-    inputs.file(srcFile)
-    outputs.file(destFile)
-    doLast {
-        if (!destDir.exists()) {
-            destDir.mkdirs()
-        }
-        if (srcFile.exists()) {
-            srcFile.copyTo(destFile, overwrite = true)
-            println("Successfully copied constitution_ua.json to raw resources!")
-        }
-    }
-}
-
-tasks.matching { it.name.startsWith("preBuild") }.all {
-    dependsOn("downloadAnthem", "copyConstitutionJson")
-}
-
-tasks.register("checkBraces") {
-    doLast {
-        val mainFile = file("src/main/java/com/example/MainActivity.kt")
-        if (mainFile.exists()) {
-            val lines = mainFile.readLines()
-            val openBraces = mutableListOf<Pair<Int, String>>()
-            for ((idx, line) in lines.withIndex()) {
-                val lineNum = idx + 1
-                var stripped = line
-                if (stripped.contains("//") && !stripped.contains("http://") && !stripped.contains("https://")) {
-                    stripped = stripped.substring(0, stripped.indexOf("//"))
-                }
-                stripped = stripped.replace("\".*?\"".toRegex(), "\"\"")
-                
-                val wasSize = openBraces.size
-                for (char in stripped) {
-                    if (char == '{') {
-                        openBraces.add(Pair(lineNum, line.trim()))
-                    } else if (char == '}') {
-                        if (openBraces.isNotEmpty()) {
-                            openBraces.removeAt(openBraces.size - 1)
-                        } else {
-                            println("EXTRA CLOSING BRACE at line $lineNum: ${line.trim()}")
-                        }
-                    }
-                }
-                if (lineNum in 2770..2953) {
-                    println("Line $lineNum [Braces: $wasSize -> ${openBraces.size}]: ${line.trim()}")
-                }
-            }
-            println("--- BRACE BALANCE ANALYSIS ---")
-            println("Total lines: ${lines.size}")
-            if (openBraces.isEmpty()) {
-                println("All braces are perfectly balanced!")
-            } else {
-                println("UNCLOSED BRACES (${openBraces.size}):")
-                openBraces.forEach { (lineNum, text) ->
-                    println("Line $lineNum: $text")
-                }
-            }
-            println("------------------------------")
-        } else {
-            println("MainActivity.kt does not exist!")
-        }
-    }
-}
+// Note: the app loads constitution_ua.json directly from assets/ (ConstitutionLoader /
+// IntegrityChecker) and never from res/raw, so there is no copy-to-raw build step.
 
