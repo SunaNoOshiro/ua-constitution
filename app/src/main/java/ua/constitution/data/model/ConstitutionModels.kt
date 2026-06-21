@@ -13,7 +13,13 @@ data class ContentSegment(
     val value: String = "",
     val text: String = "",
     val url: String = ""
-)
+) {
+    /** The text this segment contributes to the rendered/plain string: a link contributes its [text],
+     *  everything else its [value]. The single home for the rule that was duplicated across the
+     *  models and the reader composables. */
+    val displayText: String
+        get() = if (type == Constants.TYPE_LINK) text else value
+}
 
 data class Link(
     val text: String,
@@ -24,9 +30,7 @@ data class Note(
     val content: List<ContentSegment>
 ) {
     val text: String
-        get() = content.joinToString("") { segment ->
-            if (segment.type == Constants.TYPE_LINK) segment.text else segment.value
-        }
+        get() = content.joinToString("") { it.displayText }
 
     val links: List<Link>
         get() = content.filter { it.type == Constants.TYPE_LINK }.map { Link(it.text, it.url) }
@@ -37,9 +41,7 @@ data class Paragraph(
     val notes: List<Note>
 ) {
     val text: String
-        get() = content.joinToString("") { segment ->
-            if (segment.type == Constants.TYPE_LINK) segment.text else segment.value
-        }
+        get() = content.joinToString("") { it.displayText }
 }
 
 data class Article(

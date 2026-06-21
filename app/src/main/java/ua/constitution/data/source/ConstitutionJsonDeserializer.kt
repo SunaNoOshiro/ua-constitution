@@ -36,9 +36,7 @@ class ConstitutionJsonDeserializer(private val context: Context) {
             chapters.add(parseChapter(chObj))
         }
 
-        articles.sortBy {
-            if (it.id > 1000) it.id.toDouble() / 10.0 else it.id.toDouble()
-        }
+        articles.sortBy { articleSortKey(it.id) }
 
         return ParsedConstitution(articles, chapters)
     }

@@ -18,14 +18,16 @@ class IntegrityChecker(private val context: Context) {
 
     fun compute(): IntegrityResult {
         return try {
-            val assetStream = context.assets.open(Constants.CONSTITUTION_JSON_FILE)
             val digest = java.security.MessageDigest.getInstance(Constants.ALGORITHM_SHA_256)
-            val buffer = ByteArray(8192)
-            var bytesRead: Int
-            while (assetStream.read(buffer).also { bytesRead = it } != -1) {
-                digest.update(buffer, 0, bytesRead)
+            // .use { } guarantees the asset stream is closed even if read/update throws (the prior
+            // explicit close() was skipped on exception -> a resource leak). Outputs are unchanged.
+            context.assets.open(Constants.CONSTITUTION_JSON_FILE).use { assetStream ->
+                val buffer = ByteArray(8192)
+                var bytesRead: Int
+                while (assetStream.read(buffer).also { bytesRead = it } != -1) {
+                    digest.update(buffer, 0, bytesRead)
+                }
             }
-            assetStream.close()
             val hashBytes = digest.digest()
             val hash = hashBytes.joinToString("") { Constants.HEX_FORMAT_BYTE.format(it) }
             if (hash == Constants.EXPECTED_JSON_HASH) {

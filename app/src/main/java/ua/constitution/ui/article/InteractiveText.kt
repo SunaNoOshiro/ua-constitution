@@ -127,7 +127,7 @@ fun SegmentedTextWithEdits(
     val mergedSegments = remember(segments) { mergeAdjacentLinkSegments(segments) }
 
     val originalText = remember(mergedSegments) {
-        mergedSegments.joinToString("") { if (it.type == Constants.TYPE_LINK) it.text else it.value }
+        mergedSegments.joinToString("") { it.displayText }
     }
 
     val formattedText = remember(originalText) {
@@ -193,7 +193,7 @@ fun SegmentedTextWithEdits(
         buildAnnotatedString {
             var originalOffset = 0
             mergedSegments.forEach { segment ->
-                val segLen = (if (segment.type == Constants.TYPE_LINK) segment.text else segment.value).length
+                val segLen = segment.displayText.length
                 val startOrig = originalOffset
                 val endOrig = originalOffset + segLen
                 
