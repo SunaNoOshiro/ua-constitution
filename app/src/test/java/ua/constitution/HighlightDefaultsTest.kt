@@ -1,8 +1,8 @@
 package ua.constitution
+import ua.constitution.ui.theme.HighlightPalette
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import ua.constitution.utils.Constants
 
 /**
  * Drift guard for the default highlight colors. ArticleCard's default marker/underline color
@@ -13,7 +13,7 @@ class HighlightDefaultsTest {
 
     @Test
     fun `default marker and underline colors are unchanged`() {
-        assertEquals("#FFF59D", Constants.COLOR_DEFAULT_MARKER)
-        assertEquals("#F57F17", Constants.COLOR_DEFAULT_UNDERLINE)
+        assertEquals("#FFF59D", HighlightPalette.DEFAULT_MARKER)
+        assertEquals("#F57F17", HighlightPalette.DEFAULT_UNDERLINE)
     }
 }

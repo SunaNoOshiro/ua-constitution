@@ -1,4 +1,5 @@
 package ua.constitution
+import ua.constitution.ui.theme.HighlightPalette
 
 import ua.constitution.utils.Constants
 
@@ -14,9 +15,9 @@ data class ArticleEditing(
     val isEditButtonEnabled: Boolean = true,
     val isPanelExpanded: Boolean = false,
     val activeTool: String = Constants.TOOL_MARKER,
-    val selectedColorHex: String = Constants.COLOR_DEFAULT_MARKER,
-    val selectedMarkerColorHex: String = Constants.COLOR_DEFAULT_MARKER,
-    val selectedUnderlineColorHex: String = Constants.COLOR_DEFAULT_UNDERLINE,
+    val selectedColorHex: String = HighlightPalette.DEFAULT_MARKER,
+    val selectedMarkerColorHex: String = HighlightPalette.DEFAULT_MARKER,
+    val selectedUnderlineColorHex: String = HighlightPalette.DEFAULT_UNDERLINE,
     val onSaveEdits: ((String) -> Unit)? = null,
     val onToggleEditing: (() -> Unit)? = null,
     val onPanelExpandedChange: ((Boolean) -> Unit)? = null,

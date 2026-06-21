@@ -1,4 +1,5 @@
 package ua.constitution
+import ua.constitution.ui.theme.HighlightPalette
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -40,7 +41,7 @@ class GlobalFormattingPanelTest {
                     controls = FormattingPanelControls(
                         activeTool = activeTool,
                         onActiveToolChange = onTool,
-                        selectedColorHex = Constants.COLOR_DEFAULT_MARKER,
+                        selectedColorHex = HighlightPalette.DEFAULT_MARKER,
                         onColorHexChange = {},
                         isPanelExpanded = true,
                         onPanelExpandedChange = {},

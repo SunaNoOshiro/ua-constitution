@@ -1,4 +1,5 @@
 package ua.constitution
+import ua.constitution.ui.theme.HighlightPalette
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,7 +15,7 @@ import ua.constitution.utils.Constants
 class BookmarkEditorState {
     var editingArticleId by mutableStateOf<Int?>(null)
     var activeTool by mutableStateOf(Constants.TOOL_NONE)
-    var markerColorHex by mutableStateOf(Constants.COLOR_DEFAULT_MARKER)
-    var underlineColorHex by mutableStateOf(Constants.COLOR_DEFAULT_UNDERLINE)
+    var markerColorHex by mutableStateOf(HighlightPalette.DEFAULT_MARKER)
+    var underlineColorHex by mutableStateOf(HighlightPalette.DEFAULT_UNDERLINE)
     var panelExpanded by mutableStateOf(false)
 }

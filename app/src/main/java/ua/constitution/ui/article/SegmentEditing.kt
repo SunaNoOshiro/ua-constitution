@@ -1,4 +1,5 @@
 package ua.constitution
+import ua.constitution.ui.theme.HighlightPalette
 
 import ua.constitution.domain.text.StyledRange
 import ua.constitution.utils.Constants
@@ -11,11 +12,11 @@ import ua.constitution.utils.Constants
  */
 data class SegmentEditing(
     val onUpdateRanges: ((List<StyledRange>) -> Unit)? = null,
-    val selectedMarkerColorHex: String = Constants.COLOR_DEFAULT_MARKER,
-    val selectedUnderlineColorHex: String = Constants.COLOR_DEFAULT_UNDERLINE,
+    val selectedMarkerColorHex: String = HighlightPalette.DEFAULT_MARKER,
+    val selectedUnderlineColorHex: String = HighlightPalette.DEFAULT_UNDERLINE,
     val onSelectedMarkerColorChange: ((String) -> Unit)? = null,
     val onSelectedUnderlineColorChange: ((String) -> Unit)? = null,
     val activeTool: String = Constants.TOOL_MARKER,
-    val selectedColorHex: String = Constants.COLOR_DEFAULT_MARKER,
+    val selectedColorHex: String = HighlightPalette.DEFAULT_MARKER,
     val fullArticleTextToCopy: String? = null,
 )

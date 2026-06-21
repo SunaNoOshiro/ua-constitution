@@ -222,8 +222,8 @@ fun SegmentedTextWithEdits(
         }
     }
 
-    val markerColors = Constants.MARKER_COLORS
-    val underlineColors = Constants.UNDERLINE_COLORS
+    val markerColors = HighlightPalette.MARKER_COLORS
+    val underlineColors = HighlightPalette.UNDERLINE_COLORS
 
     val lastMarkerColor = selectedMarkerColorHex
     val lastUnderlineColor = selectedUnderlineColorHex
@@ -966,8 +966,8 @@ fun GlobalFormattingPanel(
     val isPanelExpanded = controls.isPanelExpanded
     val onPanelExpandedChange = controls.onPanelExpandedChange
     val density = androidx.compose.ui.platform.LocalDensity.current
-    var lastMarkerColor by remember { mutableStateOf(Constants.COLOR_DEFAULT_MARKER) }
-    var lastUnderlineColor by remember { mutableStateOf(Constants.COLOR_DEFAULT_UNDERLINE) }
+    var lastMarkerColor by remember { mutableStateOf(HighlightPalette.DEFAULT_MARKER) }
+    var lastUnderlineColor by remember { mutableStateOf(HighlightPalette.DEFAULT_UNDERLINE) }
 
     androidx.compose.runtime.LaunchedEffect(activeTool, selectedColorHex) {
         if (activeTool == Constants.TOOL_MARKER) {
@@ -979,8 +979,8 @@ fun GlobalFormattingPanel(
 
     val eraserIcon = remember { createEraserIcon(Color.Black) }
 
-    val markerColors = Constants.MARKER_COLORS
-    val underlineColors = Constants.UNDERLINE_COLORS
+    val markerColors = HighlightPalette.MARKER_COLORS
+    val underlineColors = HighlightPalette.UNDERLINE_COLORS
 
     Column(
         modifier = Modifier
