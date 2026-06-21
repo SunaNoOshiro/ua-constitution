@@ -131,6 +131,8 @@ import ua.constitution.domain.text.RangeStyler
 import ua.constitution.domain.text.formatStringToSuperscript
 import ua.constitution.domain.text.getWordRangeAtOffset
 import ua.constitution.domain.text.getWordSnappedRange
+import ua.constitution.domain.text.GestureAxis
+import ua.constitution.domain.text.resolveGestureAxis
 import ua.constitution.domain.text.mapFormattedToOriginal
 import ua.constitution.domain.text.mapOriginalToFormatted
 import ua.constitution.domain.text.mergeAdjacentStyledRanges
@@ -396,6 +398,23 @@ fun SegmentedTextWithEdits(
                                     var isScrollingMode = false
                                     var isStylingMode = false
 
+                                    // Applies the active tool to the word under [position] (once per
+                                    // word in this gesture). Shared by the tap, the styling-down and
+                                    // the drag paths, which were three verbatim copies of this block.
+                                    val applyStyleAt: (androidx.compose.ui.geometry.Offset) -> Unit = { position ->
+                                        textLayoutResult?.let { layoutResult ->
+                                            val dragPos = layoutResult.getOffsetForPosition(position)
+                                            val origDragPos = formToOrigMapping.getOrElse(dragPos) { dragPos }
+                                            if (origDragPos in 0..originalText.length) {
+                                                getWordSnappedRange(originalText, origDragPos, origDragPos)?.let { snapped ->
+                                                    if (touchedWords.add(snapped)) {
+                                                        currentApplyStyleToRanges(touchedWords, tool, currentSelectedColorHex)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
                                     while (true) {
                                         val event = awaitPointerEvent()
                                         val anyActive = event.changes.any { it.id == currentPointerId && it.pressed }
@@ -403,17 +422,7 @@ fun SegmentedTextWithEdits(
                                             // User released finger
                                             if (!hasDecidedGesture) {
                                                 // Treated as a single tap!
-                                                textLayoutResult?.let { layoutResult ->
-                                                    val dragPos = layoutResult.getOffsetForPosition(startPosition)
-                                                    val origDragPos = formToOrigMapping.getOrElse(dragPos) { dragPos }
-                                                    if (origDragPos in 0..originalText.length) {
-                                                        getWordSnappedRange(originalText, origDragPos, origDragPos)?.let { snapped ->
-                                                            if (touchedWords.add(snapped)) {
-                                                                currentApplyStyleToRanges(touchedWords, tool, currentSelectedColorHex)
-                                                            }
-                                                        }
-                                                    }
-                                                }
+                                                applyStyleAt(startPosition)
                                             }
                                             break
                                         }
@@ -425,44 +434,23 @@ fun SegmentedTextWithEdits(
                                             val diffY = currentPosition.y - startPosition.y
 
                                             if (!hasDecidedGesture) {
-                                                val distSq = diffX * diffX + diffY * diffY
-                                                if (distSq >= touchSlop * touchSlop) {
+                                                val axis = resolveGestureAxis(diffX, diffY, touchSlop)
+                                                if (axis != null) {
                                                     hasDecidedGesture = true
-                                                    if (kotlin.math.abs(diffY) > kotlin.math.abs(diffX)) {
+                                                    if (axis == GestureAxis.SCROLL) {
                                                         isScrollingMode = true
                                                         break
                                                     } else {
                                                         isStylingMode = true
                                                         activeChange.consume()
-
                                                         // Also apply styling to down position now that we know we are styling
-                                                        textLayoutResult?.let { layoutResult ->
-                                                            val dragPos = layoutResult.getOffsetForPosition(startPosition)
-                                                            val origDragPos = formToOrigMapping.getOrElse(dragPos) { dragPos }
-                                                            if (origDragPos in 0..originalText.length) {
-                                                                getWordSnappedRange(originalText, origDragPos, origDragPos)?.let { snapped ->
-                                                                    if (touchedWords.add(snapped)) {
-                                                                        currentApplyStyleToRanges(touchedWords, tool, currentSelectedColorHex)
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
+                                                        applyStyleAt(startPosition)
                                                     }
                                                 }
                                             } else {
                                                 if (isStylingMode) {
                                                     activeChange.consume()
-                                                    textLayoutResult?.let { layoutResult ->
-                                                        val dragPos = layoutResult.getOffsetForPosition(currentPosition)
-                                                        val origDragPos = formToOrigMapping.getOrElse(dragPos) { dragPos }
-                                                        if (origDragPos in 0..originalText.length) {
-                                                            getWordSnappedRange(originalText, origDragPos, origDragPos)?.let { snapped ->
-                                                                if (touchedWords.add(snapped)) {
-                                                                    currentApplyStyleToRanges(touchedWords, tool, currentSelectedColorHex)
-                                                                }
-                                                            }
-                                                        }
-                                                    }
+                                                    applyStyleAt(currentPosition)
                                                 }
                                             }
                                         }
