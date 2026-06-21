@@ -2,14 +2,12 @@ package ua.constitution
 
 import android.content.Intent
 import ua.constitution.utils.Constants
-import ua.constitution.utils.LogMessages
 import android.net.Uri
 import android.os.Bundle
 import android.content.Context
 import android.content.ClipboardManager
 import android.content.ClipData
 import android.widget.Toast
-import android.media.MediaPlayer
 import android.media.AudioAttributes
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -120,7 +118,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
-import ua.constitution.audio.AnthemVersion
 import ua.constitution.audio.computeWaveformBarStates
 import ua.constitution.ui.formatMillisToMinutesSeconds
 import ua.constitution.ui.model.DashboardTab
@@ -266,101 +263,8 @@ fun HomeTabContent(
     }
     val isTodayBookmarked = bookmarksList.any { it.articleId == todayArticle.bookmarkId }
 
-    // Unified local player state for the Hymn of Ukraine
-    val selectedVersion = AnthemVersion.OFFICIAL
-    var isPlaying by remember { mutableStateOf(false) }
-    var isBuffering by remember { mutableStateOf(false) }
-    var nativeMediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
-    var playerPosition by remember { mutableStateOf(0) }
-    var playerDuration by remember { mutableStateOf(0) }
-
-    LaunchedEffect(isPlaying, nativeMediaPlayer) {
-        if (isPlaying && nativeMediaPlayer != null) {
-            while (isPlaying) {
-                try {
-                    nativeMediaPlayer?.let { mp ->
-                        if (mp.isPlaying) {
-                            playerPosition = mp.currentPosition
-                            playerDuration = mp.duration
-                        }
-                    }
-                } catch (e: Exception) {}
-                kotlinx.coroutines.delay(200)
-            }
-        }
-    }
-
-    val onSeek: (Float) -> Unit = { pct ->
-        nativeMediaPlayer?.let { mp ->
-            try {
-                val targetMs = (pct * mp.duration).toInt()
-                mp.seekTo(targetMs)
-                playerPosition = targetMs
-            } catch (e: Exception) {}
-        }
-    }
-
-    // Control Local MediaPlayer reactively for raw audio asset playback
-    LaunchedEffect(isPlaying) {
-        if (isPlaying) {
-            if (nativeMediaPlayer == null) {
-                isBuffering = true
-                try {
-                    val mp = MediaPlayer.create(context, R.raw.anthem).apply {
-                        setOnCompletionListener {
-                            isPlaying = false
-                            playerPosition = 0
-                        }
-                    }
-                    if (mp != null) {
-                        nativeMediaPlayer = mp
-                        playerDuration = mp.duration
-                        playerPosition = mp.currentPosition
-                        mp.start()
-                    } else {
-                        android.util.Log.e(LogMessages.TAG_ANTHEM_PLAYER, LogMessages.PLAYER_RAW_CREATE_FAILED)
-                        isPlaying = false
-                    }
-                } catch (e: Exception) {
-                    android.util.Log.e(LogMessages.TAG_ANTHEM_PLAYER, LogMessages.PLAYER_CREATE_ERROR, e)
-                    isPlaying = false
-                } finally {
-                    isBuffering = false
-                }
-            } else {
-                try {
-                    nativeMediaPlayer?.start()
-                } catch (e: Exception) {
-                    isPlaying = false
-                }
-            }
-        } else {
-            try {
-                if (nativeMediaPlayer?.isPlaying == true) {
-                    nativeMediaPlayer?.pause()
-                }
-            } catch (e: Exception) {}
-        }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            nativeMediaPlayer?.let {
-                try {
-                    if (it.isPlaying) it.stop()
-                } catch (e: Exception) {}
-                try {
-                    it.release()
-                } catch (e: Exception) {}
-            }
-            nativeMediaPlayer = null
-        }
-    }
-
-    // Toggle Play function
-    fun togglePlayAnthem() {
-        isPlaying = !isPlaying
-    }
+    // The Hymn of Ukraine player lifecycle lives in its own holder (SRP).
+    val anthem = rememberAnthemPlayerState()
 
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
@@ -377,12 +281,12 @@ fun HomeTabContent(
         // Anthem block
         item {
             AnthemCard(
-                isPlaying = isPlaying,
-                isBuffering = isBuffering,
-                playerPosition = playerPosition,
-                playerDuration = playerDuration,
-                onTogglePlay = { togglePlayAnthem() },
-                onSeek = onSeek
+                isPlaying = anthem.isPlaying,
+                isBuffering = anthem.isBuffering,
+                playerPosition = anthem.position,
+                playerDuration = anthem.duration,
+                onTogglePlay = anthem.onTogglePlay,
+                onSeek = anthem.onSeek
             )
         }
 
