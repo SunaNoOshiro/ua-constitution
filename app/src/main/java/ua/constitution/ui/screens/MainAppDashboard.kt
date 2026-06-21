@@ -1,9 +1,7 @@
 package ua.constitution
 
-import android.content.Intent
 import ua.constitution.utils.Constants
 import ua.constitution.utils.LogMessages
-import android.net.Uri
 import android.os.Bundle
 import android.content.Context
 import android.content.ClipboardManager
@@ -136,6 +134,7 @@ import ua.constitution.domain.text.mapFormattedToOriginal
 import ua.constitution.domain.text.mapOriginalToFormatted
 import ua.constitution.domain.text.mergeAdjacentStyledRanges
 import ua.constitution.ui.safeParseColor
+import ua.constitution.ui.openExternalUrl
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -403,10 +402,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                             color = SovereignBlue.copy(alpha = 0.75f),
                             modifier = Modifier
                                 .clickable {
-                                    try {
-                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://zakon.rada.gov.ua/laws/show/254%D0%BA/96-%D0%B2%D1%80"))
-                                        context.startActivity(intent)
-                                    } catch (e: Exception) {}
+                                    openExternalUrl(context, "https://zakon.rada.gov.ua/laws/show/254%D0%BA/96-%D0%B2%D1%80")
                                 }
                         )
                     }
@@ -582,9 +578,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                     }
                                 },
                                 onOpenSourceUrl = { url ->
-                                    try {
-                                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-                                    } catch (e: Exception) {}
+                                    openExternalUrl(context, url)
                                 }
                             )
                         }

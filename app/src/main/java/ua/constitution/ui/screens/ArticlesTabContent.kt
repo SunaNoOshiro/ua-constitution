@@ -2,8 +2,6 @@ package ua.constitution
 
 import ua.constitution.ui.theme.*
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -31,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import ua.constitution.data.database.BookmarkEntity
 import ua.constitution.data.model.Article
 import ua.constitution.domain.text.ArticleNumberFormatter
+import ua.constitution.ui.openExternalUrl
 import ua.constitution.ui.viewmodel.ConstitutionViewModel
 
 /**
@@ -188,12 +187,7 @@ fun ArticlesTabContent(
                     }
                     if (selectedChapter.sourceUrl.isNotEmpty()) {
                         IconButton(
-                            onClick = {
-                                try {
-                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(selectedChapter.sourceUrl))
-                                    context.startActivity(intent)
-                                } catch (e: Exception) {}
-                            },
+                            onClick = { openExternalUrl(context, selectedChapter.sourceUrl) },
                             modifier = Modifier.size(36.dp)
                         ) {
                             Icon(
