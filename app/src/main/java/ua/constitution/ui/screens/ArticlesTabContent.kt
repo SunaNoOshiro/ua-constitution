@@ -30,6 +30,8 @@ import ua.constitution.data.database.BookmarkEntity
 import ua.constitution.data.model.Article
 import ua.constitution.domain.text.ArticleNumberFormatter
 import ua.constitution.ui.openExternalUrl
+import ua.constitution.ui.isBookmarked
+import ua.constitution.ui.editsJsonFor
 import ua.constitution.ui.viewmodel.ConstitutionViewModel
 
 /**
@@ -308,8 +310,8 @@ fun ArticlesTabContent(
                 }
             } else {
                 itemsIndexed(chapterArticles) { index, article ->
-                    val isBookmarked = bookmarksList.any { it.articleId == article.bookmarkId }
-                    val editsJson = bookmarksList.find { it.articleId == article.bookmarkId }?.editsJson ?: ""
+                    val isBookmarked = bookmarksList.isBookmarked(article)
+                    val editsJson = bookmarksList.editsJsonFor(article)
                     ArticleCard(
                         article = article,
                         isBookmarked = isBookmarked,

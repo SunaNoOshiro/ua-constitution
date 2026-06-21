@@ -47,6 +47,8 @@ import ua.constitution.ui.model.FullscreenSymbol
 import ua.constitution.domain.content.ChapterRangeKind
 import ua.constitution.domain.content.chapterRangeKind
 import ua.constitution.ui.openExternalUrl
+import ua.constitution.ui.isBookmarked
+import ua.constitution.ui.editsJsonFor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -447,8 +449,8 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                 }
                             } else {
                                 items(filteredArticles) { article ->
-                                    val isBookmarked = bookmarksList.any { it.articleId == article.bookmarkId }
-                                    val editsJson = bookmarksList.find { it.articleId == article.bookmarkId }?.editsJson ?: ""
+                                    val isBookmarked = bookmarksList.isBookmarked(article)
+                                    val editsJson = bookmarksList.editsJsonFor(article)
                                     ArticleCard(
                                         article = article,
                                         isBookmarked = isBookmarked,
@@ -864,8 +866,7 @@ fun BookmarksTabContent(
                     items = bookmarkedArticles,
                     key = { _, article -> article.bookmarkId }
                 ) { index, article ->
-                     val bookmarkEntity = bookmarksList.find { it.articleId == article.bookmarkId }
-                     val editsJson = bookmarkEntity?.editsJson ?: ""
+                     val editsJson = bookmarksList.editsJsonFor(article)
                      val isCurrentEditable = true
                      val onSaveCallback: (String) -> Unit = { newJson ->
                          viewModel.updateBookmarkEdits(article.bookmarkId, newJson)

@@ -38,6 +38,8 @@ import ua.constitution.data.model.Paragraph
 import ua.constitution.data.model.Article
 import ua.constitution.utils.Constants
 import ua.constitution.ui.theme.*
+import ua.constitution.ui.isBookmarked
+import ua.constitution.ui.editsJsonFor
 import ua.constitution.ui.viewmodel.ConstitutionViewModel
 import ua.constitution.audio.computeWaveformBarStates
 import ua.constitution.ui.formatMillisToMinutesSeconds
@@ -189,7 +191,7 @@ fun HomeTabContent(
         viewModel.articleOfDay(dayOfYear)
             ?: Article(1, 1, "${context.getString(R.string.article_label)} 1", listOf(Paragraph(listOf(ua.constitution.data.model.ContentSegment(Constants.TYPE_TEXT, value = context.getString(R.string.article_1_fallback_content))), emptyList())))
     }
-    val isTodayBookmarked = bookmarksList.any { it.articleId == todayArticle.bookmarkId }
+    val isTodayBookmarked = bookmarksList.isBookmarked(todayArticle)
 
     // The Hymn of Ukraine player lifecycle lives in its own holder (SRP).
     val anthem = rememberAnthemPlayerState()
@@ -223,7 +225,7 @@ fun HomeTabContent(
             ArticleOfTheDayCard(
                 article = todayArticle,
                 isBookmarked = isTodayBookmarked,
-                initialEditsJson = bookmarksList.find { it.articleId == todayArticle.bookmarkId }?.editsJson ?: "",
+                initialEditsJson = bookmarksList.editsJsonFor(todayArticle),
                 onToggleBookmark = { viewModel.toggleBookmark(todayArticle.bookmarkId) },
                 onArticleClick = { target -> onNavigateToArticle(target, todayArticle) },
                 resolveArticleLink = viewModel::resolveLink,
