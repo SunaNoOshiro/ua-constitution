@@ -14,15 +14,16 @@ import ua.constitution.domain.link.findArticleByLink
  */
 class ArticleLinkResolutionTest {
 
-    // Two articles share id 5 — one in a normal chapter, one in chapter 15 — to characterize the
-    // chapter-15 preference rules. id 161 is the parsed form of "16.1".
+    // Two articles share id 5 — one in a normal chapter, one in chapter 15 (a transitional "point",
+    // which reuses ids 1..16) — to characterize the chapter-15 preference rules. id 16001 is the
+    // parsed form of the fractional "16.1" (N*1000+M encoding).
     private val articles = listOf(
         articleOf(id = 5, chapterId = 1, titleUa = "Стаття 5"),
         articleOf(id = 5, chapterId = 15, titleUa = "Пункт 5"),
         articleOf(id = 12, chapterId = 1, titleUa = "Стаття 12"),
         articleOf(id = 20, chapterId = 2, titleUa = "Стаття 20"),
         articleOf(id = 125, chapterId = 8, titleUa = "Стаття 125"),
-        articleOf(id = 161, chapterId = 15, titleUa = "Стаття 16.1")
+        articleOf(id = 16001, chapterId = 15, titleUa = "Стаття 16¹")
     )
 
     @Test
@@ -39,12 +40,12 @@ class ArticleLinkResolutionTest {
 
     @Test
     fun `superscript and dash forms normalize to the same fractional article`() {
-        // "16¹" -> "16.1" -> Math.round(16.1*10)=161
-        assertEquals(161, findArticleByLink("16¹", articles)?.id)
-        assertEquals(161, findArticleByLink("16.1", articles)?.id)
-        assertEquals(161, findArticleByLink("16-1", articles)?.id)   // hyphen
-        assertEquals(161, findArticleByLink("16–1", articles)?.id)   // en-dash
-        assertEquals(161, findArticleByLink("16—1", articles)?.id)   // em-dash
+        // "16¹" -> "16.1" -> encode(16.1) = 16*1000+1 = 16001 (no longer collides with Article 161)
+        assertEquals(16001, findArticleByLink("16¹", articles)?.id)
+        assertEquals(16001, findArticleByLink("16.1", articles)?.id)
+        assertEquals(16001, findArticleByLink("16-1", articles)?.id)   // hyphen
+        assertEquals(16001, findArticleByLink("16–1", articles)?.id)   // en-dash
+        assertEquals(16001, findArticleByLink("16—1", articles)?.id)   // em-dash
     }
 
     @Test
@@ -69,8 +70,8 @@ class ArticleLinkResolutionTest {
 
     @Test
     fun `CHARACTERIZATION only the first number in the text is used`() {
-        // "1.2" -> 12; the later "3.4" is ignored because regex.find returns the first match only.
-        val a = findArticleByLink("Article 1.2 and 3.4", articles)
+        // Only the first regex match is taken: "12" resolves, the later "20" is ignored.
+        val a = findArticleByLink("статті 12 та 20", articles)
         assertEquals(12, a?.id)
     }
 

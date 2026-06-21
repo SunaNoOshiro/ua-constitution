@@ -37,7 +37,7 @@ class ConstitutionJsonDeserializer(private val context: Context) {
             chapters.add(parseChapter(chObj))
         }
 
-        articles.sortBy { ArticleNumberFormatter.sortKey(it.id, it.chapterId) }
+        articles.sortBy { ArticleNumberFormatter.sortKey(it.id) }
 
         return ParsedConstitution(articles, chapters)
     }
@@ -114,13 +114,10 @@ class ConstitutionJsonDeserializer(private val context: Context) {
         return list
     }
 
-    /** Encodes a JSON article id: a fractional number like 16.1 becomes 161 (round * 10); a whole
-     *  number is its int; a non-numeric value falls back to 0. Verbatim from the former inline `when`. */
+    /** Encodes a JSON article id via [ArticleNumberFormatter.encode] (fractional 16.1 -> 16001, whole
+     *  -> its int); a non-numeric value falls back to 0. */
     private fun toArticleId(idObj: Any): Int = when (idObj) {
-        is Number -> {
-            val dVal = idObj.toDouble()
-            if (dVal % 1.0 != 0.0) Math.round(dVal * 10).toInt() else dVal.toInt()
-        }
+        is Number -> ArticleNumberFormatter.encode(idObj.toDouble())
         else -> idObj.toString().toIntOrNull() ?: 0
     }
 

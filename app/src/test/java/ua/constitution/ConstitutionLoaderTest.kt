@@ -36,7 +36,9 @@ class ConstitutionLoaderTest {
         // Preamble is article id 0 in chapter 0.
         assertEquals(0, articles.first { it.id == 0 }.chapterId)
 
-        // Fractional article "16.1" is parsed to id 161 (Math.round(16.1 * 10)).
+        // Fractional article "16.1" is parsed to id 16001 (N*1000+M encoding); the real Article 161
+        // keeps id 161 — the two no longer collide.
+        assertTrue(articles.any { it.id == 16001 })
         assertTrue(articles.any { it.id == 161 })
 
         // Chapters include the preamble and the final transitional-provisions chapter.

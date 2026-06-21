@@ -1,59 +1,55 @@
 package ua.constitution.domain.text
 
 /**
- * Pure numeric formatting for article ids — the non-localized logic previously inlined in the
- * formatArticleId / ArticleIdText composables. The id == 0 (preamble) case stays in the UI because
- * it resolves a localized string resource.
+ * The single source of truth for the article-number <-> id encoding and its presentation.
+ *
+ * A fractional article number "N.M" (e.g. 16¹ = 16.1) is encoded as `N * 1000 + M`, so 16.1 -> 16001,
+ * 129.1 -> 129001, 131.2 -> 131002. Whole article numbers keep their value (16 -> 16, 161 -> 161).
+ * Because real article numbers are < 1000, an encoded id is fractional iff `id > 1000` — an
+ * unambiguous, collision-free test (the previous `N*10 + M` scheme made 16.1 -> 161, which collided
+ * with real Article 161 and forced a `chapterId == 15` special case throughout the app).
+ *
+ * The id == 0 (preamble) case is handled by the UI, which resolves a localized string.
  */
 object ArticleNumberFormatter {
 
+    /** Encodes a JSON article number (16 or 16.1) to its id. Fractional -> N*1000+M, whole -> N. */
+    fun encode(number: Double): Int {
+        if (number % 1.0 == 0.0) return number.toInt()
+        val major = number.toInt()
+        val minor = Math.round(number * 10).toInt() - major * 10
+        return major * 1000 + minor
+    }
+
     /** True when the id renders with a raised superscript suffix (a "fractional" article). */
-    fun isFractional(id: Int, chapterId: Int): Boolean =
-        id > 1000 || (chapterId == 15 && id == 161)
+    fun isFractional(id: Int): Boolean = id > 1000
 
     /**
-     * Base + superscript-suffix split for a fractional id, e.g. (1001, 0) -> ("100", "1"),
-     * (161, 15) -> ("16", "1"). Only meaningful when [isFractional] is true.
+     * Base + superscript-suffix split for a fractional id: 16001 -> ("16", "1"), 131002 -> ("131", "2").
+     * Only meaningful when [isFractional] is true.
      */
-    fun fractionalParts(id: Int, chapterId: Int): Pair<String, String> {
-        val base = if (chapterId == 15 && id == 161) "16" else (id / 10).toString()
-        val suffix = if (chapterId == 15 && id == 161) "1" else (id % 10).toString()
-        return base to suffix
-    }
+    fun fractionalParts(id: Int): Pair<String, String> =
+        (id / 1000).toString() to (id % 1000).toString()
 
-    /**
-     * The value an article number sorts by. A fractional article sorts at base.suffix
-     * (16¹ -> 16.1, 129¹ -> 129.1); everything else at its integer id. The fractional split is taken
-     * from [isFractional]/[fractionalParts], so the "chapterId 15 + id 161 = 16¹" disambiguation
-     * lives in ONE place (shared with [format]). This corrects the former inline `if (id > 1000)`
-     * sort, which left 16¹ (encoded 161, <= 1000) at 161.0 — after article 160 — instead of 16.1.
-     */
-    fun sortKey(id: Int, chapterId: Int): Double {
-        if (!isFractional(id, chapterId)) return id.toDouble()
-        val (base, suffix) = fractionalParts(id, chapterId)
-        return base.toDouble() + suffix.toDouble() / 10.0
-    }
+    /** The value an article number sorts by: a fractional article sorts at base.suffix
+     *  (16001 -> 16.1, 129001 -> 129.1); everything else at its integer id. */
+    fun sortKey(id: Int): Double =
+        if (isFractional(id)) (id / 1000) + (id % 1000) / 10.0 else id.toDouble()
 
     /**
      * [format], but returns [preambleLabel] for the preamble (id == 0). Lets the UI keep resolving
      * the localized preamble string while the id == 0 branch becomes pure and unit-testable.
      */
-    fun formatWithPreamble(id: Int, chapterId: Int, preambleLabel: String): String =
-        if (id == 0) preambleLabel else format(id, chapterId)
+    fun formatWithPreamble(id: Int, preambleLabel: String): String =
+        if (id == 0) preambleLabel else format(id)
 
     /**
      * Renders the article number with a unicode superscript suffix where applicable:
-     * (161, 15) -> "16¹", (1001, 0) -> "100¹", (20, 1) -> "20". Does not handle id == 0.
+     * 16001 -> "16¹", 100009 -> "100⁹", 20 -> "20". Does not handle id == 0.
      */
-    fun format(id: Int, chapterId: Int): String {
-        if (chapterId == 15 && id == 161) {
-            return "16¹"
-        }
-        if (id > 1000) {
-            val base = id / 10
-            val superscript = digitToSuperscript('0' + (id % 10))
-            return "$base$superscript"
-        }
-        return id.toString()
+    fun format(id: Int): String {
+        if (!isFractional(id)) return id.toString()
+        val (base, suffix) = fractionalParts(id)
+        return "$base${digitToSuperscript('0' + suffix.toInt())}"
     }
 }

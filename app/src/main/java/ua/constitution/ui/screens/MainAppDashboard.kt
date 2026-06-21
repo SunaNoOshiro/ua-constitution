@@ -467,8 +467,8 @@ fun ChaptersTabContent(
                 }
                 val preambleStr = stringResource(R.string.preamble)
                 val rangeText = if (chapterArticles.isNotEmpty()) {
-                    val firstId = formatArticleId(chapterArticles.first().id, chapter.id)
-                    val lastId = formatArticleId(chapterArticles.last().id, chapter.id)
+                    val firstId = formatArticleId(chapterArticles.first().id)
+                    val lastId = formatArticleId(chapterArticles.last().id)
                     when (chapterRangeKind(chapter.id, firstId == lastId)) {
                         ChapterRangeKind.PREAMBLE -> preambleStr
                         ChapterRangeKind.POINT_SINGLE -> stringResource(R.string.point_range_single, firstId)

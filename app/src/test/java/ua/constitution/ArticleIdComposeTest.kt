@@ -30,9 +30,9 @@ class ArticleIdComposeTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private fun formatId(id: Int, chapterId: Int): String {
+    private fun formatId(id: Int): String {
         var result = ""
-        composeTestRule.setContent { result = formatArticleId(id, chapterId) }
+        composeTestRule.setContent { result = formatArticleId(id) }
         composeTestRule.waitForIdle()
         return result
     }
@@ -48,27 +48,32 @@ class ArticleIdComposeTest {
 
     @Test
     fun `formatArticleId returns the preamble string for id 0`() {
-        assertEquals("Преамбула", formatId(0, 0))
+        assertEquals("Преамбула", formatId(0))
     }
 
     @Test
-    fun `CHARACTERIZATION formatArticleId special-cases article 16-1 in chapter 15`() {
-        assertEquals("16¹", formatId(161, 15))
+    fun `formatArticleId renders a fractional id (16-1) as base plus superscript`() {
+        assertEquals("16¹", formatId(16001))
     }
 
     @Test
-    fun `formatArticleId renders ids over 1000 as base plus superscript`() {
-        assertEquals("100¹", formatId(1001, 0))
+    fun `formatArticleId renders fractional ids as base plus superscript`() {
+        assertEquals("100¹", formatId(100001))
     }
 
     @Test
     fun `formatArticleId returns a plain number for a normal article`() {
-        assertEquals("20", formatId(20, 1))
+        assertEquals("20", formatId(20))
+    }
+
+    @Test
+    fun `formatArticleId renders the real Article 161 as plain 161 not a fractional`() {
+        assertEquals("161", formatId(161))
     }
 
     @Test
     fun `formatArticleId leaves exactly 1000 as a plain number`() {
-        assertEquals("1000", formatId(1000, 0))
+        assertEquals("1000", formatId(1000))
     }
 
     // --- getBackNavigationText ------------------------------------------------------------------
@@ -80,7 +85,7 @@ class ArticleIdComposeTest {
 
     @Test
     fun `getBackNavigationText for a chapter 15 punkt`() {
-        assertEquals("Назад до Розділу 15, п. 16¹", backText(articleOf(id = 161, chapterId = 15)))
+        assertEquals("Назад до Розділу 15, п. 16¹", backText(articleOf(id = 16001, chapterId = 15)))
     }
 
     @Test
@@ -104,7 +109,7 @@ class ArticleIdComposeTest {
     fun `ArticleIdText renders base plus suffix as one string for a fractional id`() {
         composeTestRule.setContent {
             MaterialTheme {
-                ArticleIdText(id = 161, color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Bold, chapterId = 15)
+                ArticleIdText(id = 16001, color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
         }
         composeTestRule.onNodeWithText("161").assertIsDisplayed()

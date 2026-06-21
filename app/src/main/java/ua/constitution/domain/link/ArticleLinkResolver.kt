@@ -1,6 +1,7 @@
 package ua.constitution.domain.link
 
 import ua.constitution.data.model.Article
+import ua.constitution.domain.text.ArticleNumberFormatter
 
 /** Resolves cross-reference link text (e.g. "ст. 20", "п. 5", "16¹") to an Article.
  * Takes the article list as a parameter rather than reaching into a global singleton.
@@ -37,11 +38,11 @@ private fun isPunktReference(text: String): Boolean {
         lower.contains(LinkPatterns.P_SPACE_MID)
 }
 
-/** The first decimal/integer in [normalized] encoded as an article id ("16.1" -> 161), or null. */
+/** The first decimal/integer in [normalized] encoded as an article id ("16.1" -> 16001), or null. */
 private fun extractTargetId(normalized: String): Int? {
     val match = """\d+(?:\.\d+)?""".toRegex().find(normalized) ?: return null
     val dVal = match.value.toDoubleOrNull() ?: return null
-    return if (dVal % 1.0 != 0.0) Math.round(dVal * 10).toInt() else dVal.toInt()
+    return ArticleNumberFormatter.encode(dVal)
 }
 
 /** Looks up [targetId], preferring chapter 15 for punkt references and non-15 otherwise, then any. */

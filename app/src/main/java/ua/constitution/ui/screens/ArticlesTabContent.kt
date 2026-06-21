@@ -252,10 +252,9 @@ fun ArticlesTabContent(
                             ) {
                                 ArticleIdText(
                                      id = article.id,
-                                     fontSize = if (ArticleNumberFormatter.isFractional(article.id, article.chapterId)) 13.sp else 14.sp,
+                                     fontSize = if (ArticleNumberFormatter.isFractional(article.id)) 13.sp else 14.sp,
                                      fontWeight = if (isActive) FontWeight.ExtraBold else FontWeight.Black,
-                                     color = SovereignBlue,
-                                     chapterId = article.chapterId
+                                     color = SovereignBlue
                                  )
                             }
                         }

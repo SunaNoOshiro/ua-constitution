@@ -47,8 +47,8 @@ class ConstitutionJsonDeserializerTest {
 
         val parsed = deserializer.deserialize(json)
 
-        // preamble (id 0) + article 1 + fractional 16.1 -> 161, sorted ascending
-        assertEquals(listOf(0, 1, 161), parsed.articles.map { it.id })
+        // preamble (id 0) + article 1 + fractional 16.1 -> 16001, sorted ascending (16.1 sorts after 1)
+        assertEquals(listOf(0, 1, 16001), parsed.articles.map { it.id })
         assertEquals(0, parsed.articles.first { it.id == 0 }.chapterId)
         // preamble chapter (0) + chapter 1
         assertEquals(listOf(0, 1), parsed.chapters.map { it.id })

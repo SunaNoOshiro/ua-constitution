@@ -361,12 +361,12 @@ fun ArticleCard(
 // Vector-based high-fidelity Coat of Arms of Ukraine (Герб України/Тризуб)
 
 @Composable
-fun formatArticleId(id: Int, chapterId: Int = 0): String =
-    ArticleNumberFormatter.formatWithPreamble(id, chapterId, stringResource(R.string.preamble))
+fun formatArticleId(id: Int): String =
+    ArticleNumberFormatter.formatWithPreamble(id, stringResource(R.string.preamble))
 
 @Composable
 fun getBackNavigationText(article: Article): String {
-    val artLabel = formatArticleId(article.id, article.chapterId)
+    val artLabel = formatArticleId(article.id)
     return when (backNavigationTarget(article.chapterId)) {
         BackNavigationTarget.CHAPTER_15 -> stringResource(R.string.back_to_chapter_15, artLabel)
         BackNavigationTarget.PREAMBLE -> stringResource(R.string.back_to_preamble)
@@ -380,17 +380,16 @@ fun ArticleIdText(
     color: Color,
     fontSize: androidx.compose.ui.unit.TextUnit,
     fontWeight: FontWeight,
-    modifier: Modifier = Modifier,
-    chapterId: Int = 0
+    modifier: Modifier = Modifier
 ) {
     val preambleText = stringResource(R.string.preamble)
-    val text = remember(id, chapterId, preambleText) {
+    val text = remember(id, preambleText) {
         if (id == 0) {
             buildAnnotatedString {
                 append(preambleText)
             }
-        } else if (ArticleNumberFormatter.isFractional(id, chapterId)) {
-            val (base, suffix) = ArticleNumberFormatter.fractionalParts(id, chapterId)
+        } else if (ArticleNumberFormatter.isFractional(id)) {
+            val (base, suffix) = ArticleNumberFormatter.fractionalParts(id)
             buildAnnotatedString {
                 append(base)
                 withStyle(
@@ -408,7 +407,7 @@ fun ArticleIdText(
             }
         }
     }
-    val isFractional = ArticleNumberFormatter.isFractional(id, chapterId)
+    val isFractional = ArticleNumberFormatter.isFractional(id)
     Text(
         text = text,
         color = color,
