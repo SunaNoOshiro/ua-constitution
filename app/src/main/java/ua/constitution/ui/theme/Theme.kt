@@ -10,21 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = lightColorScheme(
-    primary = SovereignBlue,
-    secondary = SkyBlueLight,
-    tertiary = SunflowerYellow,
-    background = AppCanvasYellow, // Modern premium soft yellow canvas
-    surface = Color(0xFFFFFFFF),     // Pure white sheet for content cards
-    onPrimary = Color.White,
-    onSecondary = SovereignBlue,
-    onBackground = SovereignBlue,   // Royal blue text on yellow
-    onSurface = SovereignBlue,      // Royal blue text on cards
-    surfaceVariant = GoldAccentBorder,
-    onSurfaceVariant = SovereignBlue
-)
-
-private val LightColorScheme = lightColorScheme(
+// The app enforces one fixed national palette regardless of the system light/dark setting
+// (there is no separate dark theme). Dynamic color is disabled to keep the brand colors.
+private val AppColorScheme = lightColorScheme(
     primary = SovereignBlue,
     secondary = SkyBlueLight,
     tertiary = SunflowerYellow,
@@ -50,8 +38,7 @@ fun MyApplicationTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        else -> AppColorScheme
     }
 
     MaterialTheme(
