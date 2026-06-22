@@ -13,8 +13,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -27,7 +25,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
@@ -61,9 +58,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import ua.constitution.domain.text.StyledRange
 import ua.constitution.domain.text.RangeStyler
 import ua.constitution.domain.text.formatStringToSuperscript
-import ua.constitution.domain.text.getWordSnappedRange
-import ua.constitution.domain.text.GestureAxis
-import ua.constitution.domain.text.resolveGestureAxis
 import ua.constitution.domain.text.mapFormattedToOriginal
 import ua.constitution.domain.text.mapOriginalToFormatted
 import ua.constitution.domain.content.mergeAdjacentLinkSegments
@@ -232,78 +226,17 @@ fun SegmentedTextWithEdits(
                     Box(
                         modifier = Modifier
                             .matchParentSize()
-                            .pointerInput(annotatedString, activeTool, selectedColorHex) {
-                                val touchSlop = viewConfiguration.touchSlop
-                                awaitEachGesture {
-                                    val down = awaitFirstDown(requireUnconsumed = false)
-                                    val tool = currentActiveTool
-                                    val touchedWords = mutableSetOf<Pair<Int, Int>>()
-                                    
-                                    val startPosition = down.position
-                                    val currentPointerId = down.id
-                                    var hasDecidedGesture = false
-                                    var isScrollingMode = false
-                                    var isStylingMode = false
-
-                                    // Applies the active tool to the word under [position] (once per
-                                    // word in this gesture). Shared by the tap, the styling-down and
-                                    // the drag paths, which were three verbatim copies of this block.
-                                    val applyStyleAt: (androidx.compose.ui.geometry.Offset) -> Unit = { position ->
-                                        textLayoutResult?.let { layoutResult ->
-                                            val dragPos = layoutResult.getOffsetForPosition(position)
-                                            val origDragPos = formToOrigMapping.getOrElse(dragPos) { dragPos }
-                                            if (origDragPos in 0..originalText.length) {
-                                                getWordSnappedRange(originalText, origDragPos, origDragPos)?.let { snapped ->
-                                                    if (touchedWords.add(snapped)) {
-                                                        currentApplyStyleToRanges(touchedWords, tool, currentSelectedColorHex)
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    while (true) {
-                                        val event = awaitPointerEvent()
-                                        val anyActive = event.changes.any { it.id == currentPointerId && it.pressed }
-                                        if (!anyActive) {
-                                            // User released finger
-                                            if (!hasDecidedGesture) {
-                                                // Treated as a single tap!
-                                                applyStyleAt(startPosition)
-                                            }
-                                            break
-                                        }
-
-                                        val activeChange = event.changes.firstOrNull { it.id == currentPointerId }
-                                        if (activeChange != null) {
-                                            val currentPosition = activeChange.position
-                                            val diffX = currentPosition.x - startPosition.x
-                                            val diffY = currentPosition.y - startPosition.y
-
-                                            if (!hasDecidedGesture) {
-                                                val axis = resolveGestureAxis(diffX, diffY, touchSlop)
-                                                if (axis != null) {
-                                                    hasDecidedGesture = true
-                                                    if (axis == GestureAxis.SCROLL) {
-                                                        isScrollingMode = true
-                                                        break
-                                                    } else {
-                                                        isStylingMode = true
-                                                        activeChange.consume()
-                                                        // Also apply styling to down position now that we know we are styling
-                                                        applyStyleAt(startPosition)
-                                                    }
-                                                }
-                                            } else {
-                                                if (isStylingMode) {
-                                                    activeChange.consume()
-                                                    applyStyleAt(currentPosition)
-                                                }
-                                            }
-                                        }
-                                    }
+                            .styleOnWordGesture(
+                                keys = listOf(annotatedString, activeTool, selectedColorHex),
+                                getLayout = { textLayoutResult },
+                                formToOrigMapping = formToOrigMapping,
+                                originalText = originalText,
+                                activeTool = { currentActiveTool },
+                                selectedColorHex = { currentSelectedColorHex },
+                                applyToRanges = { words, tool, colorHex ->
+                                    currentApplyStyleToRanges(words, tool, colorHex)
                                 }
-                            }
+                            )
                     )
                 }
             }
