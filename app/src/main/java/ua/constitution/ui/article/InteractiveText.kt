@@ -51,8 +51,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.platform.LocalTextToolbar
-import androidx.compose.ui.platform.TextToolbar
-import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
@@ -170,30 +168,17 @@ fun SegmentedTextWithEdits(
     var menuRect by remember { mutableStateOf<androidx.compose.ui.geometry.Rect?>(null) }
     var menuCallbacks by remember { mutableStateOf<MenuCallbacks?>(null) }
 
-    val customTextToolbar = remember {
-        object : androidx.compose.ui.platform.TextToolbar {
-            override val status: androidx.compose.ui.platform.TextToolbarStatus
-                get() = if (menuRect != null) androidx.compose.ui.platform.TextToolbarStatus.Shown else androidx.compose.ui.platform.TextToolbarStatus.Hidden
-
-            override fun hide() {
-                android.util.Log.d(LogMessages.TAG_SELECTION_BUG, LogMessages.TOOLBAR_HIDE_CALLED)
-                menuRect = null
-                menuCallbacks = null
-            }
-
-            override fun showMenu(
-                rect: androidx.compose.ui.geometry.Rect,
-                onCopyRequested: (() -> Unit)?,
-                onPasteRequested: (() -> Unit)?,
-                onCutRequested: (() -> Unit)?,
-                onSelectAllRequested: (() -> Unit)?
-            ) {
-                android.util.Log.d(LogMessages.TAG_SELECTION_BUG, LogMessages.toolbarShowMenu(rect, rect.height, rect.width))
-                menuRect = rect
-                menuCallbacks = MenuCallbacks(onCopyRequested, onSelectAllRequested)
-            }
+    val customTextToolbar = rememberStylingTextToolbar(
+        isShown = { menuRect != null },
+        onShowMenu = { rect, callbacks ->
+            menuRect = rect
+            menuCallbacks = callbacks
+        },
+        onHide = {
+            menuRect = null
+            menuCallbacks = null
         }
-    }
+    )
 
     val isStylingToolActive = activeTool == Constants.TOOL_MARKER || activeTool == Constants.TOOL_UNDERLINE || activeTool == Constants.TOOL_ERASER
 
@@ -449,11 +434,6 @@ fun SegmentedTextWithEdits(
         )
     }
 }
-
-class MenuCallbacks(
-    val onCopy: (() -> Unit)?,
-    val onSelectAll: (() -> Unit)?
-)
 
 @Composable
 fun TextButtonWithIcon(
