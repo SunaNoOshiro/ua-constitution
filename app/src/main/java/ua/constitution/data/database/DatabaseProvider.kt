@@ -22,7 +22,7 @@ object DatabaseProvider {
                 ConstitutionDatabase::class.java,
                 Constants.DATABASE_NAME
             )
-                .fallbackToDestructiveMigration()
+                .fallbackToDestructiveMigration(dropAllTables = true)
                 .build()
             INSTANCE = instance
             instance

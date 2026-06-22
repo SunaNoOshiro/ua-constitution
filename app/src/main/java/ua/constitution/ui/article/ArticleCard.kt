@@ -80,6 +80,9 @@ fun ArticleCard(
     val titleParts = remember(article.id, article.titleUa) { parseArticleTitle(article.titleUa) }
     val articleNumber = titleParts.display
     val articleName = titleParts.name
+    val fullArticleTextToCopy = remember(articleNumber, articleName, article.paragraphs) {
+        formatArticleForCopy(articleNumber, articleName, article.paragraphs.map { it.text })
+    }
 
     var localEdits by remember(isEditable) { mutableStateOf(emptyMap<Int, List<StyledRange>>()) }
     var lastSavedJson by remember { mutableStateOf("") }
@@ -150,7 +153,7 @@ fun ArticleCard(
                         copyToClipboardWithToast(
                             context,
                             context.getString(R.string.tab_articles),
-                            formatArticleForCopy(articleNumber, articleName, article.paragraphs.map { it.text })
+                            fullArticleTextToCopy
                         )
                     },
                     modifier = Modifier.size(36.dp).testTag("copy_article_button")
@@ -244,11 +247,6 @@ fun ArticleCard(
                     articleTitle = null
                 )
                 Spacer(modifier = Modifier.height(6.dp))
-            }
-
-            // Full legislation text (always expanded) - styled perfectly with paragraphs with integrated notes & links
-            val fullArticleTextToCopy = remember(articleNumber, articleName, article.paragraphs) {
-                formatArticleForCopy(articleNumber, articleName, article.paragraphs.map { it.text })
             }
 
             val combinedSegments = remember(article.paragraphs) {

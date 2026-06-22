@@ -14,7 +14,7 @@ data class ArticleEditing(
     val isCurrentlyEditing: Boolean = false,
     val isEditButtonEnabled: Boolean = true,
     val isPanelExpanded: Boolean = false,
-    val activeTool: String = Constants.TOOL_MARKER,
+    val activeTool: String = Constants.TOOL_NONE,
     val selectedColorHex: String = HighlightPalette.DEFAULT_MARKER,
     val selectedMarkerColorHex: String = HighlightPalette.DEFAULT_MARKER,
     val selectedUnderlineColorHex: String = HighlightPalette.DEFAULT_UNDERLINE,

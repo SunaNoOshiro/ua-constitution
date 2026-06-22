@@ -94,7 +94,7 @@ fun FullscreenSymbolOverlay(symbol: FullscreenSymbol, onDismiss: () -> Unit) {
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                val tryzubRatio = 165f / 230.5f
+                val tryzubRatio = TRYZUB_ASPECT_RATIO
                 val sizeFraction = if (isRotated) {
                     val targetHeight = maxWidth * 0.85f
                     minOf(targetHeight, maxHeight * 0.85f / tryzubRatio)

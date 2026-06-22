@@ -654,7 +654,6 @@ fun BookmarksTabContent(
                     key = { _, article -> article.bookmarkId }
                 ) { index, article ->
                      val editsJson = bookmarksList.editsJsonFor(article)
-                     val isCurrentEditable = true
                      val onSaveCallback: (String) -> Unit = { newJson ->
                          viewModel.updateBookmarkEdits(article.bookmarkId, newJson)
                      }
@@ -671,7 +670,7 @@ fun BookmarksTabContent(
                         resolveArticleLink = viewModel::resolveLink,
                         initialEditsJson = editsJson,
                         editing = ArticleEditing(
-                            isEditable = isCurrentEditable,
+                            isEditable = true,
                             isCurrentlyEditing = (editor.editingArticleId == article.bookmarkId),
                             isEditButtonEnabled = (editor.editingArticleId == null || editor.editingArticleId == article.bookmarkId),
                             isPanelExpanded = editor.panelExpanded,

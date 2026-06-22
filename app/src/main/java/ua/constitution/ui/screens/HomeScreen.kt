@@ -47,6 +47,9 @@ import ua.constitution.audio.computeWaveformBarStates
 import ua.constitution.ui.formatMillisToMinutesSeconds
 import ua.constitution.ui.model.FullscreenSymbol
 
+/** Aspect ratio (width / height) of the Tryzub coat-of-arms vector, used to size it consistently. */
+internal val TRYZUB_ASPECT_RATIO = 165f / 230.5f
+
 @Composable
 fun UkrainianCoatOfArms(
     modifier: Modifier = Modifier,
@@ -287,7 +290,7 @@ fun NationalSymbolsCard(onOpenFullscreenSymbol: (FullscreenSymbol) -> Unit) {
                 UkrainianCoatOfArms(
                     modifier = Modifier
                         .height(96.dp)
-                        .aspectRatio(165f / 230.5f)
+                        .aspectRatio(TRYZUB_ASPECT_RATIO)
                         .clickable { onOpenFullscreenSymbol(FullscreenSymbol.COAT_OF_ARMS) }
                 )
             }
