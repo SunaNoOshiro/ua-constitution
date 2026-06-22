@@ -1,7 +1,16 @@
 package ua.constitution.ui.article
 
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.unit.dp
+import ua.constitution.domain.text.StyledRange
+import ua.constitution.ui.safeParseColor
 
 /**
  * Computes the per-line rectangles a styled range [rangeStart, rangeEnd) (in ORIGINAL-text
@@ -62,4 +71,70 @@ fun styledLineRects(
         }
     }
     return rects
+}
+
+/**
+ * Draws the highlight/underline overlay for [ranges] over a laid-out text. [getLayout] is invoked
+ * inside the draw phase so the latest [TextLayoutResult] is used. Highlights fill behind the text;
+ * underlines are drawn on top after `drawContent()`. Both passes swallow exceptions to avoid
+ * crashing the Compose drawing thread. Extracted verbatim from `SegmentedTextWithEdits`; shared by
+ * its editable and read-only render paths.
+ */
+fun Modifier.styledOverlay(
+    getLayout: () -> TextLayoutResult?,
+    ranges: List<StyledRange>,
+    originalTextLength: Int,
+    origToFormMapping: IntArray,
+): Modifier = drawWithContent {
+    try {
+        getLayout()?.let { drawHighlightRects(it, ranges, originalTextLength, origToFormMapping) }
+    } catch (e: Exception) {
+        // ignore drawing errors to avoid crashing the Compose drawing thread
+    }
+    drawContent()
+    try {
+        getLayout()?.let { drawUnderlineRects(it, ranges, originalTextLength, origToFormMapping) }
+    } catch (e: Exception) {
+        // ignore drawing errors to avoid crashing the Compose drawing thread
+    }
+}
+
+private fun DrawScope.drawHighlightRects(
+    layout: TextLayoutResult,
+    ranges: List<StyledRange>,
+    originalTextLength: Int,
+    origToFormMapping: IntArray,
+) {
+    ranges.forEach { range ->
+        if (!range.highlight) return@forEach
+        val color = safeParseColor(range.highlightColorHex, Color.Yellow).copy(alpha = 0.85f)
+        styledLineRects(layout, range.start, range.end, originalTextLength, origToFormMapping).forEach { rect ->
+            drawRect(
+                color = color,
+                topLeft = Offset(rect.left, rect.top),
+                size = Size(rect.width, rect.height),
+            )
+        }
+    }
+}
+
+private fun DrawScope.drawUnderlineRects(
+    layout: TextLayoutResult,
+    ranges: List<StyledRange>,
+    originalTextLength: Int,
+    origToFormMapping: IntArray,
+) {
+    ranges.forEach { range ->
+        if (!range.underscore) return@forEach
+        val color = safeParseColor(range.underscoreColorHex, Color.Red)
+        styledLineRects(layout, range.start, range.end, originalTextLength, origToFormMapping).forEach { rect ->
+            val lineY = rect.bottom - 2.dp.toPx()
+            drawLine(
+                color = color,
+                start = Offset(rect.left, lineY),
+                end = Offset(rect.right, lineY),
+                strokeWidth = 2.dp.toPx(),
+            )
+        }
+    }
 }

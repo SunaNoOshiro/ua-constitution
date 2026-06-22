@@ -27,7 +27,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -144,53 +143,6 @@ fun SegmentedTextWithEdits(
         mapFormattedToOriginal(originalText, formattedText)
     }
 
-    // Highlight/underline overlay shared by the editable and read-only render paths.
-    val drawStyledOverlay: androidx.compose.ui.graphics.drawscope.ContentDrawScope.() -> Unit = {
-                            // Draw highlights first behind the text
-                            try {
-                                textLayoutResult?.let { layoutResult ->
-                                    ranges.forEach { range ->
-                                        if (range.highlight) {
-                                            val colorVal = safeParseColor(range.highlightColorHex, Color.Yellow).copy(alpha = 0.85f)
-                                            styledLineRects(layoutResult, range.start, range.end, originalText.length, origToFormMapping).forEach { rect ->
-                                                drawRect(
-                                                    color = colorVal,
-                                                    topLeft = androidx.compose.ui.geometry.Offset(rect.left, rect.top),
-                                                    size = androidx.compose.ui.geometry.Size(rect.width, rect.height)
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            } catch (e: Exception) {
-                                // ignore
-                            }
-
-                            drawContent()
-
-                            // Draw underlines on top of the text
-                            try {
-                                textLayoutResult?.let { layoutResult ->
-                                    ranges.forEach { range ->
-                                        if (range.underscore) {
-                                            val colorVal = safeParseColor(range.underscoreColorHex, Color.Red)
-                                            styledLineRects(layoutResult, range.start, range.end, originalText.length, origToFormMapping).forEach { rect ->
-                                                val lineY = rect.bottom - 2.dp.toPx()
-                                                drawLine(
-                                                    color = colorVal,
-                                                    start = androidx.compose.ui.geometry.Offset(rect.left, lineY),
-                                                    end = androidx.compose.ui.geometry.Offset(rect.right, lineY),
-                                                    strokeWidth = 2.dp.toPx()
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            } catch (e: Exception) {
-                                // ignore drawing errors to avoid crashing the Compose drawing thread
-                            }
-    }
-
     val annotatedString = remember(mergedSegments, formattedText, origToFormMapping) {
         buildSegmentedAnnotatedString(mergedSegments, formattedText, origToFormMapping)
     }
@@ -287,7 +239,7 @@ fun SegmentedTextWithEdits(
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester)
-                        .drawWithContent(drawStyledOverlay)
+                        .styledOverlay({ textLayoutResult }, ranges, originalText.length, origToFormMapping)
                 )
 
                 // High Z-index interactive overlay solely to capture and handle styling gestures (swiping over words)
@@ -377,7 +329,7 @@ fun SegmentedTextWithEdits(
             style = textStyle.toTextStyle(),
             onTextLayout = { textLayoutResult = it },
             modifier = modifier
-                .drawWithContent(drawStyledOverlay)
+                .styledOverlay({ textLayoutResult }, ranges, originalText.length, origToFormMapping)
                 .then(
                     Modifier.pointerInput(annotatedString) {
                         detectTapGestures(
