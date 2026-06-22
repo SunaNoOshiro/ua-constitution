@@ -31,10 +31,6 @@ class FakeConstitutionDao : ConstitutionDao {
         publish(bookmarks.value.filterNot { it.articleId == bookmark.articleId } + bookmark)
     }
 
-    override suspend fun deleteBookmark(bookmark: BookmarkEntity) {
-        publish(bookmarks.value.filterNot { it.articleId == bookmark.articleId })
-    }
-
     override suspend fun deleteBookmarkByArticleId(articleId: Int) {
         publish(bookmarks.value.filterNot { it.articleId == articleId })
     }

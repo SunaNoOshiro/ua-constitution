@@ -45,5 +45,4 @@ object LogMessages {
 
     // Log Messages for Popup / Dismiss preserving selection
     const val POPUP_DISMISS_PRESERVE_SELECTION = "Popup onDismissRequest called - preserving selection so handles remain interactive!"
-    const val PARAGRAPH_POPUP_DISMISS_PRESERVE_SELECTION = "Popup onDismissRequest called - preserving selection in InteractiveParagraphText!"
 }

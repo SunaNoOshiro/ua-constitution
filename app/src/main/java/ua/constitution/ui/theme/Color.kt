@@ -11,12 +11,6 @@ val SkyBlueLight = Color(0xFF1976D2)       // Active secondary brand color
 val NationalYellowBg = Color(0xFFFFF9C4)   // Cozy cream canary yellow background
 val GoldAccentBorder = Color(0xFFFBC02D)   // Strong golden yellow for borders
 val RichNavyText = Color(0xFF0F172A)       // Crisp deep ink readable text on yellow
-val DeepWhiteSurface = Color(0xFFFFFFFF)   // Clean crisp white sheet for cards
-
-// Complementary Dark Yellow-Blue state colors
-val RoyalBlueDark = Color(0xFF0A1931)
-val GoldYellowDark = Color(0xFFFFCC29)
-val PaperIvory = Color(0xFFFFFFFC)
 
 // Brand blues & official flag/emblem colors
 val BrightBlue = Color(0xFF1E88E5)         // Bright center of the emblem badge gradient

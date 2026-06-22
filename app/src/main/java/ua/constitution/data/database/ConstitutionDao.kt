@@ -14,9 +14,6 @@ interface ConstitutionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBookmark(bookmark: BookmarkEntity)
 
-    @Delete
-    suspend fun deleteBookmark(bookmark: BookmarkEntity)
-
     @Query("DELETE FROM " + Constants.TABLE_BOOKMARKS + " WHERE articleId = :articleId")
     suspend fun deleteBookmarkByArticleId(articleId: Int)
 

@@ -359,8 +359,6 @@ fun ArticleCard(
     }
 }
 
-// Vector-based high-fidelity Coat of Arms of Ukraine (Герб України/Тризуб)
-
 @Composable
 fun formatArticleId(id: Int): String =
     ArticleNumberFormatter.formatWithPreamble(id, stringResource(R.string.preamble))

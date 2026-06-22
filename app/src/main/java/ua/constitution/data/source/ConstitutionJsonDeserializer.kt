@@ -5,7 +5,6 @@ import ua.constitution.R
 import ua.constitution.data.model.Article
 import ua.constitution.data.model.Chapter
 import ua.constitution.data.model.ContentSegment
-import ua.constitution.data.model.Link
 import ua.constitution.data.model.Note
 import ua.constitution.data.model.Paragraph
 import ua.constitution.domain.text.ArticleNumberFormatter
@@ -131,16 +130,6 @@ class ConstitutionJsonDeserializer(private val context: Context) {
             val text = obj.optString(Constants.KEY_TEXT, "")
             val url = obj.optString(Constants.KEY_URL, "")
             list.add(ContentSegment(type, value, text, url))
-        }
-        return list
-    }
-
-    private fun parseLinks(arr: org.json.JSONArray?): List<Link> {
-        if (arr == null) return emptyList()
-        val list = mutableListOf<Link>()
-        for (i in 0 until arr.length()) {
-            val obj = arr.getJSONObject(i)
-            list.add(Link(obj.getString(Constants.KEY_TEXT), obj.getString(Constants.KEY_URL)))
         }
         return list
     }
