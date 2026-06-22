@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -125,7 +126,7 @@ fun ArticlesTabContent(
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = getBackNavigationText(lastArticle),
                             tint = SovereignBlue,
                             modifier = Modifier.size(16.dp)
@@ -198,7 +199,7 @@ fun ArticlesTabContent(
                             modifier = Modifier.size(36.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Default.OpenInNew,
+                                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
                                 contentDescription = stringResource(R.string.read_chapter_source),
                                 tint = SunflowerYellow,
                                 modifier = Modifier.size(20.dp)

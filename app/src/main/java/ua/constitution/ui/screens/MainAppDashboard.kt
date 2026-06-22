@@ -19,6 +19,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -140,7 +141,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                         }
                     },
                     label = { Text(stringResource(R.string.tab_articles), fontWeight = FontWeight.Bold, color = SovereignBlue, fontSize = 10.sp) },
-                    icon = { Icon(Icons.Default.List, contentDescription = stringResource(R.string.tab_articles), tint = SovereignBlue, modifier = Modifier.size(20.dp)) },
+                    icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = stringResource(R.string.tab_articles), tint = SovereignBlue, modifier = Modifier.size(20.dp)) },
                     colors = NavigationBarItemDefaults.colors(
                         indicatorColor = NationalYellowBg
                     )
@@ -549,7 +550,7 @@ fun ChaptersTabContent(
                                 modifier = Modifier.size(36.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.OpenInNew,
+                                    imageVector = Icons.AutoMirrored.Filled.OpenInNew,
                                     contentDescription = stringResource(R.string.read_chapter_source),
                                     tint = SovereignBlue.copy(alpha = 0.7f),
                                     modifier = Modifier.size(18.dp)
@@ -559,7 +560,7 @@ fun ChaptersTabContent(
                         }
 
                         Icon(
-                            imageVector = Icons.Default.ArrowForward,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                             contentDescription = stringResource(R.string.open_chapter_articles),
                             tint = SovereignBlue
                         )
