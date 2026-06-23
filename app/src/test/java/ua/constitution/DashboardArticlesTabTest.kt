@@ -3,6 +3,7 @@ package ua.constitution
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -43,8 +44,14 @@ class DashboardArticlesTabTest {
 
     @Before
     fun setup() {
+        // MainActivity loads content asynchronously and shows a loading state until ready; wait for
+        // the dashboard (a bottom-nav tab) to appear before asserting.
         activity = composeTestRule.activity
-        composeTestRule.waitForIdle()
+        composeTestRule.waitUntil(timeoutMillis = 10_000) {
+            composeTestRule.onAllNodesWithContentDescription(
+                activity.getString(R.string.tab_chapters), useUnmergedTree = true
+            ).fetchSemanticsNodes().isNotEmpty()
+        }
     }
 
     private fun openArticlesTab() {
