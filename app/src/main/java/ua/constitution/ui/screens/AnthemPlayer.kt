@@ -10,6 +10,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import ua.constitution.R
 import ua.constitution.utils.LogMessages
 
@@ -75,13 +78,19 @@ fun rememberAnthemPlayerState(): AnthemPlayerState {
         if (isPlaying) {
             if (nativeMediaPlayer == null) {
                 isBuffering = true
+                var created: MediaPlayer? = null
                 try {
-                    val mp = MediaPlayer.create(context, R.raw.anthem).apply {
-                        setOnCompletionListener {
-                            isPlaying = false
-                            playerPosition = 0
+                    // Decode/prepare the ~4.8MB raw asset off the main thread so tapping play
+                    // doesn't jank the UI. The completion listener still fires on the main looper.
+                    withContext(Dispatchers.IO) {
+                        created = MediaPlayer.create(context, R.raw.anthem)?.apply {
+                            setOnCompletionListener {
+                                isPlaying = false
+                                playerPosition = 0
+                            }
                         }
                     }
+                    val mp = created
                     if (mp != null) {
                         nativeMediaPlayer = mp
                         playerDuration = mp.duration
@@ -91,7 +100,13 @@ fun rememberAnthemPlayerState(): AnthemPlayerState {
                         android.util.Log.e(LogMessages.TAG_ANTHEM_PLAYER, LogMessages.PLAYER_RAW_CREATE_FAILED)
                         isPlaying = false
                     }
+                } catch (e: CancellationException) {
+                    // Effect cancelled (toggled off / disposed) mid-create: release the orphan player
+                    // unless ownership already passed to state (DisposableEffect releases that one).
+                    if (nativeMediaPlayer == null) created?.release()
+                    throw e
                 } catch (e: Exception) {
+                    if (nativeMediaPlayer == null) created?.release()
                     android.util.Log.e(LogMessages.TAG_ANTHEM_PLAYER, LogMessages.PLAYER_CREATE_ERROR, e)
                     isPlaying = false
                 } finally {
