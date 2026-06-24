@@ -20,8 +20,10 @@ tailrec fun Context.findActivity(): Activity? = when (this) {
 /**
  * Drives immersive (system-bars-hidden) mode for the hosting window while [active], restoring the
  * bars otherwise. Extracted out of MainAppDashboard so window-chrome policy is no longer a
- * responsibility of the navigation shell. Behavior is the former inline LaunchedEffect verbatim;
- * keyed on [active] (the window toggle is idempotent across non-NONE fullscreen symbols).
+ * responsibility of the navigation shell. Driven purely via [WindowInsetsControllerCompat] (the
+ * modern, cross-API hide/show; the deprecated FLAG_FULLSCREEN + statusBarColor it used to also set
+ * were redundant with the controller and with the activity's edge-to-edge setup). Keyed on [active]
+ * (the window toggle is idempotent across non-NONE fullscreen symbols).
  */
 @Composable
 fun ImmersiveFullscreenEffect(active: Boolean) {
@@ -30,13 +32,10 @@ fun ImmersiveFullscreenEffect(active: Boolean) {
         val win = context.findActivity()?.window ?: return@LaunchedEffect
         val controller = WindowCompat.getInsetsController(win, win.decorView)
         if (active) {
-            win.addFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN)
             controller.hide(WindowInsetsCompat.Type.systemBars())
             controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         } else {
-            win.clearFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN)
             controller.show(WindowInsetsCompat.Type.systemBars())
-            win.statusBarColor = android.graphics.Color.TRANSPARENT
             controller.isAppearanceLightStatusBars = true
         }
     }
