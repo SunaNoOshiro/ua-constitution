@@ -36,9 +36,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ua.constitution.data.model.Article
@@ -413,25 +415,44 @@ fun SegmentedText(
     resolveArticleLink: ((String) -> Article?)? = null
 ) {
     val context = LocalContext.current
+    val currentResolveLink by rememberUpdatedState(resolveArticleLink)
+    val currentOnArticleClick by rememberUpdatedState(onArticleClick)
 
     // Merge adjacent link segments that share the same URL to prevent split link issues (e.g., 149-1)
     val mergedSegments = remember(segments) { mergeAdjacentLinkSegments(segments) }
 
-    val annotatedString = remember(mergedSegments) {
+    val linkStyles = remember {
+        TextLinkStyles(
+            style = SpanStyle(
+                color = SovereignBlue,
+                fontWeight = FontWeight.Bold,
+                textDecoration = TextDecoration.Underline
+            )
+        )
+    }
+
+    // Links use LinkAnnotation.Clickable (Compose's built-in link styling + hit-testing) instead of
+    // the deprecated ClickableText + offset->annotation lookup; the tap still routes to
+    // openAnnotatedLink with the current resolve/click callbacks.
+    val annotatedString = remember(mergedSegments, linkStyles) {
         buildAnnotatedString {
             mergedSegments.forEach { segment ->
                 if (segment.type == Constants.TYPE_LINK) {
-                    pushStringAnnotation(tag = Constants.ANNOTATION_TAG_URL, annotation = "${segment.url}|${segment.text}")
-                    withStyle(
-                        style = SpanStyle(
-                            color = SovereignBlue,
-                            fontWeight = FontWeight.Bold,
-                            textDecoration = TextDecoration.Underline
-                        )
+                    val link = LinkAnnotation.Clickable(
+                        tag = Constants.ANNOTATION_TAG_URL,
+                        styles = linkStyles,
                     ) {
+                        openAnnotatedLink(
+                            "${segment.url}|${segment.text}",
+                            context,
+                            currentResolveLink,
+                            currentOnArticleClick,
+                            LogMessages.TAG_SEGMENTED_TEXT
+                        )
+                    }
+                    withLink(link) {
                         append(formatStringToSuperscript(segment.text))
                     }
-                    pop()
                 } else {
                     append(formatStringToSuperscript(segment.value))
                 }
@@ -439,16 +460,10 @@ fun SegmentedText(
         }
     }
 
-    androidx.compose.foundation.text.ClickableText(
+    Text(
         text = annotatedString,
         style = textStyle.toTextStyle(),
         modifier = modifier,
-        onClick = { offset ->
-            annotatedString.getStringAnnotations(tag = Constants.ANNOTATION_TAG_URL, start = offset, end = offset)
-                .firstOrNull()?.let { annotation ->
-                    openAnnotatedLink(annotation.item, context, resolveArticleLink, onArticleClick, LogMessages.TAG_SEGMENTED_TEXT)
-                }
-        }
     )
 }
 
