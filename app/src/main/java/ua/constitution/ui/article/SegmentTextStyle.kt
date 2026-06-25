@@ -2,12 +2,14 @@ package ua.constitution.ui.article
 
 import ua.constitution.ui.theme.*
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.sp
 
 /**
@@ -37,3 +39,19 @@ fun SegmentTextStyle.toTextStyle(): TextStyle =
         fontStyle = fontStyle ?: style.fontStyle,
         textAlign = TextAlign.Start,
     )
+
+/**
+ * [toTextStyle] with the reader's [LocalFontScale] applied to font size and line height (only the
+ * reading text scales; returns the unscaled style at scale 1.0). Specified-unit guarded so an
+ * inherited/Unspecified size is left untouched.
+ */
+@Composable
+fun SegmentTextStyle.toScaledTextStyle(): TextStyle {
+    val scale = LocalFontScale.current
+    val base = toTextStyle()
+    if (scale == 1f) return base
+    return base.copy(
+        fontSize = if (base.fontSize.isSpecified) base.fontSize * scale else base.fontSize,
+        lineHeight = if (base.lineHeight.isSpecified) base.lineHeight * scale else base.lineHeight,
+    )
+}

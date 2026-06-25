@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ua.constitution.data.model.Article
+import ua.constitution.data.settings.SettingsRepository
 import ua.constitution.ui.theme.*
 import ua.constitution.ui.viewmodel.ConstitutionViewModel
 import ua.constitution.ui.model.DashboardTab
@@ -43,12 +44,13 @@ import ua.constitution.ui.openExternalUrl
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainAppDashboard(viewModel: ConstitutionViewModel) {
+fun MainAppDashboard(viewModel: ConstitutionViewModel, settings: SettingsRepository) {
     val context = LocalContext.current
     var activeTab by remember { mutableStateOf(DashboardTab.HOME) } // Default to Home (Державні символи)
     var isSearchActive by remember { mutableStateOf(false) } // Controls immediate search bar drop
 
     var fullscreenSymbol by remember { mutableStateOf(FullscreenSymbol.NONE) }
+    var showSettings by remember { mutableStateOf(false) }
 
     // Immersive (system-bars-hidden) window mode while a symbol is shown full-screen.
     ImmersiveFullscreenEffect(active = fullscreenSymbol != FullscreenSymbol.NONE)
@@ -244,6 +246,17 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
                                 }
                         )
                     }
+
+                    IconButton(
+                        onClick = { showSettings = true },
+                        modifier = Modifier.testTag("open_settings_button")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = stringResource(R.string.settings_open),
+                            tint = SovereignBlue
+                        )
+                    }
                 }
             }
 
@@ -420,6 +433,14 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel) {
 
         activeEditingWarningMessage?.let { msg ->
             EditingWarningToast(message = msg, onDismiss = { activeEditingWarningMessage = null })
+        }
+
+        if (showSettings) {
+            SettingsSheet(
+                fontScale = settings.fontScale.collectAsState().value,
+                onFontScaleChange = settings::setFontScale,
+                onDismiss = { showSettings = false }
+            )
         }
     }
 

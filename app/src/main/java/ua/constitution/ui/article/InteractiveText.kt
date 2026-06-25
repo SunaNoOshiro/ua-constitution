@@ -215,7 +215,7 @@ fun SegmentedTextWithEdits(
                     },
                     readOnly = true,
                     cursorBrush = androidx.compose.ui.graphics.SolidColor(Color.Transparent),
-                    textStyle = textStyle.toTextStyle(),
+                    textStyle = textStyle.toScaledTextStyle(),
                     onTextLayout = { textLayoutResult = it },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -246,7 +246,7 @@ fun SegmentedTextWithEdits(
     } else {
         androidx.compose.material3.Text(
             text = annotatedString,
-            style = textStyle.toTextStyle(),
+            style = textStyle.toScaledTextStyle(),
             onTextLayout = { textLayoutResult = it },
             modifier = modifier
                 .styledOverlay({ textLayoutResult }, ranges, originalText.length, origToFormMapping)
@@ -462,7 +462,7 @@ fun SegmentedText(
 
     Text(
         text = annotatedString,
-        style = textStyle.toTextStyle(),
+        style = textStyle.toScaledTextStyle(),
         modifier = modifier,
     )
 }
