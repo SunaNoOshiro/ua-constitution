@@ -10,3 +10,7 @@ fun List<BookmarkEntity>.isBookmarked(article: Article): Boolean =
 /** The saved highlight-edits JSON for [article], or "" when it isn't bookmarked. */
 fun List<BookmarkEntity>.editsJsonFor(article: Article): String =
     find { it.articleId == article.bookmarkId }?.editsJson ?: ""
+
+/** The saved personal study note for [article], or "" when it isn't bookmarked. */
+fun List<BookmarkEntity>.notesFor(article: Article): String =
+    find { it.articleId == article.bookmarkId }?.notes ?: ""

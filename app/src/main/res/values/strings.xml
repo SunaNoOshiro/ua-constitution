@@ -47,6 +47,9 @@
     <string name="no_bookmarks_msg">У вас ще немає закладок.</string>
     <string name="bookmarks_hint">Натискайте значок закладок на статтях, щоб зберегти їх тут для швидкого перегляду.</string>
     <string name="save_edits_error">Збережіть зміни в попередній статті перед тим, як почати редагування іншої!</string>
+    <string name="note_label">Нотатка</string>
+    <string name="note_hint">Додайте особисту нотатку до цієї статті…</string>
+    <string name="note_save">Зберегти нотатку</string>
     <string name="close_text">Закрити</string>
     <string name="read_source_btn">Читати на zakon.rada.gov.ua</string>
     <string name="toast_article_copied">Статтю скопійовано!</string>

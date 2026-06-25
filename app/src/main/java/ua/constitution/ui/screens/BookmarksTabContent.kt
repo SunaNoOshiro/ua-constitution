@@ -34,6 +34,7 @@ import ua.constitution.data.model.Article
 import ua.constitution.ui.article.ArticleCard
 import ua.constitution.ui.article.ArticleEditing
 import ua.constitution.ui.editsJsonFor
+import ua.constitution.ui.notesFor
 import ua.constitution.ui.theme.SovereignBlue
 import ua.constitution.ui.viewmodel.ConstitutionViewModel
 import ua.constitution.utils.Constants
@@ -124,6 +125,7 @@ fun BookmarksTabContent(
                      val onSaveCallback: (String) -> Unit = { newJson ->
                          viewModel.updateBookmarkEdits(article.bookmarkId, newJson)
                      }
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     ArticleCard(
                         article = article,
                         isBookmarked = true,
@@ -174,6 +176,13 @@ fun BookmarksTabContent(
                             }
                         )
                     )
+                    if (editor.editingArticleId == article.bookmarkId) {
+                        BookmarkNoteEditor(
+                            initialNote = bookmarksList.notesFor(article),
+                            onSaveNote = { note -> viewModel.updateNotes(article.bookmarkId, note) },
+                        )
+                    }
+                    }
                 }
             }
         }

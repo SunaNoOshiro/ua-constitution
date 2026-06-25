@@ -7,6 +7,7 @@ import org.junit.Test
 import ua.constitution.data.database.BookmarkEntity
 import ua.constitution.ui.editsJsonFor
 import ua.constitution.ui.isBookmarked
+import ua.constitution.ui.notesFor
 
 /**
  * Pins the pure bookmark-lookup extensions (used by 5 UI call sites). Matching is by the article's
@@ -37,5 +38,16 @@ class BookmarkLookupTest {
     fun `editsJsonFor returns empty string when the article is not bookmarked`() {
         assertEquals("", emptyList<BookmarkEntity>().editsJsonFor(article))
         assertEquals("", listOf(BookmarkEntity(articleId = 999, editsJson = "y")).editsJsonFor(article))
+    }
+
+    @Test
+    fun `notesFor returns the matching bookmark's note`() {
+        assertEquals("my note", listOf(BookmarkEntity(articleId = article.bookmarkId, notes = "my note")).notesFor(article))
+    }
+
+    @Test
+    fun `notesFor returns empty string when the article is not bookmarked`() {
+        assertEquals("", emptyList<BookmarkEntity>().notesFor(article))
+        assertEquals("", listOf(BookmarkEntity(articleId = 999, notes = "x")).notesFor(article))
     }
 }
