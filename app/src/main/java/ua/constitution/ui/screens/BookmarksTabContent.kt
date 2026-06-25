@@ -35,6 +35,7 @@ import ua.constitution.ui.article.ArticleCard
 import ua.constitution.ui.article.ArticleEditing
 import ua.constitution.ui.editsJsonFor
 import ua.constitution.ui.notesFor
+import ua.constitution.ui.theme.LocalAppColors
 import ua.constitution.ui.theme.SovereignBlue
 import ua.constitution.ui.viewmodel.ConstitutionViewModel
 import ua.constitution.utils.Constants
@@ -48,6 +49,7 @@ fun BookmarksTabContent(
     onShowEditWarning: (String) -> Unit
 ) {
     val context = LocalContext.current
+    val appColors = LocalAppColors.current
     val bookmarkedArticles = viewModel.bookmarkedArticles(bookmarksList)
 
     Column(
@@ -59,7 +61,7 @@ fun BookmarksTabContent(
             text = stringResource(R.string.saved_bookmarks_header, bookmarkedArticles.size),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Black,
-            color = SovereignBlue,
+            color = appColors.textPrimary,
             modifier = Modifier.padding(vertical = 10.dp)
         )
 
@@ -104,12 +106,12 @@ fun BookmarksTabContent(
                                 text = stringResource(R.string.no_bookmarks_msg),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = SovereignBlue.copy(alpha = 0.6f)
+                                color = appColors.textSecondary
                             )
                             Text(
                                 text = stringResource(R.string.bookmarks_hint),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = SovereignBlue.copy(alpha = 0.5f),
+                                color = appColors.textSecondary,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.padding(horizontal = 20.dp)
                             )

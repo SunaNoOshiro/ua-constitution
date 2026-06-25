@@ -90,7 +90,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel, settings: SettingsReposit
         Scaffold(
             modifier = Modifier
                 .fillMaxSize(),
-            containerColor = AppCanvasYellow, // Radiant high-fidelity soft yellow canvas
+            containerColor = LocalAppColors.current.canvas, // Yellow canvas (light) / navy (dark)
         bottomBar = {
             NavigationBar(
                 containerColor = SunflowerYellow, // Dynamic flag-colored yellow
@@ -438,7 +438,9 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel, settings: SettingsReposit
         if (showSettings) {
             SettingsSheet(
                 fontScale = settings.fontScale.collectAsState().value,
+                darkTheme = settings.darkTheme.collectAsState().value,
                 onFontScaleChange = settings::setFontScale,
+                onDarkThemeChange = settings::setDarkTheme,
                 onDismiss = { showSettings = false }
             )
         }

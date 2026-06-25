@@ -213,6 +213,7 @@ fun SearchResultsContent(
     bookmarksList: List<BookmarkEntity>,
     onNavigateToArticle: (Article, Article?) -> Unit,
 ) {
+    val appColors = LocalAppColors.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -233,7 +234,7 @@ fun SearchResultsContent(
                         Text(
                             text = if (searchQuery.isBlank()) stringResource(R.string.search_prompt_input) else stringResource(R.string.search_no_results),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = SovereignBlue.copy(alpha = 0.7f),
+                            color = appColors.textSecondary,
                             textAlign = TextAlign.Center
                         )
                     }

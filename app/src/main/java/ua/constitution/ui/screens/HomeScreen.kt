@@ -247,13 +247,14 @@ fun HomeTabContent(
 
 @Composable
 fun NationalSymbolsCard(onOpenFullscreenSymbol: (FullscreenSymbol) -> Unit) {
+    val appColors = LocalAppColors.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .shadow(4.dp, RoundedCornerShape(20.dp)),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(2.dp, SovereignBlue)
+        colors = CardDefaults.cardColors(containerColor = appColors.cardSurface),
+        border = BorderStroke(2.dp, appColors.cardBorder)
     ) {
         Column(
             modifier = Modifier.padding(18.dp),
@@ -264,7 +265,7 @@ fun NationalSymbolsCard(onOpenFullscreenSymbol: (FullscreenSymbol) -> Unit) {
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Black,
                 fontSize = 17.sp,
-                color = SovereignBlue,
+                color = appColors.textPrimary,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
@@ -301,7 +302,7 @@ fun NationalSymbolsCard(onOpenFullscreenSymbol: (FullscreenSymbol) -> Unit) {
                 text = stringResource(R.string.flag_and_coat_desc),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Black,
-                color = SovereignBlue
+                color = appColors.textPrimary
             )
         }
     }
@@ -464,12 +465,13 @@ fun ArticleOfTheDayCard(
     resolveArticleLink: (String) -> Article?,
     onOpen: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     Column {
         Text(
             text = stringResource(R.string.article_of_the_day),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Black,
-            color = SovereignBlue,
+            color = appColors.textPrimary,
             modifier = Modifier.padding(vertical = 10.dp)
         )
 

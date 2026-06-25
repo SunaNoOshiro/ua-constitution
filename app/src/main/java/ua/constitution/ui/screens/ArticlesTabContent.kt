@@ -55,6 +55,7 @@ fun ArticlesTabContent(
     onNavigateToArticle: (Article, Article?) -> Unit,
     onNavigateToArticlesTab: () -> Unit,
 ) {
+    val appColors = LocalAppColors.current
     val navigateToArticle: (Article) -> Unit = { onNavigateToArticle(it, null) }
 
     val selectedChapter = viewModel.chapters.find { it.id == navState.currentSelectedChapterId }
@@ -290,7 +291,7 @@ fun ArticlesTabContent(
                             Text(
                                 text = selectedChapter.info,
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = RichNavyText,
+                                color = appColors.textPrimary,
                                 lineHeight = 22.sp,
                                 fontWeight = FontWeight.Medium
                             )
@@ -307,7 +308,7 @@ fun ArticlesTabContent(
                             ) {
                                 Text(
                                     text = stringResource(R.string.empty_chapter_msg),
-                                    color = SovereignBlue
+                                    color = appColors.textPrimary
                                 )
                             }
                         }

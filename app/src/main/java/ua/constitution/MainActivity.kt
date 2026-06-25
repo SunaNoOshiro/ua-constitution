@@ -27,7 +27,7 @@ import ua.constitution.data.repository.ConstitutionRepository
 import ua.constitution.data.settings.SettingsRepository
 import ua.constitution.data.source.ConstitutionLoader
 import ua.constitution.ui.screens.MainAppDashboard
-import ua.constitution.ui.theme.AppCanvasYellow
+import ua.constitution.ui.theme.LocalAppColors
 import ua.constitution.ui.theme.LocalFontScale
 import ua.constitution.ui.theme.MyApplicationTheme
 import ua.constitution.ui.theme.SovereignBlue
@@ -55,7 +55,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val fontScale by settings.fontScale.collectAsState()
-            MyApplicationTheme {
+            val darkTheme by settings.darkTheme.collectAsState()
+            MyApplicationTheme(darkTheme = darkTheme) {
                 CompositionLocalProvider(LocalFontScale provides fontScale) {
                     // The constitution JSON (asset read + SHA-256 + org.json parse + sort) is loaded off
                     // the main thread so cold start doesn't block the UI; a lightweight loading state is
@@ -84,7 +85,7 @@ private fun LoadingScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppCanvasYellow),
+            .background(LocalAppColors.current.canvas),
         contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator(color = SovereignBlue)

@@ -80,6 +80,7 @@ fun ArticleCard(
     val titleParts = remember(article.id, article.titleUa) { parseArticleTitle(article.titleUa) }
     val articleNumber = titleParts.display
     val articleName = titleParts.name
+    val appColors = LocalAppColors.current
     val fullArticleTextToCopy = remember(articleNumber, articleName, article.paragraphs) {
         formatArticleForCopy(articleNumber, articleName, article.paragraphs.map { it.text })
     }
@@ -112,10 +113,10 @@ fun ArticleCard(
             .fillMaxWidth()
             .shadow(2.dp, RoundedCornerShape(16.dp)),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = appColors.cardSurface),
         border = BorderStroke(
             width = 2.dp,
-            color = SovereignBlue
+            color = appColors.cardBorder
         )
     ) {
         Column(
@@ -130,7 +131,7 @@ fun ArticleCard(
                     text = articleNumber,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Black,
-                    color = SovereignBlue,
+                    color = appColors.textPrimary,
                     modifier = Modifier.weight(1f)
                 )
 
@@ -218,7 +219,7 @@ fun ArticleCard(
                         text = articleName,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Black,
-                        color = SovereignBlue,
+                        color = appColors.textPrimary,
                         lineHeight = 22.sp
                     )
                 }
@@ -279,7 +280,7 @@ fun ArticleCard(
                         SegmentedTextWithEdits(
                             segments = combinedSegments,
                             ranges = combinedRanges,
-                            textStyle = SegmentTextStyle(MaterialTheme.typography.bodyMedium),
+                            textStyle = SegmentTextStyle(style = MaterialTheme.typography.bodyMedium, color = appColors.textPrimary),
                             onArticleClick = onArticleClick,
                             resolveArticleLink = resolveArticleLink,
                             editing = SegmentEditing(
@@ -323,7 +324,7 @@ fun ArticleCard(
                                 SegmentedTextWithEdits(
                                     segments = paragraph.content,
                                     ranges = paragraphRanges,
-                                    textStyle = SegmentTextStyle(MaterialTheme.typography.bodyMedium),
+                                    textStyle = SegmentTextStyle(style = MaterialTheme.typography.bodyMedium, color = appColors.textPrimary),
                                     onArticleClick = onArticleClick,
                                     resolveArticleLink = resolveArticleLink,
                                     editing = SegmentEditing(
@@ -422,12 +423,13 @@ fun ArticleIdText(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun NoteCard(note: Note, resolveArticleLink: (String) -> Article?, modifier: Modifier = Modifier, onArticleClick: ((Article) -> Unit)? = null) {
+    val appColors = LocalAppColors.current
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
         shape = RoundedCornerShape(8.dp),
-        color = SlateBg,
+        color = appColors.cardSurface,
         border = BorderStroke(0.5.dp, SlateDivider)
     ) {
         Column(
@@ -438,7 +440,7 @@ fun NoteCard(note: Note, resolveArticleLink: (String) -> Article?, modifier: Mod
                 segments = note.content,
                 textStyle = SegmentTextStyle(
                     style = MaterialTheme.typography.bodySmall,
-                    color = SlateText,
+                    color = appColors.textSecondary,
                     lineHeight = 18.sp,
                     fontWeight = FontWeight.Medium,
                     fontStyle = FontStyle.Italic

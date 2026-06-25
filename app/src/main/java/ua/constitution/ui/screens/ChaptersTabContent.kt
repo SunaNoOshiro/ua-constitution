@@ -45,6 +45,7 @@ import ua.constitution.data.model.Chapter
 import ua.constitution.domain.content.ChapterRangeKind
 import ua.constitution.domain.content.chapterRangeKind
 import ua.constitution.ui.article.formatArticleId
+import ua.constitution.ui.theme.LocalAppColors
 import ua.constitution.ui.theme.SovereignBlue
 
 @Composable
@@ -54,6 +55,7 @@ fun ChaptersTabContent(
     onSelectChapter: (Int) -> Unit,
     onOpenSourceUrl: (String) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -63,7 +65,7 @@ fun ChaptersTabContent(
             text = stringResource(R.string.select_chapter_header),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Black,
-            color = SovereignBlue,
+            color = appColors.textPrimary,
             modifier = Modifier.padding(vertical = 10.dp)
         )
 
@@ -98,8 +100,8 @@ fun ChaptersTabContent(
                         .clickable { onSelectChapter(chapter.id) }
                         .shadow(2.dp, RoundedCornerShape(14.dp)),
                     shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    border = BorderStroke(1.5.dp, SovereignBlue)
+                    colors = CardDefaults.cardColors(containerColor = appColors.cardSurface),
+                    border = BorderStroke(1.5.dp, appColors.cardBorder)
                 ) {
                     Row(
                         modifier = Modifier.padding(16.dp),
@@ -131,14 +133,14 @@ fun ChaptersTabContent(
                                     text = "${stringResource(R.string.chapter_singular)} ${chapter.id}",
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Black,
-                                    color = SovereignBlue
+                                    color = appColors.textPrimary
                                 )
                                 if (rangeText.isNotEmpty()) {
                                     Text(
                                         text = "($rangeText)",
                                         style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.5.sp),
                                         fontWeight = FontWeight.Black,
-                                        color = SovereignBlue.copy(alpha = 0.6f)
+                                        color = appColors.textSecondary
                                     )
                                 }
                             }
@@ -146,7 +148,7 @@ fun ChaptersTabContent(
                                 text = chapter.titleUa,
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = SovereignBlue
+                                color = appColors.textPrimary
                             )
                         }
 
