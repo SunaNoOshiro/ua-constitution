@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
@@ -25,6 +26,7 @@ import kotlinx.coroutines.withContext
 import ua.constitution.data.database.DatabaseProvider
 import ua.constitution.data.repository.ConstitutionRepository
 import ua.constitution.data.settings.SettingsRepository
+import ua.constitution.data.settings.ThemeMode
 import ua.constitution.data.source.ConstitutionLoader
 import ua.constitution.ui.screens.MainAppDashboard
 import ua.constitution.ui.theme.LocalAppColors
@@ -55,7 +57,12 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val fontScale by settings.fontScale.collectAsState()
-            val darkTheme by settings.darkTheme.collectAsState()
+            val themeMode by settings.themeMode.collectAsState()
+            val darkTheme = when (themeMode) {
+                ThemeMode.SYSTEM -> isSystemInDarkTheme()
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
+            }
             MyApplicationTheme(darkTheme = darkTheme, fontScale = fontScale) {
                 CompositionLocalProvider(LocalFontScale provides fontScale) {
                     // The constitution JSON (asset read + SHA-256 + org.json parse + sort) is loaded off

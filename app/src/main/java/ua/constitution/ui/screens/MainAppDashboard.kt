@@ -441,9 +441,9 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel, settings: SettingsReposit
         if (showSettings) {
             SettingsSheet(
                 fontScale = settings.fontScale.collectAsState().value,
-                darkTheme = settings.darkTheme.collectAsState().value,
+                themeMode = settings.themeMode.collectAsState().value,
                 onFontScaleChange = settings::setFontScale,
-                onDarkThemeChange = settings::setDarkTheme,
+                onThemeModeChange = settings::setThemeMode,
                 onDismiss = { showSettings = false }
             )
         }

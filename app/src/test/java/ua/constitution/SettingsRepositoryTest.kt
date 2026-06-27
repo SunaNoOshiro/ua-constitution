@@ -3,14 +3,13 @@ package ua.constitution
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import ua.constitution.data.settings.SettingsRepository
+import ua.constitution.data.settings.ThemeMode
 
 /**
  * Pins SettingsRepository: defaults, font-scale clamping, and persistence across instances (a fresh
@@ -29,10 +28,10 @@ class SettingsRepositoryTest {
     }
 
     @Test
-    fun defaults_are_1x_font_and_light_theme() {
+    fun defaults_are_1x_font_and_system_theme() {
         val repo = SettingsRepository(prefs)
         assertEquals(SettingsRepository.DEFAULT_FONT_SCALE, repo.fontScale.value, 0.0001f)
-        assertFalse(repo.darkTheme.value)
+        assertEquals(ThemeMode.SYSTEM, repo.themeMode.value)
     }
 
     @Test
@@ -48,8 +47,11 @@ class SettingsRepositoryTest {
     }
 
     @Test
-    fun setDarkTheme_persists() {
-        SettingsRepository(prefs).setDarkTheme(true)
-        assertTrue(SettingsRepository(prefs).darkTheme.value)
+    fun setThemeMode_persists() {
+        SettingsRepository(prefs).setThemeMode(ThemeMode.DARK)
+        assertEquals(ThemeMode.DARK, SettingsRepository(prefs).themeMode.value)
+
+        SettingsRepository(prefs).setThemeMode(ThemeMode.LIGHT)
+        assertEquals(ThemeMode.LIGHT, SettingsRepository(prefs).themeMode.value)
     }
 }

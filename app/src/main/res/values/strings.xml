@@ -54,7 +54,10 @@
     <string name="settings_title">Налаштування</string>
     <string name="settings_font_size">Розмір шрифту</string>
     <string name="settings_font_preview">Конституція України</string>
-    <string name="settings_dark_mode">Темна тема</string>
+    <string name="settings_theme">Тема</string>
+    <string name="settings_theme_auto">Авто</string>
+    <string name="settings_theme_light">Світла</string>
+    <string name="settings_theme_dark">Темна</string>
     <string name="close_text">Закрити</string>
     <string name="read_source_btn">Читати на zakon.rada.gov.ua</string>
     <string name="toast_article_copied">Статтю скопійовано!</string>
