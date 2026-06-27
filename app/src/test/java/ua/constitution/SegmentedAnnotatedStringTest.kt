@@ -1,5 +1,6 @@
 package ua.constitution
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -7,8 +8,10 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import ua.constitution.data.model.ContentSegment
+import ua.constitution.domain.text.StyledRange
 import ua.constitution.domain.text.formatStringToSuperscript
 import ua.constitution.domain.text.mapOriginalToFormatted
+import ua.constitution.ui.article.applyHighlightTextColor
 import ua.constitution.ui.article.buildSegmentedAnnotatedString
 import ua.constitution.ui.theme.SovereignBlue
 import ua.constitution.utils.Constants
@@ -66,5 +69,25 @@ class SegmentedAnnotatedStringTest {
         val anns = result.getStringAnnotations(Constants.ANNOTATION_TAG_URL, 0, result.length)
         assertEquals(1, anns.size)
         assertEquals("див", result.text.substring(anns[0].start, anns[0].end))
+    }
+
+    @Test
+    fun `applyHighlightTextColor recolors highlighted ranges with identity mapping`() {
+        val base = AnnotatedString("Hello world")
+        val mapping = IntArray(base.length + 1) { it } // no superscript: orig index == formatted index
+        val ranges = listOf(StyledRange(start = 0, end = 5, colorHex = "#FFFF00", highlight = true, underscore = false))
+        val result = applyHighlightTextColor(base, ranges, mapping, base.length, Color.Red)
+
+        assertEquals("Hello world", result.text)
+        val red = result.spanStyles.filter { it.item.color == Color.Red }
+        assertEquals(1, red.size)
+        assertEquals(0, red[0].start)
+        assertEquals(5, red[0].end)
+    }
+
+    @Test
+    fun `applyHighlightTextColor returns the base unchanged when there are no highlights`() {
+        val base = AnnotatedString("Hello")
+        assertEquals(base, applyHighlightTextColor(base, emptyList(), IntArray(6) { it }, base.length, Color.Red))
     }
 }

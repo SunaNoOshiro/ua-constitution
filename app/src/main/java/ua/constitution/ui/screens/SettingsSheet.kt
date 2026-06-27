@@ -5,7 +5,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Slider
@@ -14,19 +19,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import ua.constitution.R
 import ua.constitution.data.settings.SettingsRepository
 import ua.constitution.ui.theme.LocalAppColors
 
 /**
- * Bottom-sheet of app preferences: a reader font-size slider (with a live preview) and a dark-theme
- * toggle. State mutation is delegated to the callbacks; the sheet is a dumb, theme-aware view (its
- * text uses [LocalAppColors] so it reads correctly in both light and dark mode).
+ * Bottom-sheet of app preferences: a reader font-size slider and a dark-theme toggle, each with a
+ * leading icon. State mutation is delegated to the callbacks; the sheet is a dumb, theme-aware view
+ * (its text/icons use [LocalAppColors] so they read correctly in both light and dark mode).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,18 +59,7 @@ fun SettingsSheet(
                 color = colors.textPrimary,
             )
 
-            Text(
-                text = stringResource(R.string.settings_font_size),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = colors.textPrimary,
-            )
-            // Live preview of the reading text at the chosen scale (base reader size is 16sp).
-            Text(
-                text = stringResource(R.string.settings_font_preview),
-                fontSize = (16 * fontScale).sp,
-                color = colors.textPrimary,
-            )
+            SettingRowLabel(Icons.Default.FormatSize, stringResource(R.string.settings_font_size), colors.textPrimary)
             Slider(
                 value = fontScale,
                 onValueChange = onFontScaleChange,
@@ -79,12 +74,7 @@ fun SettingsSheet(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Text(
-                    text = stringResource(R.string.settings_dark_mode),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = colors.textPrimary,
-                )
+                SettingRowLabel(Icons.Default.DarkMode, stringResource(R.string.settings_dark_mode), colors.textPrimary)
                 Switch(
                     checked = darkTheme,
                     onCheckedChange = onDarkThemeChange,
@@ -92,5 +82,22 @@ fun SettingsSheet(
                 )
             }
         }
+    }
+}
+
+/** An icon + bold label, used as the leading content of each settings row. */
+@Composable
+private fun SettingRowLabel(icon: ImageVector, label: String, color: Color) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Icon(imageVector = icon, contentDescription = null, tint = color, modifier = Modifier.size(22.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = color,
+        )
     }
 }

@@ -141,6 +141,12 @@ fun SegmentedTextWithEdits(
         buildSegmentedAnnotatedString(mergedSegments, formattedText, origToFormMapping)
     }
 
+    // Highlighted text is drawn dark so it stays readable on the pale marker highlights in BOTH
+    // light and dark mode (in light mode the body text is already dark, so this is a no-op there).
+    val displayString = remember(annotatedString, ranges, origToFormMapping) {
+        applyHighlightTextColor(annotatedString, ranges, origToFormMapping, originalText.length, RichNavyText)
+    }
+
     val markerColors = HighlightPalette.MARKER_COLORS
     val underlineColors = HighlightPalette.UNDERLINE_COLORS
 
@@ -181,11 +187,11 @@ fun SegmentedTextWithEdits(
     val focusRequester = remember { FocusRequester() }
 
     var textFieldValue by remember {
-        mutableStateOf(androidx.compose.ui.text.input.TextFieldValue(annotatedString))
+        mutableStateOf(androidx.compose.ui.text.input.TextFieldValue(displayString))
     }
 
-    androidx.compose.runtime.LaunchedEffect(annotatedString) {
-        textFieldValue = textFieldValue.copy(annotatedString = annotatedString)
+    androidx.compose.runtime.LaunchedEffect(displayString) {
+        textFieldValue = textFieldValue.copy(annotatedString = displayString)
     }
 
     val currentActiveTool by androidx.compose.runtime.rememberUpdatedState(activeTool)
@@ -204,7 +210,7 @@ fun SegmentedTextWithEdits(
                     value = textFieldValue,
                     onValueChange = { newValue ->
                         android.util.Log.d(LogMessages.TAG_SELECTION_BUG, LogMessages.toolbarValueChange(newValue.selection, newValue.selection.collapsed))
-                        textFieldValue = newValue.copy(annotatedString = annotatedString)
+                        textFieldValue = newValue.copy(annotatedString = displayString)
                         if (newValue.selection.collapsed) {
                             val clickedOffset = newValue.selection.start
                             annotatedString.getStringAnnotations(tag = Constants.ANNOTATION_TAG_URL, start = clickedOffset, end = clickedOffset)
@@ -245,7 +251,7 @@ fun SegmentedTextWithEdits(
         }
     } else {
         androidx.compose.material3.Text(
-            text = annotatedString,
+            text = displayString,
             style = textStyle.toScaledTextStyle(),
             onTextLayout = { textLayoutResult = it },
             modifier = modifier
