@@ -773,6 +773,7 @@ private fun RowScope.ToolToggleButton(
     bottomIndicatorColor: Color,
     onClick: () -> Unit,
 ) {
+    val appColors = LocalAppColors.current
     Surface(
         onClick = onClick,
         modifier = Modifier
@@ -782,9 +783,9 @@ private fun RowScope.ToolToggleButton(
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(
             width = if (isActive) 2.dp else 1.dp,
-            color = if (isActive) accent else SlateBorder
+            color = if (isActive) accent else appColors.cardBorder
         ),
-        color = if (isActive) accent.copy(alpha = 0.08f) else Color.White
+        color = if (isActive) accent.copy(alpha = 0.08f) else appColors.cardSurface
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -794,7 +795,7 @@ private fun RowScope.ToolToggleButton(
             Icon(
                 imageVector = icon,
                 contentDescription = contentDescription,
-                tint = if (isActive) accent else SlateText,
+                tint = if (isActive) accent else appColors.textSecondary,
                 modifier = Modifier.size(24.dp)
             )
             Spacer(modifier = Modifier.height(4.dp))
@@ -818,6 +819,7 @@ fun GlobalFormattingPanel(
     onDoneEditing: () -> Unit,
     articleTitle: String?
 ) {
+    val appColors = LocalAppColors.current
     val activeTool = controls.activeTool
     val onActiveToolChange = controls.onActiveToolChange
     val selectedColorHex = controls.selectedColorHex
@@ -836,7 +838,7 @@ fun GlobalFormattingPanel(
         }
     }
 
-    val eraserIcon = remember { createEraserIcon(Color.Black) }
+    val eraserIcon = remember(appColors.textSecondary) { createEraserIcon(appColors.textSecondary) }
 
     val markerColors = HighlightPalette.MARKER_COLORS
     val underlineColors = HighlightPalette.UNDERLINE_COLORS
@@ -849,7 +851,7 @@ fun GlobalFormattingPanel(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         HorizontalDivider(
-            color = SlateBorder,
+            color = appColors.cardBorder,
             thickness = 1.2.dp,
             modifier = Modifier.padding(vertical = 4.dp)
         )
@@ -874,7 +876,7 @@ fun GlobalFormattingPanel(
                 modifier = Modifier
                     .width(1.dp)
                     .height(32.dp)
-                    .background(SlateBorder)
+                    .background(appColors.cardBorder)
             )
 
             // --- Button 1: MARKER ---
@@ -899,7 +901,7 @@ fun GlobalFormattingPanel(
                 modifier = Modifier
                     .width(1.dp)
                     .height(32.dp)
-                    .background(SlateBorder)
+                    .background(appColors.cardBorder)
             )
 
             // --- Button 2: UNDERLINE (Line) ---
@@ -924,7 +926,7 @@ fun GlobalFormattingPanel(
                 modifier = Modifier
                     .width(1.dp)
                     .height(32.dp)
-                    .background(SlateBorder)
+                    .background(appColors.cardBorder)
             )
 
             // --- Button 3: ERASER (Гумка) ---
@@ -949,7 +951,7 @@ fun GlobalFormattingPanel(
                 modifier = Modifier
                     .width(1.dp)
                     .height(32.dp)
-                    .background(SlateBorder)
+                    .background(appColors.cardBorder)
             )
 
             // --- Button 4: CLEAR ALL (Очистити все) ---
@@ -966,9 +968,9 @@ fun GlobalFormattingPanel(
                 shape = RoundedCornerShape(12.dp),
                 border = BorderStroke(
                     width = 1.0.dp,
-                    color = if (hasAnyEdits) SlateBorder else SlateBorder.copy(alpha = 0.5f)
+                    color = if (hasAnyEdits) appColors.cardBorder else appColors.cardBorder.copy(alpha = 0.5f)
                 ),
-                color = if (hasAnyEdits) Color.White else SlateBgLight.copy(alpha = 0.5f),
+                color = if (hasAnyEdits) appColors.cardSurface else appColors.cardSurface.copy(alpha = 0.5f),
                 enabled = hasAnyEdits
             ) {
                 Column(
@@ -979,7 +981,7 @@ fun GlobalFormattingPanel(
                     Icon(
                         imageVector = Icons.Default.FormatColorReset,
                         contentDescription = stringResource(R.string.tool_clear_all),
-                        tint = if (hasAnyEdits) ErrorRed else SlateMuted,
+                        tint = if (hasAnyEdits) ErrorRed else appColors.textSecondary,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
@@ -1004,7 +1006,7 @@ fun GlobalFormattingPanel(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(SlateBgLight, RoundedCornerShape(12.dp))
+                    .background(appColors.cardSurface, RoundedCornerShape(12.dp))
                     .padding(vertical = 10.dp, horizontal = 12.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
@@ -1042,7 +1044,7 @@ fun GlobalFormattingPanel(
         }
 
         HorizontalDivider(
-            color = SlateBorder,
+            color = appColors.cardBorder,
             thickness = 1.2.dp,
             modifier = Modifier.padding(vertical = 4.dp)
         )

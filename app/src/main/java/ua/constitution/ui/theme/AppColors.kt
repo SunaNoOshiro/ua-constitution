@@ -20,6 +20,7 @@ data class AppColors(
     val brandSurface: Color,  // top header bar + bottom navigation background
     val onBrand: Color,       // text / icons sitting on [brandSurface]
     val navIndicator: Color,  // selected bottom-nav item highlight
+    val danger: Color,        // destructive-action text (e.g. confirm-delete button)
 )
 
 val LightAppColors = AppColors(
@@ -32,6 +33,7 @@ val LightAppColors = AppColors(
     brandSurface = SunflowerYellow,
     onBrand = SovereignBlue,
     navIndicator = NationalYellowBg,
+    danger = ErrorRedStrong,
 )
 
 // Dark mode: navy surfaces, light body text, a soft-blue heading colour, and a dark header/nav with
@@ -46,6 +48,7 @@ val DarkAppColors = AppColors(
     brandSurface = Color(0xFF12202E),
     onBrand = SunflowerYellow,
     navIndicator = Color(0xFF2A3F54),
+    danger = ErrorRed, // brighter than ErrorRedStrong so the destructive action stays legible on navy
 )
 
 val LocalAppColors = staticCompositionLocalOf { LightAppColors }

@@ -248,6 +248,7 @@ fun HomeTabContent(
 @Composable
 fun NationalSymbolsCard(onOpenFullscreenSymbol: (FullscreenSymbol) -> Unit) {
     val appColors = LocalAppColors.current
+    val fontScale = LocalFontScale.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -264,7 +265,7 @@ fun NationalSymbolsCard(onOpenFullscreenSymbol: (FullscreenSymbol) -> Unit) {
                 text = stringResource(R.string.national_symbols_header),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Black,
-                fontSize = 17.sp,
+                fontSize = 17.sp * fontScale,
                 color = appColors.textHeading,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
@@ -317,6 +318,7 @@ fun AnthemCard(
     onTogglePlay: () -> Unit,
     onSeek: (Float) -> Unit
 ) {
+    val fontScale = LocalFontScale.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -345,7 +347,7 @@ fun AnthemCard(
                     text = stringResource(R.string.national_anthem_header),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Black,
-                    fontSize = 17.sp,
+                    fontSize = 17.sp * fontScale,
                     color = SunflowerYellow
                 )
             }
@@ -375,8 +377,8 @@ fun AnthemCard(
                     } else {
                         AutoScaleText(
                             text = line,
-                            maxTextSize = 13.5f,
-                            minTextSize = 9.5f,
+                            maxTextSize = 13.5f * fontScale,
+                            minTextSize = 9.5f * fontScale,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -387,7 +389,7 @@ fun AnthemCard(
 
             Text(
                 text = stringResource(R.string.orchestra_recording_info),
-                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp * fontScale),
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold,
                 color = Color.White.copy(alpha = 0.75f),
