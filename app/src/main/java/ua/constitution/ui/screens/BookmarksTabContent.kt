@@ -61,7 +61,7 @@ fun BookmarksTabContent(
             text = stringResource(R.string.saved_bookmarks_header, bookmarkedArticles.size),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Black,
-            color = appColors.textPrimary,
+            color = appColors.textHeading,
             modifier = Modifier.padding(vertical = 10.dp)
         )
 

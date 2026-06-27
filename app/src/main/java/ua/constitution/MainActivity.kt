@@ -56,7 +56,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val fontScale by settings.fontScale.collectAsState()
             val darkTheme by settings.darkTheme.collectAsState()
-            MyApplicationTheme(darkTheme = darkTheme) {
+            MyApplicationTheme(darkTheme = darkTheme, fontScale = fontScale) {
                 CompositionLocalProvider(LocalFontScale provides fontScale) {
                     // The constitution JSON (asset read + SHA-256 + org.json parse + sort) is loaded off
                     // the main thread so cold start doesn't block the UI; a lightweight loading state is

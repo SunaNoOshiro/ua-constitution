@@ -131,7 +131,7 @@ fun ArticleCard(
                     text = articleNumber,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Black,
-                    color = appColors.textPrimary,
+                    color = appColors.textHeading,
                     modifier = Modifier.weight(1f)
                 )
 
@@ -219,7 +219,7 @@ fun ArticleCard(
                         text = articleName,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Black,
-                        color = appColors.textPrimary,
+                        color = appColors.textHeading,
                         lineHeight = 22.sp
                     )
                 }

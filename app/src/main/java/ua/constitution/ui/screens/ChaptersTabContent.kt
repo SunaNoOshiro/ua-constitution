@@ -65,7 +65,7 @@ fun ChaptersTabContent(
             text = stringResource(R.string.select_chapter_header),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Black,
-            color = appColors.textPrimary,
+            color = appColors.textHeading,
             modifier = Modifier.padding(vertical = 10.dp)
         )
 
@@ -133,7 +133,7 @@ fun ChaptersTabContent(
                                     text = "${stringResource(R.string.chapter_singular)} ${chapter.id}",
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Black,
-                                    color = appColors.textPrimary
+                                    color = appColors.textHeading
                                 )
                                 if (rangeText.isNotEmpty()) {
                                     Text(
@@ -148,7 +148,7 @@ fun ChaptersTabContent(
                                 text = chapter.titleUa,
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = appColors.textPrimary
+                                color = appColors.textHeading
                             )
                         }
 

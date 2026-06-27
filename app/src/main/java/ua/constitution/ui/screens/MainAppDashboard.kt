@@ -93,8 +93,8 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel, settings: SettingsReposit
             containerColor = LocalAppColors.current.canvas, // Yellow canvas (light) / navy (dark)
         bottomBar = {
             NavigationBar(
-                containerColor = SunflowerYellow, // Dynamic flag-colored yellow
-                contentColor = SovereignBlue,   // Sovereign Ukrainian corporate blue
+                containerColor = LocalAppColors.current.brandSurface, // yellow (light) / dark navy (dark)
+                contentColor = LocalAppColors.current.onBrand,
                 tonalElevation = 8.dp,
                 modifier = Modifier
                     .shadow(16.dp, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
@@ -108,10 +108,10 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel, settings: SettingsReposit
                         activeTab = DashboardTab.CHAPTERS
                         isSearchActive = false
                     },
-                    label = { Text(stringResource(R.string.tab_chapters), fontWeight = FontWeight.Bold, color = SovereignBlue, fontSize = 10.sp) },
-                    icon = { Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.tab_chapters), tint = SovereignBlue, modifier = Modifier.size(20.dp)) },
+                    label = { Text(stringResource(R.string.tab_chapters), fontWeight = FontWeight.Bold, color = LocalAppColors.current.onBrand, fontSize = 10.sp) },
+                    icon = { Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.tab_chapters), tint = LocalAppColors.current.onBrand, modifier = Modifier.size(20.dp)) },
                     colors = NavigationBarItemDefaults.colors(
-                        indicatorColor = NationalYellowBg
+                        indicatorColor = LocalAppColors.current.navIndicator
                     )
                 )
 
@@ -129,10 +129,10 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel, settings: SettingsReposit
                             isSearchActive = false
                         }
                     },
-                    label = { Text(stringResource(R.string.tab_articles), fontWeight = FontWeight.Bold, color = SovereignBlue, fontSize = 10.sp) },
-                    icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = stringResource(R.string.tab_articles), tint = SovereignBlue, modifier = Modifier.size(20.dp)) },
+                    label = { Text(stringResource(R.string.tab_articles), fontWeight = FontWeight.Bold, color = LocalAppColors.current.onBrand, fontSize = 10.sp) },
+                    icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = stringResource(R.string.tab_articles), tint = LocalAppColors.current.onBrand, modifier = Modifier.size(20.dp)) },
                     colors = NavigationBarItemDefaults.colors(
-                        indicatorColor = NationalYellowBg
+                        indicatorColor = LocalAppColors.current.navIndicator
                     )
                 )
 
@@ -168,10 +168,10 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel, settings: SettingsReposit
                     onClick = { 
                         isSearchActive = !isSearchActive 
                     },
-                    label = { Text(stringResource(R.string.tab_search), fontWeight = FontWeight.Bold, color = SovereignBlue, fontSize = 10.sp) },
-                    icon = { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.tab_search), tint = SovereignBlue, modifier = Modifier.size(20.dp)) },
+                    label = { Text(stringResource(R.string.tab_search), fontWeight = FontWeight.Bold, color = LocalAppColors.current.onBrand, fontSize = 10.sp) },
+                    icon = { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.tab_search), tint = LocalAppColors.current.onBrand, modifier = Modifier.size(20.dp)) },
                     colors = NavigationBarItemDefaults.colors(
-                        indicatorColor = NationalYellowBg
+                        indicatorColor = LocalAppColors.current.navIndicator
                     )
                 )
 
@@ -183,17 +183,17 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel, settings: SettingsReposit
                         activeTab = DashboardTab.BOOKMARKS
                         isSearchActive = false
                     },
-                    label = { Text(stringResource(R.string.tab_bookmarks), fontWeight = FontWeight.Bold, color = SovereignBlue, fontSize = 10.sp) },
+                    label = { Text(stringResource(R.string.tab_bookmarks), fontWeight = FontWeight.Bold, color = LocalAppColors.current.onBrand, fontSize = 10.sp) },
                     icon = { 
                         Icon(
                             imageVector = if (activeTab == DashboardTab.BOOKMARKS && !isSearchActive) Icons.Default.Bookmark else Icons.Default.BookmarkBorder, 
-                            contentDescription = stringResource(R.string.tab_bookmarks), 
-                            tint = SovereignBlue,
+                            contentDescription = stringResource(R.string.tab_bookmarks),
+                            tint = LocalAppColors.current.onBrand,
                             modifier = Modifier.size(20.dp)
                         ) 
                     },
                     colors = NavigationBarItemDefaults.colors(
-                        indicatorColor = NationalYellowBg
+                        indicatorColor = LocalAppColors.current.navIndicator
                     )
                 )
             }
@@ -208,14 +208,14 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel, settings: SettingsReposit
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(SunflowerYellow) // Solid flag-colored yellow
+                    .background(LocalAppColors.current.brandSurface) // yellow (light) / dark navy (dark)
                     .statusBarsPadding()
                     .padding(top = 0.dp, bottom = 2.dp, start = 20.dp, end = 20.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(14.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     // Coat of arms (Герб України) inside a beautiful circular badge to prevent shadow bleed-through
                     CoatOfArmsBadge(
@@ -232,14 +232,14 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel, settings: SettingsReposit
                             fontSize = 22.sp,
                             letterSpacing = 1.2.sp,
                             fontWeight = FontWeight.Black,
-                            color = SovereignBlue
+                            color = LocalAppColors.current.onBrand
                         )
                         val context = LocalContext.current
                         Text(
                             text = stringResource(R.string.official_source),
                             style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.5.sp),
                             fontWeight = FontWeight.Bold,
-                            color = SovereignBlue.copy(alpha = 0.75f),
+                            color = LocalAppColors.current.onBrand.copy(alpha = 0.75f),
                             modifier = Modifier
                                 .clickable {
                                     openExternalUrl(context, Constants.DEFAULT_RADA_URL)
@@ -249,12 +249,15 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel, settings: SettingsReposit
 
                     IconButton(
                         onClick = { showSettings = true },
-                        modifier = Modifier.testTag("open_settings_button")
+                        modifier = Modifier
+                            .size(40.dp)
+                            .testTag("open_settings_button")
                     ) {
                         Icon(
                             imageVector = Icons.Default.Settings,
                             contentDescription = stringResource(R.string.settings_open),
-                            tint = SovereignBlue
+                            tint = LocalAppColors.current.onBrand,
+                            modifier = Modifier.size(22.dp)
                         )
                     }
                 }
@@ -305,7 +308,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel, settings: SettingsReposit
                         text = stringResource(R.string.quick_search_header),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Black,
-                        color = SovereignBlue,
+                        color = LocalAppColors.current.textHeading,
                         modifier = Modifier.padding(bottom = 6.dp)
                     )
 
@@ -319,7 +322,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel, settings: SettingsReposit
                                 overflow = TextOverflow.Ellipsis
                             ) 
                         },
-                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.tab_search), tint = SovereignBlue) },
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.tab_search), tint = LocalAppColors.current.textHeading) },
                         trailingIcon = {
                             IconButton(
                                 onClick = { 
@@ -330,7 +333,7 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel, settings: SettingsReposit
                                 Icon(
                                     imageVector = Icons.Default.Close,
                                     contentDescription = stringResource(R.string.search_clear_desc),
-                                    tint = SovereignBlue
+                                    tint = LocalAppColors.current.textHeading
                                 )
                             }
                         },
@@ -341,12 +344,12 @@ fun MainAppDashboard(viewModel: ConstitutionViewModel, settings: SettingsReposit
                             .testTag("search_field"),
                         shape = RoundedCornerShape(16.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = SovereignBlue,
-                            unfocusedBorderColor = SovereignBlue.copy(alpha = 0.5f),
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            focusedTextColor = SovereignBlue,
-                            unfocusedTextColor = SovereignBlue
+                            focusedBorderColor = LocalAppColors.current.textHeading,
+                            unfocusedBorderColor = LocalAppColors.current.textHeading.copy(alpha = 0.5f),
+                            focusedContainerColor = LocalAppColors.current.cardSurface,
+                            unfocusedContainerColor = LocalAppColors.current.cardSurface,
+                            focusedTextColor = LocalAppColors.current.textPrimary,
+                            unfocusedTextColor = LocalAppColors.current.textPrimary
                         )
                     )
                 }

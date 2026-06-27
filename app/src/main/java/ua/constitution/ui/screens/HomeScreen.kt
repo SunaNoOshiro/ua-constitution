@@ -265,7 +265,7 @@ fun NationalSymbolsCard(onOpenFullscreenSymbol: (FullscreenSymbol) -> Unit) {
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Black,
                 fontSize = 17.sp,
-                color = appColors.textPrimary,
+                color = appColors.textHeading,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
@@ -302,7 +302,7 @@ fun NationalSymbolsCard(onOpenFullscreenSymbol: (FullscreenSymbol) -> Unit) {
                 text = stringResource(R.string.flag_and_coat_desc),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Black,
-                color = appColors.textPrimary
+                color = appColors.textHeading
             )
         }
     }
@@ -471,7 +471,7 @@ fun ArticleOfTheDayCard(
             text = stringResource(R.string.article_of_the_day),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Black,
-            color = appColors.textPrimary,
+            color = appColors.textHeading,
             modifier = Modifier.padding(vertical = 10.dp)
         )
 

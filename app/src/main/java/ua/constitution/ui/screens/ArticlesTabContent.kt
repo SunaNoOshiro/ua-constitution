@@ -308,7 +308,7 @@ fun ArticlesTabContent(
                             ) {
                                 Text(
                                     text = stringResource(R.string.empty_chapter_msg),
-                                    color = appColors.textPrimary
+                                    color = appColors.textHeading
                                 )
                             }
                         }

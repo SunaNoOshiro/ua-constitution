@@ -50,8 +50,9 @@ fun SegmentTextStyle.toScaledTextStyle(): TextStyle {
     val scale = LocalFontScale.current
     val base = toTextStyle()
     if (scale == 1f) return base
+    // fontSize already scales via the theme's scaled Typography (the base style comes from
+    // MaterialTheme.typography); only the reader's explicit lineHeight override needs scaling here.
     return base.copy(
-        fontSize = if (base.fontSize.isSpecified) base.fontSize * scale else base.fontSize,
         lineHeight = if (base.lineHeight.isSpecified) base.lineHeight * scale else base.lineHeight,
     )
 }
